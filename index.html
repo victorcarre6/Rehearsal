@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rehearsal - Révision Interactive</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #667236;
+            --primary-hover: #565e2d;
+            --bg-main: #ffffff;
+            --bg-card: #f9fafb;
+            --text-primary: #000000;
+            --text-secondary: #4b5563;
+            --border: #e5e7eb;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: var(--primary);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .subtitle {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: 0.25rem;
+        }
+
+        main {
+            flex: 1;
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .theme-selector {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        .theme-selector h2 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .theme-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .theme-btn {
+            background: white;
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 0.625rem 1.25rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .theme-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(102, 114, 54, 0.2);
+        }
+
+        .theme-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 2.5rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .question-counter {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .question {
+            font-size: 1.25rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .answer {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            padding: 1.5rem;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            white-space: pre-wrap;
+            display: none;
+            margin-bottom: 2rem;
+        }
+
+        .answer.visible {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.875rem 1.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            flex: 1;
+            min-width: 160px;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(102, 114, 54, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .no-questions {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            padding: 3rem 1rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border);
+        }
+
+        @media (max-width: 640px) {
+            main {
+                padding: 1rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .question {
+                font-size: 1.1rem;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            button {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Rehearsal</h1>
+        <div class="subtitle">Outil de révision interactive pour Data Science & Machine Learning</div>
+    </header>
+
+    <main>
+        <div class="theme-selector">
+            <h2>Sélectionner un thème</h2>
+            <div class="theme-buttons" id="themeButtons"></div>
+        </div>
+
+        <div class="card" id="questionCard">
+            <div class="question-counter" id="counter"></div>
+            <div class="question" id="question">Sélectionnez un thème pour commencer</div>
+            <div class="answer" id="answer"></div>
+
+            <div class="controls">
+                <button id="showAnswerBtn" style="display: none;">Afficher la réponse</button>
+                <button id="nextQuestionBtn" style="display: none;">Question suivante</button>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        Appuyez sur Ctrl+C dans le terminal pour quitter
+    </footer>
+
+    <script>
+        let questionsData = null;
+        let currentTheme = null;
+        let currentQuestionIndex = 0;
+        let questions = [];
+
+        const questionEl = document.getElementById('question');
+        const answerEl = document.getElementById('answer');
+        const counterEl = document.getElementById('counter');
+        const showAnswerBtn = document.getElementById('showAnswerBtn');
+        const nextQuestionBtn = document.getElementById('nextQuestionBtn');
+        const themeButtonsContainer = document.getElementById('themeButtons');
+
+        async function loadQuestions() {
+            try {
+                const response = await fetch('questions.json');
+                questionsData = await response.json();
+                renderThemeButtons();
+            } catch (error) {
+                console.error('Erreur lors du chargement des questions:', error);
+                questionEl.textContent = 'Erreur lors du chargement des questions';
+            }
+        }
+
+        function renderThemeButtons() {
+            themeButtonsContainer.innerHTML = '';
+            questionsData.themes.forEach(theme => {
+                const btn = document.createElement('button');
+                btn.className = 'theme-btn';
+                btn.textContent = `${theme.name} (${theme.questions.length})`;
+                btn.onclick = () => selectTheme(theme.id);
+                themeButtonsContainer.appendChild(btn);
+            });
+        }
+
+        function selectTheme(themeId) {
+            const theme = questionsData.themes.find(t => t.id === themeId);
+            if (!theme) return;
+
+            currentTheme = theme;
+            questions = theme.questions;
+            currentQuestionIndex = 0;
+
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            showAnswerBtn.style.display = 'block';
+            nextQuestionBtn.style.display = 'block';
+
+            displayQuestion();
+        }
+
+        function displayQuestion() {
+            if (questions.length === 0) {
+                questionEl.innerHTML = '<div class="no-questions">Aucune question disponible pour ce thème</div>';
+                return;
+            }
+
+            const currentQ = questions[currentQuestionIndex];
+            counterEl.textContent = `Question ${currentQuestionIndex + 1} sur ${questions.length}`;
+            questionEl.textContent = currentQ.question;
+            answerEl.textContent = currentQ.answer;
+            answerEl.classList.remove('visible');
+        }
+
+        showAnswerBtn.addEventListener('click', () => {
+            answerEl.classList.add('visible');
+        });
+
+        nextQuestionBtn.addEventListener('click', () => {
+            // Générer un index aléatoire différent de l'actuel
+            let newIndex;
+            if (questions.length > 1) {
+                do {
+                    newIndex = Math.floor(Math.random() * questions.length);
+                } while (newIndex === currentQuestionIndex);
+                currentQuestionIndex = newIndex;
+            }
+            displayQuestion();
+        });
+
+        loadQuestions();
+    </script>
+</body>
+</html>
