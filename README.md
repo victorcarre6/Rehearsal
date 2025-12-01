@@ -8,7 +8,7 @@ L'interface minimaliste vous aide à vous concentrer sur l'apprentissage sans di
 ## Installation et utilisation
 
 ```bash
-cd /home/vika/Code/rehearsal
+cd path/to/rehearsal
 ./install.sh
 
 rehearsal
