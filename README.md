@@ -1,4 +1,4 @@
-# Outil de révision interactive
+# Outil de révision interactif
 
 Application web locale qui vous permet de réviser des questions/réponses organisées par thème.
 L'interface minimaliste vous aide à vous concentrer sur l'apprentissage sans distraction.
