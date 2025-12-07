@@ -896,6 +896,112 @@
       ]
     },
     {
+      "id": "gnn",
+      "name": "Graph Neural Networks",
+      "questions": [
+        {
+          "id": 221,
+          "question": "What is a graph in the context of GNNs?",
+          "answer": "A **graph** G = (V, E) consists of:\n\n- **V (Vertices/Nodes)**: Entities (users, molecules, papers)\n- **E (Edges)**: Relationships between nodes\n\n**Types:**\n- **Undirected**: Friendship (symmetric)\n- **Directed**: Follow relationship (asymmetric)\n- **Weighted**: Edges have values (distance, similarity)\n\n**Representations:**\n- Adjacency matrix A: A[i,j] = 1 if edge exists\n- Edge list: [(0,1), (1,2), ...]"
+        },
+        {
+          "id": 222,
+          "question": "Why can't we use standard CNNs on graphs?",
+          "answer": "**Problems with graphs:**\n\n1. **No fixed structure**: Number of neighbors varies per node\n2. **No spatial locality**: No grid-like structure\n3. **Permutation invariance**: Node ordering shouldn't matter\n4. **Variable size**: Graphs have different numbers of nodes\n\n**CNNs assume:**\n- Fixed grid structure (images are always H×W)\n- Local connectivity (3×3 kernels)\n- Translation invariance\n\n**Solution:** GNNs use message passing instead of convolutions"
+        },
+        {
+          "id": 223,
+          "question": "What is the message passing framework in GNNs?",
+          "answer": "**Message passing** is the core mechanism of GNNs.\n\n**Three steps per layer:**\n\n1. **Message**: Each node creates messages for neighbors\n   `mᵢⱼ = MSG(hᵢ, hⱼ, eᵢⱼ)`\n\n2. **Aggregate**: Collect messages from neighbors\n   `aᵢ = AGG({mⱼᵢ : j ∈ N(i)})`\n\n3. **Update**: Compute new node representation\n   `hᵢ' = UPDATE(hᵢ, aᵢ)`\n\n**Common aggregators:** SUM, MEAN, MAX, attention-weighted"
+        },
+        {
+          "id": 224,
+          "question": "What are node features, edge features, and graph features?",
+          "answer": "**Node features (h):**\n- Properties of individual nodes\n- Examples: atom type, user age, word embedding\n- Shape: [num_nodes, node_feature_dim]\n\n**Edge features (e):**\n- Properties of relationships\n- Examples: bond type, friendship duration, edge weight\n- Shape: [num_edges, edge_feature_dim]\n\n**Graph features (u):**\n- Properties of entire graph\n- Examples: molecule properties, graph metadata\n- Computed via global pooling over nodes"
+        },
+        {
+          "id": 225,
+          "question": "What is a Graph Convolutional Network (GCN)?",
+          "answer": "**GCN** is a popular GNN architecture that performs spectral convolution on graphs.\n\n**Layer formula:**\n```\nH^(l+1) = σ(D̃^(-1/2) Ã D̃^(-1/2) H^(l) W^(l))\n```\n\nWhere:\n- Ã = A + I (adjacency + self-loops)\n- D̃ = degree matrix of Ã\n- W = learnable weight matrix\n- σ = activation function\n\n**Intuition:** Average neighbor features, then apply linear transformation\n\n**PyTorch Geometric:**\n```python\nfrom torch_geometric.nn import GCNConv\nconv = GCNConv(in_channels, out_channels)\n```"
+        },
+        {
+          "id": 226,
+          "question": "What is over-smoothing in GNNs?",
+          "answer": "**Over-smoothing**: As GNN layers increase, node representations become **too similar**.\n\n**Cause:**\n- Each layer aggregates from neighbors\n- After k layers, nodes receive info from k-hop neighbors\n- Deep GNNs → all nodes have similar representations\n\n**Consequences:**\n- Loss of node-specific information\n- Poor performance on node classification\n\n**Solutions:**\n- Limit depth (2-3 layers often enough)\n- Skip connections (like ResNet)\n- Jumping Knowledge Networks\n- Graph normalization techniques"
+        },
+        {
+          "id": 227,
+          "question": "What are the three main types of graph learning tasks?",
+          "answer": "**1. Node-level tasks:**\n- Predict properties of individual nodes\n- Example: Node classification (user interests)\n- Output: One prediction per node\n\n**2. Edge-level tasks:**\n- Predict properties of edges or edge existence\n- Example: Link prediction (friend recommendation)\n- Output: One prediction per edge (or node pair)\n\n**3. Graph-level tasks:**\n- Predict properties of entire graphs\n- Example: Molecular property prediction\n- Output: One prediction per graph\n- Requires **graph pooling** layer"
+        },
+        {
+          "id": 228,
+          "question": "What is graph pooling and why is it needed?",
+          "answer": "**Graph pooling** aggregates node representations into a single graph-level representation.\n\n**When needed:**\n- Graph classification tasks\n- Graph regression tasks\n\n**Common methods:**\n\n**Global pooling:**\n```python\n# Mean pooling\nh_graph = torch.mean(node_features, dim=0)\n\n# Max pooling\nh_graph = torch.max(node_features, dim=0)\n\n# Sum pooling\nh_graph = torch.sum(node_features, dim=0)\n```\n\n**Learnable pooling:**\n- DiffPool\n- TopKPooling\n- SAGPool"
+        },
+        {
+          "id": 229,
+          "question": "What is PyTorch Geometric (PyG)?",
+          "answer": "**PyTorch Geometric** is a library for deep learning on graphs.\n\n**Key features:**\n- Built on PyTorch\n- Efficient sparse tensor operations\n- Many pre-implemented GNN layers\n- Graph data structures and utilities\n- Common graph datasets\n\n**Basic usage:**\n```python\nimport torch\nfrom torch_geometric.data import Data\n\nedge_index = torch.tensor([[0, 1], [1, 2]], dtype=torch.long).t()\nx = torch.tensor([[1], [2], [3]], dtype=torch.float)\n\ndata = Data(x=x, edge_index=edge_index)\n```"
+        },
+        {
+          "id": 230,
+          "question": "What is the edge_index format in PyTorch Geometric?",
+          "answer": "**edge_index** is a [2, num_edges] tensor representing edges.\n\n**Format:**\n```python\nedge_index = torch.tensor([\n    [source_nodes],  # Row 0: source nodes\n    [target_nodes]   # Row 1: target nodes\n], dtype=torch.long)\n```\n\n**Example:**\n```python\n# Edges: 0→1, 1→2, 2→0\nedge_index = torch.tensor([\n    [0, 1, 2],  # Source\n    [1, 2, 0]   # Target\n], dtype=torch.long)\n```\n\n**For undirected graphs:** Include both directions:\n```python\nedge_index = torch.tensor([\n    [0, 1, 1, 2, 2, 0],\n    [1, 0, 2, 1, 0, 2]\n])\n```"
+        },
+        {
+          "id": 231,
+          "question": "What is GraphSAGE and how does it differ from GCN?",
+          "answer": "**GraphSAGE (SAmple and aggreGatE)** samples a fixed number of neighbors instead of using all.\n\n**Key differences from GCN:**\n\n**GCN:**\n- Uses ALL neighbors\n- Weighted by degree normalization\n- Can be slow on large graphs\n\n**GraphSAGE:**\n- **Samples** K neighbors (e.g., K=10)\n- Scalable to huge graphs\n- Multiple aggregators: MEAN, LSTM, Pool\n\n```python\nfrom torch_geometric.nn import SAGEConv\n\nconv = SAGEConv(in_channels, out_channels)\n```\n\n**Benefits:** Inductive learning (can generalize to unseen nodes)"
+        },
+        {
+          "id": 232,
+          "question": "What is Graph Attention Network (GAT)?",
+          "answer": "**GAT** uses attention mechanisms to weight neighbor contributions.\n\n**Key idea:**\nInstead of averaging neighbors equally, learn which neighbors are more important.\n\n**Attention weights:**\n```\nαᵢⱼ = softmax(LeakyReLU(a^T [Whᵢ || Whⱼ]))\n```\n\n**Update:**\n```\nhᵢ' = σ(Σⱼ αᵢⱼ Whⱼ)\n```\n\n**Advantages:**\n- Automatically learns neighbor importance\n- Different attention weights per neighbor\n- Multi-head attention for robustness\n\n```python\nfrom torch_geometric.nn import GATConv\n\nconv = GATConv(in_channels, out_channels, heads=8)\n```"
+        },
+        {
+          "id": 233,
+          "question": "What is the difference between transductive and inductive learning in GNNs?",
+          "answer": "**Transductive learning:**\n- Training and test nodes are from the **same graph**\n- All nodes (train/val/test) visible during training\n- Only labels are hidden for test nodes\n- Example: Semi-supervised node classification\n\n**Inductive learning:**\n- Model must generalize to **completely new graphs**\n- Test graphs unseen during training\n- More challenging and realistic\n- Example: Molecular property prediction\n\n**Models:**\n- GCN: Primarily transductive\n- GraphSAGE: Designed for inductive\n- GAT: Can do both"
+        },
+        {
+          "id": 234,
+          "question": "What is a heterogeneous graph?",
+          "answer": "A **heterogeneous graph** has multiple types of nodes and/or edges.\n\n**Example: Academic network**\n- Node types: Papers, Authors, Venues\n- Edge types: writes (Author→Paper), published_at (Paper→Venue), cites (Paper→Paper)\n\n**Contrast with homogeneous:**\n- Homogeneous: Single node type, single edge type\n- Heterogeneous: Multiple types\n\n**Handling:**\n```python\nfrom torch_geometric.nn import HeteroConv\n\n# Different message passing per edge type\nconv = HeteroConv({\n    ('paper', 'cites', 'paper'): GCNConv(...),\n    ('author', 'writes', 'paper'): SAGEConv(...),\n})\n```"
+        },
+        {
+          "id": 235,
+          "question": "What is link prediction in GNNs and how do you implement it?",
+          "answer": "**Link prediction**: Predict whether an edge exists between two nodes.\n\n**Approach:**\n\n1. **Train GNN** to learn node embeddings\n2. **Compute edge scores** from node pairs:\n   - Dot product: `score = hᵢ · hⱼ`\n   - Concatenation + MLP: `score = MLP([hᵢ || hⱼ])`\n   - Distance-based: `score = -||hᵢ - hⱼ||`\n\n3. **Negative sampling**: Sample non-edges as negative examples\n\n```python\n# Get embeddings\nh = gnn(x, edge_index)\n\n# Edge score\nscore = (h[edge_index[0]] * h[edge_index[1]]).sum(dim=-1)\n\n# Loss\nloss = criterion(score, edge_labels)\n```"
+        },
+        {
+          "id": 236,
+          "question": "What is the receptive field of a GNN?",
+          "answer": "The **receptive field** is the set of nodes that can influence a target node's representation.\n\n**Depth relationship:**\n- 1-layer GNN: 1-hop neighbors\n- 2-layer GNN: 2-hop neighbors\n- k-layer GNN: k-hop neighbors\n\n**Example:**\n```\nGraph: 0 -- 1 -- 2 -- 3\n\nNode 3's receptive field:\n- 1 layer: {2}\n- 2 layers: {1, 2}\n- 3 layers: {0, 1, 2}\n```\n\n**Trade-off:**\n- Deeper → larger receptive field → more context\n- But: over-smoothing, computational cost"
+        },
+        {
+          "id": 237,
+          "question": "How do you implement a GNN in PyTorch Geometric?",
+          "answer": "```python\nimport torch\nimport torch.nn.functional as F\nfrom torch_geometric.nn import GCNConv\n\nclass GNN(torch.nn.Module):\n    def __init__(self, in_channels, hidden_channels, out_channels):\n        super().__init__()\n        self.conv1 = GCNConv(in_channels, hidden_channels)\n        self.conv2 = GCNConv(hidden_channels, out_channels)\n    \n    def forward(self, x, edge_index):\n        # First layer\n        x = self.conv1(x, edge_index)\n        x = F.relu(x)\n        x = F.dropout(x, p=0.5, training=self.training)\n        \n        # Second layer\n        x = self.conv2(x, edge_index)\n        return x\n\nmodel = GNN(num_features, 64, num_classes)\n```"
+        },
+        {
+          "id": 238,
+          "question": "How do you handle batching in PyTorch Geometric?",
+          "answer": "PyG creates **disjoint unions** of graphs for batching.\n\n**Using DataLoader:**\n```python\nfrom torch_geometric.loader import DataLoader\n\ndataset = [data1, data2, data3, ...]  # List of Data objects\nloader = DataLoader(dataset, batch_size=32, shuffle=True)\n\nfor batch in loader:\n    # batch.x: all node features concatenated\n    # batch.edge_index: all edges (with offset indices)\n    # batch.batch: assigns each node to its graph\n    out = model(batch.x, batch.edge_index)\n```\n\n**batch tensor:**\n```python\nbatch.batch = [0, 0, 0, 1, 1, 2, 2, 2, 2]\n# Nodes 0-2 from graph 0\n# Nodes 3-4 from graph 1\n# Nodes 5-8 from graph 2\n```"
+        },
+        {
+          "id": 239,
+          "question": "What is global_add_pool and when do you use it?",
+          "answer": "**global_add_pool** aggregates node features to graph-level by summing.\n\n```python\nfrom torch_geometric.nn import global_add_pool\n\n# Node embeddings: [num_nodes, hidden_dim]\nnode_embeddings = gnn(x, edge_index)\n\n# Graph embedding: [batch_size, hidden_dim]\ngraph_embeddings = global_add_pool(node_embeddings, batch)\n```\n\n**When to use:**\n- Graph classification\n- Graph regression\n- Any graph-level prediction task\n\n**Alternatives:**\n- `global_mean_pool`: Average instead of sum\n- `global_max_pool`: Max instead of sum\n- `global_attention_pool`: Learnable attention weights"
+        },
+        {
+          "id": 240,
+          "question": "What are common GNN benchmark datasets?",
+          "answer": "**Node classification:**\n- **Cora, CiteSeer, PubMed**: Citation networks\n- **Reddit, OGB-Products**: Social/product graphs\n\n**Graph classification:**\n- **MUTAG, PROTEINS**: Molecular graphs\n- **IMDB-BINARY**: Social networks\n- **ZINC**: Molecular property prediction\n\n**Link prediction:**\n- **OGB-Citation2**: Citation prediction\n- **Cora, CiteSeer**: Citation link prediction\n\n**Loading in PyG:**\n```python\nfrom torch_geometric.datasets import Planetoid\n\ndataset = Planetoid(root='/tmp/Cora', name='Cora')\ndata = dataset[0]  # Single graph with train/val/test masks\n```"
+        }
+      ]
+    },
+    {
       "id": "mlops",
       "name": "MLOps",
       "questions": [
