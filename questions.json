@@ -1004,6 +1004,56 @@
       "id": 250,
       "question": "What is the difference between node2vec and GNNs?",
       "answer": "**node2vec:**\n- **Unsupervised** graph embedding method\n- Uses random walks + Skip-gram\n- Produces fixed embeddings (transductive)\n- No learnable parameters after training\n- Cannot generalize to new nodes\n\n**GNNs:**\n- **Supervised** (or semi-supervised) learning\n- Uses message passing\n- Generates embeddings via neural network\n- Inductive: can embed new nodes\n- Parameters learned end-to-end for task\n\n**When to use node2vec:**\n- No labels available\n- Need pre-trained embeddings\n- Simple baseline\n\n**When to use GNNs:**\n- Have labels for downstream task\n- Need to generalize to new graphs\n- Want end-to-end learning"
+    },
+    {
+      "id": 251,
+      "question": "What is the difference between WHERE and HAVING in SQL?",
+      "answer": "**WHERE:**\n- Filters rows BEFORE grouping\n- Cannot use aggregate functions\n- Acts on individual rows\n\n```sql\nSELECT * FROM employees WHERE salary > 50000;\n```\n\n**HAVING:**\n- Filters groups AFTER GROUP BY\n- Can use aggregate functions\n- Acts on grouped results\n\n```sql\nSELECT dept, AVG(salary)\nFROM employees\nGROUP BY dept\nHAVING AVG(salary) > 60000;\n```"
+    },
+    {
+      "id": 252,
+      "question": "What is a SQL subquery and when would you use it?",
+      "answer": "A **subquery** is a query nested inside another query.\n\n**Types:**\n\n**Scalar subquery (returns single value):**\n```sql\nSELECT name FROM employees\nWHERE salary > (SELECT AVG(salary) FROM employees);\n```\n\n**Row subquery:**\n```sql\nSELECT * FROM employees\nWHERE (dept, salary) IN (SELECT dept, MAX(salary) FROM employees GROUP BY dept);\n```\n\n**Use cases:**\n- When you need intermediate calculations\n- To filter based on aggregated data\n- As alternative to JOINs (sometimes less efficient)"
+    },
+    {
+      "id": 253,
+      "question": "What is the difference between UNION and UNION ALL?",
+      "answer": "**UNION:**\n- Combines results and removes duplicates\n- Slower (requires sorting)\n- Returns distinct rows\n\n**UNION ALL:**\n- Combines all results including duplicates\n- Faster (no deduplication)\n- Returns all rows\n\n```sql\n-- UNION: returns [1, 2, 3]\nSELECT 1 UNION SELECT 2 UNION SELECT 1;\n\n-- UNION ALL: returns [1, 2, 1]\nSELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 1;\n```\n\n**Rule:** Use UNION ALL when you know there are no duplicates or duplicates don't matter."
+    },
+    {
+      "id": 254,
+      "question": "What is a Common Table Expression (CTE) in SQL?",
+      "answer": "A **CTE** (WITH clause) creates a temporary named result set.\n\n```sql\nWITH high_earners AS (\n    SELECT dept, AVG(salary) as avg_sal\n    FROM employees\n    GROUP BY dept\n    HAVING AVG(salary) > 70000\n)\nSELECT e.name, e.dept, he.avg_sal\nFROM employees e\nJOIN high_earners he ON e.dept = he.dept;\n```\n\n**Advantages:**\n- Improves readability\n- Can be referenced multiple times\n- Enables recursive queries\n- Better than subqueries for complex logic\n\n**Recursive CTE:** Can reference itself (useful for hierarchies, graphs)"
+    },
+    {
+      "id": 255,
+      "question": "What is the difference between DELETE, TRUNCATE, and DROP?",
+      "answer": "**DELETE:**\n- Removes rows based on condition\n- Can be rolled back (transaction)\n- Triggers fire\n- Slower (row-by-row)\n```sql\nDELETE FROM table WHERE condition;\n```\n\n**TRUNCATE:**\n- Removes ALL rows\n- Cannot be rolled back (in most DBs)\n- No triggers\n- Fast (deallocates pages)\n```sql\nTRUNCATE TABLE table_name;\n```\n\n**DROP:**\n- Removes entire table structure + data\n- Cannot be rolled back\n```sql\nDROP TABLE table_name;\n```"
+    },
+    {
+      "id": 256,
+      "question": "What is data imputation and what are common strategies?",
+      "answer": "**Data imputation**: Filling missing values in a dataset.\n\n**Common strategies:**\n\n**1. Statistical:**\n- Mean/median/mode imputation\n- Forward fill / backward fill (time series)\n\n**2. Model-based:**\n- KNN imputation: use K nearest neighbors' average\n- Regression imputation: predict missing values\n- MICE (Multiple Imputation by Chained Equations)\n\n**3. Domain-specific:**\n- Use business logic\n- Create \"missing\" category for categorical\n\n**4. Deletion:**\n- Remove rows (if few)\n- Remove columns (if too many missing)\n\n**Best practice:** Analyze missingness pattern first (MCAR, MAR, MNAR)"
+    },
+    {
+      "id": 257,
+      "question": "What is feature engineering and why is it important?",
+      "answer": "**Feature engineering**: Creating new features or transforming existing ones to improve model performance.\n\n**Techniques:**\n\n**1. Transformation:**\n- Log transform (for skewed data)\n- Polynomial features (x²,  x³)\n- Binning/discretization\n\n**2. Extraction:**\n- Date → day_of_week, month, is_weekend\n- Text → length, word count, sentiment\n\n**3. Encoding:**\n- One-hot encoding (categorical)\n- Target encoding\n- Ordinal encoding\n\n**4. Interaction:**\n- Feature crosses (A × B)\n- Ratios (A / B)\n\n**Why important:**\n- Often more impactful than algorithm choice\n- Captures domain knowledge\n- Can make non-linear relationships linear"
+    },
+    {
+      "id": 258,
+      "question": "What is the curse of dimensionality?",
+      "answer": "As the number of features increases, the **volume of the feature space** grows exponentially, making data sparse.\n\n**Problems:**\n\n1. **Distance becomes meaningless**: All points are equidistant in high dimensions\n2. **Overfitting**: More features than samples\n3. **Computational cost**: Exponential growth\n4. **Data requirements**: Need exponentially more data\n\n**Example:**\n- 10 points cover [0,1]: spacing = 0.1\n- 10 points cover [0,1]²: spacing = 0.33\n- 10 points cover [0,1]¹⁰: spacing = 0.79\n\n**Solutions:**\n- Feature selection\n- Dimensionality reduction (PCA, t-SNE)\n- Regularization"
+    },
+    {
+      "id": 259,
+      "question": "What is the difference between normalization and standardization?",
+      "answer": "**Normalization (Min-Max Scaling):**\n- Scales to [0, 1] range\n- Formula: (x - min) / (max - min)\n- Sensitive to outliers\n\n```python\nfrom sklearn.preprocessing import MinMaxScaler\nscaler = MinMaxScaler()\nX_norm = scaler.fit_transform(X)\n```\n\n**Standardization (Z-score):**\n- Scales to mean=0, std=1\n- Formula: (x - μ) / σ\n- Less sensitive to outliers\n\n```python\nfrom sklearn.preprocessing import StandardScaler\nscaler = StandardScaler()\nX_std = scaler.fit_transform(X)\n```\n\n**When to use:**\n- Normalization: bounded features (neural networks)\n- Standardization: algorithms assuming normal distribution (SVM, KNN)"
+    },
+    {
+      "id": 260,
+      "question": "What is one-hot encoding and when should you use it?",
+      "answer": "**One-hot encoding** converts categorical variables into binary vectors.\n\n**Example:**\nColor: [Red, Green, Blue] →\n```\nRed   → [1, 0, 0]\nGreen → [0, 1, 0]\nBlue  → [0, 0, 1]\n```\n\n**Implementation:**\n```python\nimport pandas as pd\npd.get_dummies(df['color'], drop_first=False)\n\nfrom sklearn.preprocessing import OneHotEncoder\nencoder = OneHotEncoder(sparse=False)\nencoded = encoder.fit_transform(df[['color']])\n```\n\n**When to use:**\n- Nominal categorical variables (no order)\n- Tree-based models handle it well\n\n**Avoid when:**\n- High cardinality (too many unique values)\n- Ordinal variables (use ordinal encoding instead)\n\n**Note:** drop_first=True to avoid multicollinearity"
     }
   ],
   "themes": [
@@ -1021,7 +1071,8 @@
         94,
         95,
         17,
-        18
+        18,
+        258
       ]
     },
     {
@@ -1077,7 +1128,12 @@
         101,
         102,
         103,
-        104
+        104,
+        256,
+        257,
+        258,
+        259,
+        260
       ]
     },
     {
@@ -1090,7 +1146,12 @@
         108,
         109,
         110,
-        111
+        111,
+        251,
+        252,
+        253,
+        254,
+        255
       ]
     },
     {
@@ -1127,7 +1188,12 @@
         17,
         18,
         19,
-        4
+        4,
+        256,
+        257,
+        258,
+        259,
+        260
       ]
     },
     {
@@ -1204,7 +1270,8 @@
         124,
         17,
         18,
-        19
+        19,
+        259
       ]
     },
     {

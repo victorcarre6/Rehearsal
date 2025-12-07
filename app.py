@@ -187,7 +187,7 @@ for idx, theme in enumerate(st.session_state.themes):
     col = cols[idx % 3]
     with col:
         if st.button(
-            f"{theme['name']}\n({len(theme['questions'])} questions)",
+            f"{theme['name']}\n({len(theme['questions'])})",
             key=f"theme_{theme['id']}",
             use_container_width=True
         ):
