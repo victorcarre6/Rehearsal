@@ -232,11 +232,26 @@
 </head>
 <body>
     <header>
-        <h1>Rehearsal</h1>
-        <div class="subtitle">Outil de révision interactive pour Data Science & Machine Learning</div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1>Rehearsal</h1>
+                <div class="subtitle">Outil de révision interactive pour Data Science & Machine Learning</div>
+            </div>
+            <button id="configBtn" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; font-size: 0.9rem; border: 1px solid rgba(255,255,255,0.3);">
+                ⚙️ Config
+            </button>
+        </div>
     </header>
 
     <main>
+        <div class="theme-selector">
+            <h2>Filtrer par domaine / technologie</h2>
+            <div id="tagFilters" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem;"></div>
+            <button id="clearFiltersBtn" style="display: none; padding: 0.5rem 1rem; font-size: 0.85rem; background: #6b7280;">
+                Effacer les filtres
+            </button>
+        </div>
+
         <div class="theme-selector">
             <h2>Sélectionner un thème</h2>
             <div class="theme-buttons" id="themeButtons"></div>
@@ -249,10 +264,33 @@
 
             <div class="controls">
                 <button id="showAnswerBtn" style="display: none;">Afficher la réponse</button>
+                <button id="reexplainBtn" style="display: none; background: #059669;">Réexpliquer</button>
                 <button id="nextQuestionBtn" style="display: none;">Question suivante</button>
             </div>
         </div>
     </main>
+
+    <!-- Modal de configuration -->
+    <div id="configModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 2rem; border-radius: 8px; max-width: 500px; width: 90%;">
+            <h2 style="margin-bottom: 1.5rem; color: var(--text-primary);">Configuration</h2>
+
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-weight: 500;">
+                Clé API OpenAI
+            </label>
+            <input type="password" id="apiKeyInput" placeholder="sk-..."
+                style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95rem; margin-bottom: 1rem;">
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+                Votre clé API est stockée localement dans votre navigateur et n'est jamais envoyée ailleurs qu'à OpenAI.
+            </p>
+
+
+            <div style="display: flex; gap: 1rem;">
+                <button id="saveConfigBtn" style="flex: 1;">Enregistrer</button>
+                <button id="closeConfigBtn" style="flex: 1; background: #6b7280;">Annuler</button>
+            </div>
+        </div>
+    </div>
 
     <footer>
         Appuyez sur Ctrl+C dans le terminal pour quitter
@@ -263,51 +301,137 @@
         let currentTheme = null;
         let currentQuestionIndex = 0;
         let questions = [];
+        let selectedTags = new Set();
+        let apiKey = localStorage.getItem('openai_api_key') || '';
 
         const questionEl = document.getElementById('question');
         const answerEl = document.getElementById('answer');
         const counterEl = document.getElementById('counter');
         const showAnswerBtn = document.getElementById('showAnswerBtn');
         const nextQuestionBtn = document.getElementById('nextQuestionBtn');
+        const reexplainBtn = document.getElementById('reexplainBtn');
         const themeButtonsContainer = document.getElementById('themeButtons');
+        const tagFiltersContainer = document.getElementById('tagFilters');
+        const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+        const configBtn = document.getElementById('configBtn');
+        const configModal = document.getElementById('configModal');
+        const apiKeyInput = document.getElementById('apiKeyInput');
+        const saveConfigBtn = document.getElementById('saveConfigBtn');
+        const closeConfigBtn = document.getElementById('closeConfigBtn');
+
+        // Définition des tags disponibles avec leurs mots-clés associés
+        const availableTags = {
+            'Data Science': ['data science', 'data scientist', 'analysis', 'analytics'],
+            'Machine Learning': ['machine learning', 'ml', 'supervised', 'unsupervised', 'classification', 'regression', 'clustering'],
+            'Deep Learning': ['deep learning', 'neural network', 'cnn', 'rnn', 'lstm', 'backpropagation', 'gradient'],
+            'Statistics': ['statistics', 'statistical', 'probability', 'distribution', 'hypothesis', 'p-value', 'variance', 'bias'],
+            'Python': ['python', 'pandas', 'numpy'],
+            'NLP': ['nlp', 'natural language', 'text', 'tf-idf', 'language processing'],
+            'Computer Vision': ['cnn', 'convolutional', 'image', 'vision', 'pooling'],
+            'SQL': ['sql', 'database', 'query'],
+            'Algorithms': ['algorithm', 'svm', 'decision tree', 'naive bayes', 'random forest', 'k-nn']
+        };
+
+        // Initialiser les filtres de tags
+        function initTagFilters() {
+            tagFiltersContainer.innerHTML = '';
+            Object.keys(availableTags).forEach(tagName => {
+                const tagBtn = document.createElement('button');
+                tagBtn.className = 'theme-btn';
+                tagBtn.textContent = tagName;
+                tagBtn.style.fontSize = '0.85rem';
+                tagBtn.style.padding = '0.5rem 1rem';
+                tagBtn.onclick = () => toggleTag(tagName, tagBtn);
+                tagFiltersContainer.appendChild(tagBtn);
+            });
+        }
+
+        function toggleTag(tagName, btn) {
+            if (selectedTags.has(tagName)) {
+                selectedTags.delete(tagName);
+                btn.classList.remove('active');
+            } else {
+                selectedTags.add(tagName);
+                btn.classList.add('active');
+            }
+
+            clearFiltersBtn.style.display = selectedTags.size > 0 ? 'block' : 'none';
+            filterQuestionsByTags();
+        }
+
+        clearFiltersBtn.addEventListener('click', () => {
+            selectedTags.clear();
+            document.querySelectorAll('#tagFilters .theme-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            clearFiltersBtn.style.display = 'none';
+            filterQuestionsByTags();
+        });
+
+        function questionMatchesTags(question) {
+            if (selectedTags.size === 0) return true;
+
+            const qText = (question.question + ' ' + question.answer).toLowerCase();
+
+            for (const tagName of selectedTags) {
+                const keywords = availableTags[tagName];
+                const matches = keywords.some(keyword => qText.includes(keyword.toLowerCase()));
+                if (matches) return true;
+            }
+            return false;
+        }
+
+        function filterQuestionsByTags() {
+            if (!questionsData) return;
+
+            const filteredThemes = questionsData.themes.map(theme => ({
+                ...theme,
+                questions: theme.questions.filter(q => questionMatchesTags(q))
+            })).filter(t => t.questions.length > 0);
+
+            renderThemeButtons(filteredThemes);
+        }
 
         async function loadQuestions() {
             try {
                 const response = await fetch('questions.json');
                 questionsData = await response.json();
-                renderThemeButtons();
+                initTagFilters();
+                renderThemeButtons(questionsData.themes);
             } catch (error) {
                 console.error('Erreur lors du chargement des questions:', error);
                 questionEl.textContent = 'Erreur lors du chargement des questions';
             }
         }
 
-        function renderThemeButtons() {
+        function renderThemeButtons(themes) {
             themeButtonsContainer.innerHTML = '';
-            questionsData.themes.forEach(theme => {
+            themes.forEach(theme => {
                 const btn = document.createElement('button');
                 btn.className = 'theme-btn';
                 btn.textContent = `${theme.name} (${theme.questions.length})`;
-                btn.onclick = () => selectTheme(theme.id);
+                btn.onclick = () => selectTheme(theme.id, themes);
                 themeButtonsContainer.appendChild(btn);
             });
         }
 
-        function selectTheme(themeId) {
-            const theme = questionsData.themes.find(t => t.id === themeId);
+        function selectTheme(themeId, themes) {
+            const themesToSearch = themes || questionsData.themes;
+            const theme = themesToSearch.find(t => t.id === themeId);
             if (!theme) return;
 
             currentTheme = theme;
             questions = theme.questions;
             currentQuestionIndex = 0;
 
-            document.querySelectorAll('.theme-btn').forEach(btn => {
+            document.querySelectorAll('#themeButtons .theme-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             event.target.classList.add('active');
 
             showAnswerBtn.style.display = 'block';
             nextQuestionBtn.style.display = 'block';
+            reexplainBtn.style.display = apiKey ? 'block' : 'none';
 
             displayQuestion();
         }
@@ -325,9 +449,94 @@
             answerEl.classList.remove('visible');
         }
 
+        // Configuration Modal
+        configBtn.addEventListener('click', () => {
+            apiKeyInput.value = apiKey;
+            configModal.style.display = 'flex';
+        });
+
+        closeConfigBtn.addEventListener('click', () => {
+            configModal.style.display = 'none';
+        });
+
+        saveConfigBtn.addEventListener('click', () => {
+            apiKey = apiKeyInput.value;
+            localStorage.setItem('openai_api_key', apiKey);
+            configModal.style.display = 'none';
+
+            // Afficher/masquer le bouton réexplique selon la clé API
+            reexplainBtn.style.display = apiKey && questions.length > 0 ? 'block' : 'none';
+        });
+
+        // Fonction Réexplique avec OpenAI
+        async function reexplainAnswer() {
+            if (!apiKey) {
+                alert('Veuillez configurer votre clé API OpenAI dans les paramètres.');
+                return;
+            }
+
+            const currentQ = questions[currentQuestionIndex];
+            const originalText = reexplainBtn.textContent;
+            reexplainBtn.textContent = '⏳ Réexplication...';
+            reexplainBtn.disabled = true;
+
+            try {
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: 'gpt-4o-mini',
+                        messages: [
+                            {
+                                role: 'system',
+                                content: 'Tu es un assistant pédagogique. Ta tâche est de réexpliquer des concepts techniques de manière simple et claire, en utilisant des analogies si nécessaire.'
+                            },
+                            {
+                                role: 'user',
+                                content: `Voici une question/réponse technique. Réexplique la réponse de manière plus simple et accessible :\n\nQuestion: ${currentQ.question}\n\nRéponse: ${currentQ.answer}`
+                            }
+                        ],
+                        temperature: 0.7,
+                        max_tokens: 500
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error?.message || 'Erreur API');
+                }
+
+                const data = await response.json();
+                const simplifiedAnswer = data.choices[0].message.content;
+
+                // Afficher la réponse simplifiée
+                answerEl.innerHTML = `
+                    <div style="background: #fef3c7; padding: 1rem; border-radius: 6px; margin-bottom: 1rem; border-left: 4px solid #f59e0b;">
+                        <strong>🤖 Version simplifiée :</strong><br><br>
+                        ${simplifiedAnswer}
+                    </div>
+                    <div style="color: #6b7280; font-size: 0.9rem; margin-bottom: 0.5rem;"><strong>Version originale :</strong></div>
+                    ${currentQ.answer}
+                `;
+                answerEl.classList.add('visible');
+
+            } catch (error) {
+                alert('Erreur lors de la réexplication : ' + error.message);
+                console.error('Erreur:', error);
+            } finally {
+                reexplainBtn.textContent = originalText;
+                reexplainBtn.disabled = false;
+            }
+        }
+
         showAnswerBtn.addEventListener('click', () => {
             answerEl.classList.add('visible');
         });
+
+        reexplainBtn.addEventListener('click', reexplainAnswer);
 
         nextQuestionBtn.addEventListener('click', () => {
             // Générer un index aléatoire différent de l'actuel
