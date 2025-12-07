@@ -5,8 +5,8 @@ from pathlib import Path
 
 # Configuration de la page
 st.set_page_config(
-    page_title="Rehearsal - Révision Interactive",
-    page_icon="📚",
+    page_title="Rehearsal",
+    page_icon="",
     layout="wide"
 )
 
@@ -116,6 +116,30 @@ st.markdown("""
         padding-top: 2rem;
         max-width: 1000px;
     }
+        /* Fond principal de l'application */
+    .stApp {
+        background-color: #F2F0E3 !important;
+    }
+
+    /* Fond de la zone principale */
+    [data-testid="stAppViewContainer"] {
+        background-color: #F2F0E3 !important;
+    }
+
+    /* Fond du bloc central */
+    .block-container {
+        background-color: #F2F0E3 !important;
+    }
+
+    /* Fond de la sidebar */
+    [data-testid="stSidebar"] {
+        background-color: #F2F0E3 !important;
+    }
+
+    /* Rendre toutes les surfaces non-card blanches */
+    .stMarkdown, .stText, .stSelectbox, .stMultiSelect, .stButton, .stNumberInput {
+        background-color: #F2F0E3 !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -187,13 +211,12 @@ if 'current_questions' not in st.session_state:
 # Header
 st.markdown("""
 <div class="main-header">
-    <h1>📚 Rehearsal</h1>
-    <p>Outil de révision interactive pour Data Science & Machine Learning</p>
+    <h1>Rehearsal</h1>
 </div>
 """, unsafe_allow_html=True)
 
 # Section des filtres
-st.markdown("### 🏷️ Filtrer par domaine / technologie")
+st.markdown("### Filtrer par domaine")
 selected_tags = st.multiselect(
     "Sélectionnez un ou plusieurs domaines",
     options=list(AVAILABLE_TAGS.keys()),
@@ -208,7 +231,7 @@ filtered_themes = filter_questions_by_tags(
 )
 
 # Section de sélection du thème
-st.markdown("### 📖 Sélectionner un thème")
+st.markdown("###Sélectionner un thème")
 
 # Créer des colonnes pour les boutons de thème
 cols = st.columns(3)
@@ -252,11 +275,11 @@ if st.session_state.current_theme:
         col1, col2 = st.columns([1, 1])
 
         with col1:
-            if st.button("👁️ Afficher la réponse", use_container_width=True):
+            if st.button("Afficher la réponse", use_container_width=True):
                 st.session_state.show_answer = True
 
         with col2:
-            if st.button("➡️ Question suivante", use_container_width=True, key="next_question"):
+            if st.button("Question suivante", use_container_width=True, key="next_question"):
                 # Sélectionner une question aléatoire différente de l'actuelle
                 if len(questions) > 1:
                     new_index = st.session_state.current_question_index
@@ -275,11 +298,11 @@ if st.session_state.current_theme:
                 unsafe_allow_html=True
             )
 else:
-    st.info("👆 Sélectionnez un thème pour commencer la révision")
+    st.info("Sélectionnez un thème pour commencer")
 
 # Footer
 st.markdown("---")
 st.markdown(
-    '<p style="text-align: center; color: #6b7280; font-size: 0.9rem;">Rehearsal - Révision Interactive</p>',
+    '<p style="text-align: center; color: #6b7280; font-size: 0.9rem;">Rehearsal</p>',
     unsafe_allow_html=True
 )
