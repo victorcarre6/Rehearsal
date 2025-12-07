@@ -790,6 +790,112 @@
       ]
     },
     {
+      "id": "pytorch",
+      "name": "PyTorch",
+      "questions": [
+        {
+          "id": 201,
+          "question": "What is a PyTorch tensor?",
+          "answer": "A **tensor** is a multi-dimensional array, similar to NumPy arrays but with GPU acceleration support.\n\n**Key features:**\n- Can run on GPU for faster computation\n- Automatic differentiation support (autograd)\n- Building block for all PyTorch operations\n\n**Creation:**\n```python\nimport torch\nx = torch.tensor([[1, 2], [3, 4]])\n```"
+        },
+        {
+          "id": 202,
+          "question": "How do you move a tensor to GPU in PyTorch?",
+          "answer": "**Method 1: Using .to()**\n```python\ndevice = torch.device('cuda' if torch.cuda.is_available() else 'cpu')\ntensor_gpu = tensor.to(device)\n```\n\n**Method 2: Using .cuda()**\n```python\ntensor_gpu = tensor.cuda()\n```\n\n**Best practice:** Always check availability first to avoid errors on CPU-only machines."
+        },
+        {
+          "id": 203,
+          "question": "What is the difference between torch.tensor() and torch.Tensor()?",
+          "answer": "**torch.tensor()** (lowercase):\n- Factory function\n- Infers dtype from data\n- Recommended approach\n- More flexible\n\n**torch.Tensor()** (uppercase):\n- Constructor for default tensor type\n- Always creates FloatTensor\n- Legacy approach\n\n```python\ntorch.tensor([1, 2])  # IntTensor\ntorch.Tensor([1, 2])  # FloatTensor\n```"
+        },
+        {
+          "id": 204,
+          "question": "What is autograd in PyTorch?",
+          "answer": "**Autograd** is PyTorch's automatic differentiation engine.\n\n**How it works:**\n- Tracks all operations on tensors with `requires_grad=True`\n- Builds a computational graph dynamically\n- Computes gradients automatically via backpropagation\n\n```python\nx = torch.tensor([2.0], requires_grad=True)\ny = x ** 2\ny.backward()  # Compute dy/dx\nprint(x.grad)  # tensor([4.])\n```"
+        },
+        {
+          "id": 205,
+          "question": "What is the purpose of requires_grad in PyTorch?",
+          "answer": "**requires_grad=True** tells PyTorch to track operations for gradient computation.\n\n**When to use:**\n- Set to True for model parameters (weights, biases)\n- Set to False for data tensors\n- Automatically True for `nn.Parameter`\n\n**Performance:**\n- Tracking gradients uses memory\n- Disable during inference: `with torch.no_grad():`"
+        },
+        {
+          "id": 206,
+          "question": "How do you define a simple neural network in PyTorch?",
+          "answer": "```python\nimport torch.nn as nn\n\nclass SimpleNet(nn.Module):\n    def __init__(self):\n        super(SimpleNet, self).__init__()\n        self.fc1 = nn.Linear(784, 128)\n        self.fc2 = nn.Linear(128, 10)\n    \n    def forward(self, x):\n        x = torch.relu(self.fc1(x))\n        x = self.fc2(x)\n        return x\n\nmodel = SimpleNet()\n```\n\n**Key components:**\n- Inherit from `nn.Module`\n- Define layers in `__init__`\n- Define forward pass in `forward`"
+        },
+        {
+          "id": 207,
+          "question": "What is the difference between nn.Sequential and nn.Module?",
+          "answer": "**nn.Sequential:**\n- Quick way to stack layers linearly\n- No need to define forward()\n- Limited to sequential architectures\n\n```python\nmodel = nn.Sequential(\n    nn.Linear(784, 128),\n    nn.ReLU(),\n    nn.Linear(128, 10)\n)\n```\n\n**nn.Module:**\n- Full control over architecture\n- Can implement complex forward logic\n- Required for skip connections, branching, etc."
+        },
+        {
+          "id": 208,
+          "question": "How do you create a DataLoader in PyTorch?",
+          "answer": "```python\nfrom torch.utils.data import DataLoader, TensorDataset\n\n# Create dataset\ndataset = TensorDataset(X_train, y_train)\n\n# Create dataloader\ntrain_loader = DataLoader(\n    dataset,\n    batch_size=32,\n    shuffle=True,\n    num_workers=4\n)\n```\n\n**Parameters:**\n- `batch_size`: Samples per batch\n- `shuffle`: Randomize order\n- `num_workers`: Parallel data loading"
+        },
+        {
+          "id": 209,
+          "question": "What are the typical steps in a PyTorch training loop?",
+          "answer": "```python\nfor epoch in range(num_epochs):\n    for batch_X, batch_y in train_loader:\n        # 1. Forward pass\n        outputs = model(batch_X)\n        loss = criterion(outputs, batch_y)\n        \n        # 2. Zero gradients\n        optimizer.zero_grad()\n        \n        # 3. Backward pass\n        loss.backward()\n        \n        # 4. Update weights\n        optimizer.step()\n```\n\n**Critical:** Always zero gradients before backward() to avoid accumulation!"
+        },
+        {
+          "id": 210,
+          "question": "Why must you call optimizer.zero_grad() in PyTorch?",
+          "answer": "PyTorch **accumulates gradients** by default - each `.backward()` call adds to existing gradients.\n\n**Without zero_grad():**\n- Gradients from multiple batches sum up\n- Leads to incorrect weight updates\n- Model won't train properly\n\n**Use case for accumulation:**\nGradient accumulation for large effective batch sizes:\n```python\nfor i, (X, y) in enumerate(loader):\n    loss = criterion(model(X), y)\n    loss.backward()\n    if (i+1) % accumulation_steps == 0:\n        optimizer.step()\n        optimizer.zero_grad()\n```"
+        },
+        {
+          "id": 211,
+          "question": "What is the difference between model.eval() and torch.no_grad()?",
+          "answer": "**model.eval():**\n- Changes model **behavior** (disables dropout, uses running stats for BatchNorm)\n- Does NOT disable gradient computation\n- Affects layers like Dropout, BatchNorm\n\n**torch.no_grad():**\n- Disables gradient computation (saves memory)\n- Does NOT change model behavior\n- Used during inference for efficiency\n\n**Best practice for inference:**\n```python\nmodel.eval()\nwith torch.no_grad():\n    predictions = model(X_test)\n```"
+        },
+        {
+          "id": 212,
+          "question": "How do you save and load a PyTorch model?",
+          "answer": "**Save:**\n```python\n# Save entire model (not recommended)\ntorch.save(model, 'model.pth')\n\n# Save state dict (recommended)\ntorch.save(model.state_dict(), 'model_weights.pth')\n\n# Save checkpoint with optimizer\ntorch.save({\n    'model_state_dict': model.state_dict(),\n    'optimizer_state_dict': optimizer.state_dict(),\n    'epoch': epoch\n}, 'checkpoint.pth')\n```\n\n**Load:**\n```python\nmodel = TheModelClass()\nmodel.load_state_dict(torch.load('model_weights.pth'))\nmodel.eval()\n```"
+        },
+        {
+          "id": 213,
+          "question": "What are common PyTorch optimizers and when to use them?",
+          "answer": "**SGD (Stochastic Gradient Descent):**\n- Simple, reliable baseline\n- Needs careful learning rate tuning\n- Add momentum for better convergence\n\n**Adam:**\n- Adaptive learning rates per parameter\n- Works well with default settings\n- Most popular choice\n\n**AdamW:**\n- Adam with decoupled weight decay\n- Better for transformer models\n\n**RMSprop:**\n- Good for RNNs\n- Adapts learning rates\n\n```python\noptimizer = torch.optim.Adam(model.parameters(), lr=0.001)\n```"
+        },
+        {
+          "id": 214,
+          "question": "What is a learning rate scheduler in PyTorch?",
+          "answer": "A **scheduler** adjusts the learning rate during training.\n\n**Common schedulers:**\n\n```python\n# Reduce LR when metric plateaus\nscheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(\n    optimizer, mode='min', patience=5\n)\n\n# Step decay\nscheduler = StepLR(optimizer, step_size=30, gamma=0.1)\n\n# Cosine annealing\nscheduler = CosineAnnealingLR(optimizer, T_max=100)\n```\n\n**Usage:**\n```python\nfor epoch in range(num_epochs):\n    train(...)\n    scheduler.step()  # Update learning rate\n```"
+        },
+        {
+          "id": 215,
+          "question": "How do you implement custom loss functions in PyTorch?",
+          "answer": "**Method 1: Simple function**\n```python\ndef custom_loss(output, target):\n    loss = torch.mean((output - target) ** 2)\n    return loss\n```\n\n**Method 2: Class (for complex losses)**\n```python\nclass CustomLoss(nn.Module):\n    def __init__(self, weight=1.0):\n        super().__init__()\n        self.weight = weight\n    \n    def forward(self, output, target):\n        loss = self.weight * torch.mean((output - target) ** 2)\n        return loss\n\ncriterion = CustomLoss(weight=0.5)\n```"
+        },
+        {
+          "id": 216,
+          "question": "What is the purpose of nn.Embedding in PyTorch?",
+          "answer": "**nn.Embedding** creates learnable dense vector representations for categorical data (like words).\n\n```python\n# vocab_size=1000, embedding_dim=128\nembedding = nn.Embedding(1000, 128)\n\n# Input: tensor of indices [2, 5, 8]\ninput_ids = torch.LongTensor([2, 5, 8])\nembedded = embedding(input_ids)  # Shape: [3, 128]\n```\n\n**Use cases:**\n- Word embeddings in NLP\n- User/item embeddings in recommender systems\n- Categorical feature encoding"
+        },
+        {
+          "id": 217,
+          "question": "How do you freeze layers in PyTorch?",
+          "answer": "**Freeze specific layers:**\n```python\n# Freeze all parameters\nfor param in model.parameters():\n    param.requires_grad = False\n\n# Unfreeze last layer\nfor param in model.fc.parameters():\n    param.requires_grad = True\n```\n\n**Why freeze?**\n- Transfer learning: keep pre-trained features\n- Fine-tuning: train only classification head\n- Reduce computation\n\n**Important:** Only pass unfrozen params to optimizer:\n```python\noptimizer = torch.optim.Adam(\n    filter(lambda p: p.requires_grad, model.parameters())\n)\n```"
+        },
+        {
+          "id": 218,
+          "question": "What is the difference between view() and reshape() in PyTorch?",
+          "answer": "**view():**\n- Returns a view when possible (shares memory)\n- Requires tensor to be **contiguous**\n- Fails if tensor is not contiguous\n\n**reshape():**\n- Returns view when possible, copy otherwise\n- Works on non-contiguous tensors\n- More flexible, slightly slower\n\n```python\nx = torch.randn(4, 4)\ny = x.transpose(0, 1)  # Now non-contiguous\n\ny.view(16)     # Error!\ny.reshape(16)  # Works (makes copy)\n```\n\n**Best practice:** Use reshape() unless you specifically need view()"
+        },
+        {
+          "id": 219,
+          "question": "How do you implement gradient clipping in PyTorch?",
+          "answer": "**Gradient clipping** prevents exploding gradients by limiting gradient magnitude.\n\n```python\nfor batch in train_loader:\n    optimizer.zero_grad()\n    output = model(batch)\n    loss = criterion(output, target)\n    loss.backward()\n    \n    # Clip gradients\n    torch.nn.utils.clip_grad_norm_(\n        model.parameters(), \n        max_norm=1.0\n    )\n    \n    optimizer.step()\n```\n\n**When to use:**\n- Training RNNs/LSTMs\n- Unstable training\n- Very deep networks"
+        },
+        {
+          "id": 220,
+          "question": "What is mixed precision training in PyTorch?",
+          "answer": "**Mixed precision** uses float16 for speed, float32 for stability.\n\n```python\nfrom torch.cuda.amp import autocast, GradScaler\n\nscaler = GradScaler()\n\nfor batch in train_loader:\n    optimizer.zero_grad()\n    \n    # Forward in float16\n    with autocast():\n        output = model(batch)\n        loss = criterion(output, target)\n    \n    # Backward with gradient scaling\n    scaler.scale(loss).backward()\n    scaler.step(optimizer)\n    scaler.update()\n```\n\n**Benefits:**\n- ~2x faster training\n- ~50% less memory\n- Requires Tensor Cores (modern GPUs)"
+        }
+      ]
+    },
+    {
       "id": "mlops",
       "name": "MLOps",
       "questions": [

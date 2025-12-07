@@ -49,11 +49,6 @@ st.markdown("""
         color: #000000 !important;
     }
 
-    /* Forcer aussi le label du multiselect */
-    div[data-baseweb="select"] * {
-        color: #000000 !important;
-    }
-
     /* Couleur de la zone d’écriture des widgets */
     .stMultiSelect, .stSelectbox, .stNumberInput input {
         color: #000000 !important;
@@ -247,7 +242,7 @@ filtered_themes = filter_questions_by_tags(
 )
 
 # Section de sélection du thème
-st.markdown("###Sélectionner un thème")
+st.markdown("Sélectionner un thème")
 
 # Créer des colonnes pour les boutons de thème
 cols = st.columns(3)
