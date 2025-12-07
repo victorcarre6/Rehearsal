@@ -43,6 +43,22 @@ st.markdown("""
         margin: 0;
     }
 
+    /* Forcer le texte Streamlit en noir */
+    h1, h2, h3, h4, h5, h6,
+    .stMarkdown, .stText, label, p, span, div {
+        color: #000000 !important;
+    }
+
+    /* Forcer aussi le label du multiselect */
+    div[data-baseweb="select"] * {
+        color: #000000 !important;
+    }
+
+    /* Couleur de la zone d’écriture des widgets */
+    .stMultiSelect, .stSelectbox, .stNumberInput input {
+        color: #000000 !important;
+    }
+
     /* Style des cartes */
     .card {
         background: var(--background-main);
