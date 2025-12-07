@@ -6,7 +6,7 @@ from pathlib import Path
 # Configuration de la page
 st.set_page_config(
     page_title="Rehearsal",
-    page_icon="",
+    page_icon="🎯",
     layout="wide"
 )
 
@@ -45,17 +45,8 @@ st.markdown("""
 
     /* Forcer le texte Streamlit en noir */
     h1, h2, h3, h4, h5, h6,
-    .stMarkdown, .stText, label, p, span, div {
+    .stMarkdown, .stText, label, p, span {
         color: #000000 !important;
-    }
-
-    /* Style des cartes */
-    .card {
-        background: var(--background-main);
-        border-radius: 10px;
-        padding: 2rem;
-        border: 1px solid #e5e7eb;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
 
     /* Style des questions */
@@ -108,11 +99,6 @@ st.markdown("""
         box-shadow: 0 4px 8px rgba(102, 114, 54, 0.2);
     }
 
-    /* Tag filters */
-    div[data-testid="stMultiSelect"] {
-        margin-bottom: 1rem;
-    }
-
     /* Hide Streamlit branding */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
@@ -122,7 +108,8 @@ st.markdown("""
         padding-top: 2rem;
         max-width: 1000px;
     }
-        /* Fond principal de l'application */
+
+    /* Fond principal de l'application */
     .stApp {
         background-color: #F2F0E3 !important;
     }
@@ -141,11 +128,6 @@ st.markdown("""
     [data-testid="stSidebar"] {
         background-color: #F2F0E3 !important;
     }
-
-    /* Rendre toutes les surfaces non-card blanches */
-    .stMarkdown, .stText, .stSelectbox, .stMultiSelect, .stButton, .stNumberInput {
-        background-color: #F2F0E3 !important;
-    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -155,52 +137,26 @@ def load_questions():
     """Charge les questions depuis le fichier JSON"""
     questions_file = Path(__file__).parent / "questions.json"
     with open(questions_file, 'r', encoding='utf-8') as f:
-        return json.load(f)
+        data = json.load(f)
 
-# Définition des tags disponibles
-AVAILABLE_TAGS = {
-    'Data Science': ['data science', 'data scientist', 'analysis', 'analytics'],
-    'Machine Learning': ['machine learning', 'ml', 'supervised', 'unsupervised', 'classification', 'regression', 'clustering'],
-    'Deep Learning': ['deep learning', 'neural network', 'cnn', 'rnn', 'lstm', 'backpropagation', 'gradient'],
-    'Statistics': ['statistics', 'statistical', 'probability', 'distribution', 'hypothesis', 'p-value', 'variance', 'bias'],
-    'Python': ['python', 'pandas', 'numpy'],
-    'NLP': ['nlp', 'natural language', 'text', 'tf-idf', 'language processing'],
-    'Computer Vision': ['cnn', 'convolutional', 'image', 'vision', 'pooling'],
-    'SQL': ['sql', 'database', 'query'],
-    'Algorithms': ['algorithm', 'svm', 'decision tree', 'naive bayes', 'random forest', 'k-nn']
-}
+    # Créer un mapping des questions par ID pour accès rapide
+    questions_by_id = {q['id']: q for q in data['questions']}
 
-def question_matches_tags(question, selected_tags):
-    """Vérifie si une question correspond aux tags sélectionnés"""
-    if not selected_tags:
-        return True
+    # Construire les thèmes avec leurs questions
+    themes = []
+    for theme_data in data['themes']:
+        questions = [questions_by_id[qid] for qid in theme_data['question_ids'] if qid in questions_by_id]
+        themes.append({
+            'id': theme_data['id'],
+            'name': theme_data['name'],
+            'questions': questions
+        })
 
-    q_text = (question['question'] + ' ' + question['answer']).lower()
-
-    for tag_name in selected_tags:
-        keywords = AVAILABLE_TAGS.get(tag_name, [])
-        if any(keyword.lower() in q_text for keyword in keywords):
-            return True
-    return False
-
-def filter_questions_by_tags(themes, selected_tags):
-    """Filtre les thèmes et questions par tags"""
-    if not selected_tags:
-        return themes
-
-    filtered_themes = []
-    for theme in themes:
-        filtered_questions = [q for q in theme['questions'] if question_matches_tags(q, selected_tags)]
-        if filtered_questions:
-            filtered_themes.append({
-                **theme,
-                'questions': filtered_questions
-            })
-    return filtered_themes
+    return themes
 
 # Initialisation de l'état de session
-if 'questions_data' not in st.session_state:
-    st.session_state.questions_data = load_questions()
+if 'themes' not in st.session_state:
+    st.session_state.themes = load_questions()
 
 if 'current_theme' not in st.session_state:
     st.session_state.current_theme = None
@@ -217,35 +173,21 @@ if 'current_questions' not in st.session_state:
 # Header
 st.markdown("""
 <div class="main-header">
-    <h1>Rehearsal</h1>
+    <h1>🎯 Rehearsal</h1>
+    <p>Préparez vos entretiens techniques en Data Science & Machine Learning</p>
 </div>
 """, unsafe_allow_html=True)
 
-# Section des filtres
-st.markdown("### Filtrer par domaine")
-selected_tags = st.multiselect(
-    "Sélectionnez un ou plusieurs domaines",
-    options=list(AVAILABLE_TAGS.keys()),
-    default=[],
-    help="Filtrez les questions par domaine technique"
-)
-
-# Filtrer les thèmes selon les tags
-filtered_themes = filter_questions_by_tags(
-    st.session_state.questions_data['themes'],
-    selected_tags
-)
-
 # Section de sélection du thème
-st.markdown("### Sélectionner un thème")
+st.markdown("### 📚 Sélectionner un thème")
 
 # Créer des colonnes pour les boutons de thème
 cols = st.columns(3)
-for idx, theme in enumerate(filtered_themes):
+for idx, theme in enumerate(st.session_state.themes):
     col = cols[idx % 3]
     with col:
         if st.button(
-            f"{theme['name']} ({len(theme['questions'])})",
+            f"{theme['name']}\n({len(theme['questions'])} questions)",
             key=f"theme_{theme['id']}",
             use_container_width=True
         ):
@@ -261,7 +203,7 @@ if st.session_state.current_theme:
     questions = st.session_state.current_questions
 
     if not questions:
-        st.info("Aucune question disponible pour ce thème avec les filtres sélectionnés.")
+        st.info("Aucune question disponible pour ce thème.")
     else:
         current_q = questions[st.session_state.current_question_index]
 
@@ -281,11 +223,11 @@ if st.session_state.current_theme:
         col1, col2 = st.columns([1, 1])
 
         with col1:
-            if st.button("Afficher la réponse", use_container_width=True):
+            if st.button("💡 Afficher la réponse", use_container_width=True):
                 st.session_state.show_answer = True
 
         with col2:
-            if st.button("Question suivante", use_container_width=True, key="next_question"):
+            if st.button("➡️ Question suivante", use_container_width=True, key="next_question"):
                 # Sélectionner une question aléatoire différente de l'actuelle
                 if len(questions) > 1:
                     new_index = st.session_state.current_question_index
@@ -304,11 +246,11 @@ if st.session_state.current_theme:
                 unsafe_allow_html=True
             )
 else:
-    st.info("Sélectionnez un thème pour commencer")
+    st.info("👆 Sélectionnez un thème pour commencer")
 
 # Footer
 st.markdown("---")
 st.markdown(
-    '<p style="text-align: center; color: #6b7280; font-size: 0.9rem;">Rehearsal</p>',
+    '<p style="text-align: center; color: #6b7280; font-size: 0.9rem;">Rehearsal - Préparez vos entretiens techniques</p>',
     unsafe_allow_html=True
 )
