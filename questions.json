@@ -1154,6 +1154,56 @@
       "id": 280,
       "question": "What is prompt engineering for LLMs?",
       "answer": "**Prompt engineering**: Crafting inputs to guide LLM behavior without fine-tuning.\n\n**Techniques:**\n\n**1. Zero-shot:**\n```\n\"Classify the sentiment: I love this product!\"\n```\n\n**2. Few-shot (in-context learning):**\n```\n\"Classify sentiment:\nI love it → positive\nI hate it → negative\nIt's okay → neutral\nI love this product! →\n```\n\n**3. Chain-of-thought:**\n```\n\"Let's think step by step:\n1. First, identify key words...\n2. Then, analyze the tone...\"\n```\n\n**4. Role prompting:**\n```\n\"You are an expert data scientist. Explain regularization.\"\n```\n\n**5. Instruction following:**\n```\n\"Answer in 3 bullet points. Be concise.\"\n```\n\n**Best practices:**\n- Be specific\n- Provide examples\n- Specify format\n- Iterate on prompts"
+    },
+    {
+      "id": 281,
+      "question": "What is the difference between supervised, unsupervised, and reinforcement learning?",
+      "answer": "**Supervised Learning:**\n- Has labeled data (X, y pairs)\n- Learns mapping X → y\n- Goal: Minimize prediction error\n- Examples: Classification, regression\n\n**Unsupervised Learning:**\n- No labels, only X\n- Finds patterns/structure in data\n- Goal: Discover hidden structure\n- Examples: Clustering, dimensionality reduction, anomaly detection\n\n**Reinforcement Learning:**\n- Agent learns through interaction\n- Receives rewards/penalties\n- Goal: Maximize cumulative reward\n- Examples: Game playing (AlphaGo), robotics\n\n**Key difference:**\n- Supervised: Teacher provides answers\n- Unsupervised: Find patterns yourself\n- RL: Learn from trial and error"
+    },
+    {
+      "id": 282,
+      "question": "What is cross-entropy loss?",
+      "answer": "**Cross-entropy** measures difference between two probability distributions.\n\n**Binary cross-entropy:**\n```\nL = -[y·log(ŷ) + (1-y)·log(1-ŷ)]\n```\n\n**Categorical cross-entropy:**\n```\nL = -Σᵢ yᵢ·log(ŷᵢ)\n```\n\nWhere:\n- y = true label (one-hot)\n- ŷ = predicted probability\n\n**Example:**\nTrue: [0, 1, 0] (class 1)\nPred: [0.1, 0.8, 0.1]\n\nLoss = -(0·log(0.1) + 1·log(0.8) + 0·log(0.1)) = 0.223\n\n**Why use it?**\n- Probabilistic interpretation\n- Penalizes confident wrong predictions heavily\n- Better gradients than MSE for classification\n\n**PyTorch:**\n```python\ncriterion = nn.CrossEntropyLoss()\n```"
+    },
+    {
+      "id": 283,
+      "question": "What is precision vs recall vs F1-score?",
+      "answer": "**Precision:** Of predicted positives, how many are actually positive?\n```\nPrecision = TP / (TP + FP)\n```\n**Use when:** False positives are costly (spam filter)\n\n**Recall (Sensitivity):** Of actual positives, how many did we catch?\n```\nRecall = TP / (TP + FN)\n```\n**Use when:** False negatives are costly (cancer detection)\n\n**F1-score:** Harmonic mean of precision & recall\n```\nF1 = 2 · (Precision · Recall) / (Precision + Recall)\n```\n**Use when:** Need balance between precision and recall\n\n**Trade-off:**\n- High precision → Low recall (conservative)\n- High recall → Low precision (aggressive)\n\n**Example:**\n- TP=80, FP=10, FN=20\n- Precision = 80/90 = 0.89\n- Recall = 80/100 = 0.80\n- F1 = 2·(0.89·0.80)/(0.89+0.80) = 0.84"
+    },
+    {
+      "id": 284,
+      "question": "What is Ridge vs Lasso regression?",
+      "answer": "Both add regularization penalty to OLS.\n\n**Ridge (L2 regularization):**\n```\nLoss = MSE + λ·Σ(βᵢ²)\n```\n- Shrinks coefficients toward zero\n- Keeps all features\n- Good when many small/medium effects\n\n**Lasso (L1 regularization):**\n```\nLoss = MSE + λ·Σ|βᵢ|\n```\n- Shrinks coefficients to exactly zero\n- Performs feature selection\n- Good when few features matter\n\n**Elastic Net:**\nCombines both: λ₁·Σ|βᵢ| + λ₂·Σ(βᵢ²)\n\n**Example:**\n```python\nfrom sklearn.linear_model import Ridge, Lasso\n\nridge = Ridge(alpha=1.0)\nlasso = Lasso(alpha=1.0)\n```\n\n**Key difference:** Lasso does feature selection, Ridge doesn't"
+    },
+    {
+      "id": 285,
+      "question": "What is multicollinearity and why is it a problem?",
+      "answer": "**Multicollinearity**: High correlation between independent variables.\n\n**Example:**\n- X₁ = height in cm\n- X₂ = height in inches\n- They're perfectly correlated!\n\n**Problems:**\n\n1. **Unstable coefficients:**\n   - Small data changes → large coefficient changes\n   - Coefficients have high variance\n\n2. **Interpretation issues:**\n   - Can't isolate individual feature effects\n   - Coefficients may have wrong signs\n\n3. **Numerical issues:**\n   - Matrix inversion becomes unstable\n   - May not have unique solution\n\n**Detection:**\n- VIF (Variance Inflation Factor) > 5-10\n- Correlation matrix\n\n**Solutions:**\n- Remove highly correlated features\n- Use PCA\n- Use regularization (Ridge handles it well)\n\n**Note:** Doesn't affect predictions, only interpretability!"
+    },
+    {
+      "id": 286,
+      "question": "What is feature scaling and why is it important?",
+      "answer": "**Feature scaling**: Transform features to similar ranges.\n\n**Why important:**\n\n**1. Gradient descent converges faster:**\n- Features on different scales → elongated cost function\n- Harder to find optimum\n\n**2. Distance-based algorithms:**\n- KNN, K-means, SVM sensitive to scale\n- Large-scale features dominate\n\n**3. Regularization:**\n- Penalizes large-scale features more\n- Unfair without scaling\n\n**Example:**\n```python\n# Before scaling\nAge: [25, 30, 35]      # Range: 10\nSalary: [50k, 60k, 70k]  # Range: 20k\n\n# After StandardScaler\nAge: [-1, 0, 1]\nSalary: [-1, 0, 1]\n```\n\n**When NOT needed:**\n- Tree-based models (Decision Trees, Random Forest, XGBoost)\n- They split on thresholds, scale doesn't matter\n\n**Always scale:**\n- Neural networks\n- SVM, KNN\n- Linear/Logistic regression (with regularization)"
+    },
+    {
+      "id": 287,
+      "question": "What is containerization and why use it for ML?",
+      "answer": "**Containerization**: Package application + dependencies into isolated unit.\n\n**Docker example:**\n```dockerfile\nFROM python:3.9\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install -r requirements.txt\nCOPY . .\nCMD [\"python\", \"app.py\"]\n```\n\n**Benefits for ML:**\n\n**1. Reproducibility:**\n- Same environment everywhere\n- Exact dependency versions\n\n**2. Portability:**\n- Works on any machine with Docker\n- No \"works on my machine\" issues\n\n**3. Isolation:**\n- Multiple models with different dependencies\n- No conflicts\n\n**4. Scalability:**\n- Easy to replicate\n- Kubernetes orchestration\n\n**Workflow:**\n```bash\n# Build image\ndocker build -t ml-model:v1 .\n\n# Run container\ndocker run -p 5000:5000 ml-model:v1\n```"
+    },
+    {
+      "id": 288,
+      "question": "What is the logistic function (sigmoid)?",
+      "answer": "**Sigmoid function**: Maps any real number to (0, 1).\n\n**Formula:**\n```\nσ(x) = 1 / (1 + e⁻ˣ)\n```\n\n**Properties:**\n- σ(0) = 0.5\n- σ(∞) → 1\n- σ(-∞) → 0\n- S-shaped curve\n- Derivative: σ'(x) = σ(x)·(1 - σ(x))\n\n**Uses:**\n\n**1. Logistic Regression:**\nConvert log-odds to probability\n```python\nz = β₀ + β₁x₁ + β₂x₂\np = 1 / (1 + np.exp(-z))\n```\n\n**2. Neural networks:**\n- Output layer for binary classification\n- Historical activation function (now ReLU preferred)\n\n**Problem in deep networks:**\n- Vanishing gradients\n- Gradient near 0 for |x| > 4\n\n**Alternative:** ReLU for hidden layers, sigmoid for output"
+    },
+    {
+      "id": 289,
+      "question": "What is model monitoring in production?",
+      "answer": "**Model monitoring**: Track model performance and health in production.\n\n**What to monitor:**\n\n**1. Model performance:**\n- Accuracy, precision, recall (if labels available)\n- Business metrics (revenue, conversions)\n\n**2. Data quality:**\n- Missing values increase?\n- Feature distributions change?\n- Data drift detection\n\n**3. Prediction distribution:**\n- Are predictions shifting?\n- Confidence scores changing?\n\n**4. System metrics:**\n- Latency (p50, p95, p99)\n- Throughput (requests/sec)\n- Error rate\n- Resource usage (CPU, memory)\n\n**5. Input data:**\n- Feature statistics\n- Null rates\n\n**Tools:**\n- Prometheus + Grafana\n- AWS CloudWatch\n- Evidently AI\n- Weights & Biases\n\n**Alerts:**\nSet thresholds for automated alerts when metrics degrade"
+    },
+    {
+      "id": 290,
+      "question": "What is the difference between parameters and hyperparameters?",
+      "answer": "**Parameters:**\n- Learned from training data\n- Internal to the model\n- Optimized by training algorithm\n- Examples:\n  - Neural network weights\n  - Linear regression coefficients\n  - Decision tree split points\n\n**Hyperparameters:**\n- Set before training\n- External to the model\n- Tuned by data scientist\n- Examples:\n  - Learning rate\n  - Number of epochs\n  - Batch size\n  - Number of hidden layers\n  - Tree depth\n  - Regularization strength (λ)\n\n**Key difference:**\n- Parameters: Model learns these\n- Hyperparameters: You choose these\n\n**Hyperparameter tuning:**\n```python\nfrom sklearn.model_selection import GridSearchCV\n\nparam_grid = {\n    'max_depth': [3, 5, 7],\n    'learning_rate': [0.01, 0.1, 1.0]\n}\n\ngrid = GridSearchCV(model, param_grid, cv=5)\n```"
     }
   ],
   "themes": [
@@ -1172,7 +1222,12 @@
         95,
         17,
         18,
-        258
+        258,
+        281,
+        282,
+        283,
+        286,
+        290
       ]
     },
     {
@@ -1299,7 +1354,13 @@
         259,
         260,
         273,
-        274
+        274,
+        281,
+        283,
+        284,
+        285,
+        286,
+        290
       ]
     },
     {
@@ -1320,7 +1381,10 @@
         139,
         140,
         141,
-        19
+        19,
+        284,
+        285,
+        288
       ]
     },
     {
@@ -1392,7 +1456,10 @@
         269,
         270,
         277,
-        279
+        279,
+        282,
+        286,
+        288
       ]
     },
     {
@@ -1452,7 +1519,8 @@
         81,
         154,
         155,
-        78
+        78,
+        282
       ]
     },
     {
@@ -1503,7 +1571,9 @@
         272,
         273,
         274,
-        278
+        278,
+        287,
+        289
       ]
     }
   ]

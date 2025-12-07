@@ -184,7 +184,6 @@ if 'current_questions' not in st.session_state:
 st.markdown("""
 <div class="main-header">
     <h1>🎯 Rehearsal</h1>
-    <p>Préparez vos entretiens techniques en Data Science & Machine Learning</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -261,6 +260,6 @@ else:
 # Footer
 st.markdown("---")
 st.markdown(
-    '<p style="text-align: center; color: #6b7280; font-size: 0.9rem;">Rehearsal - Préparez vos entretiens techniques</p>',
+    '<p style="text-align: center; color: #6b7280; font-size: 0.9rem;">Rehearsal</p>',
     unsafe_allow_html=True
 )
