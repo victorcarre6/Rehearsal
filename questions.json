@@ -1054,6 +1054,106 @@
       "id": 260,
       "question": "What is one-hot encoding and when should you use it?",
       "answer": "**One-hot encoding** converts categorical variables into binary vectors.\n\n**Example:**\nColor: [Red, Green, Blue] →\n```\nRed   → [1, 0, 0]\nGreen → [0, 1, 0]\nBlue  → [0, 0, 1]\n```\n\n**Implementation:**\n```python\nimport pandas as pd\npd.get_dummies(df['color'], drop_first=False)\n\nfrom sklearn.preprocessing import OneHotEncoder\nencoder = OneHotEncoder(sparse=False)\nencoded = encoder.fit_transform(df[['color']])\n```\n\n**When to use:**\n- Nominal categorical variables (no order)\n- Tree-based models handle it well\n\n**Avoid when:**\n- High cardinality (too many unique values)\n- Ordinal variables (use ordinal encoding instead)\n\n**Note:** drop_first=True to avoid multicollinearity"
+    },
+    {
+      "id": 261,
+      "question": "What is an SQL index and why is it important?",
+      "answer": "An **index** is a data structure that improves query speed by providing quick lookups.\n\n**How it works:**\n- Like a book index: maps values to row locations\n- Usually implemented as B-tree or hash table\n\n**Benefits:**\n- Fast SELECT queries with WHERE, JOIN, ORDER BY\n- Unique indexes enforce uniqueness\n\n**Costs:**\n- Slower INSERT/UPDATE/DELETE (index must be updated)\n- Takes storage space\n\n**When to index:**\n- Primary keys (auto-indexed)\n- Foreign keys\n- Columns in WHERE/JOIN clauses\n- Columns in ORDER BY\n\n**Avoid indexing:**\n- Small tables\n- Columns with many updates\n- Columns with low cardinality (e.g., boolean)"
+    },
+    {
+      "id": 262,
+      "question": "What is a PRIMARY KEY vs FOREIGN KEY?",
+      "answer": "**PRIMARY KEY:**\n- Uniquely identifies each row in a table\n- Cannot be NULL\n- Only ONE per table\n\n```sql\nCREATE TABLE users (\n    user_id INT PRIMARY KEY,\n    name VARCHAR(100)\n);\n```\n\n**FOREIGN KEY:**\n- References a primary key in another table\n- Creates relationship between tables\n- Can be NULL (optional relationship)\n- Can have multiple per table\n\n```sql\nCREATE TABLE orders (\n    order_id INT PRIMARY KEY,\n    user_id INT,\n    FOREIGN KEY (user_id) REFERENCES users(user_id)\n);\n```\n\n**Referential integrity:** FK ensures referenced row exists"
+    },
+    {
+      "id": 263,
+      "question": "What is tokenization in NLP?",
+      "answer": "**Tokenization**: Breaking text into smaller units (tokens).\n\n**Types:**\n\n**1. Word tokenization:**\n```python\ntext = \"Hello, world!\"\ntokens = [\"Hello\", \",\", \"world\", \"!\"]\n```\n\n**2. Sentence tokenization:**\n```python\ntext = \"Hello world. How are you?\"\ntokens = [\"Hello world.\", \"How are you?\"]\n```\n\n**3. Subword tokenization (BPE, WordPiece):**\n```python\n\"unhappiness\" → [\"un\", \"happiness\"]\n```\n\n**Libraries:**\n```python\nimport nltk\nnltk.word_tokenize(\"Hello world!\")\n\nfrom transformers import AutoTokenizer\ntokenizer = AutoTokenizer.from_pretrained(\"bert-base-uncased\")\n```\n\n**Why important:** First step in NLP pipeline"
+    },
+    {
+      "id": 264,
+      "question": "What are stop words and should you always remove them?",
+      "answer": "**Stop words**: Common words with little semantic value (\"the\", \"is\", \"at\", \"a\").\n\n**Removal benefits:**\n- Reduces feature space\n- Faster training\n- Less noise\n\n```python\nfrom nltk.corpus import stopwords\nstop_words = set(stopwords.words('english'))\nfiltered = [w for w in tokens if w not in stop_words]\n```\n\n**When to remove:**\n- Topic modeling\n- Document classification\n- Information retrieval\n\n**When NOT to remove:**\n- Sentiment analysis (\"not good\" vs \"good\")\n- Question answering\n- Machine translation\n- Modern transformers (BERT handles them)\n\n**Modern approach:** Let the model decide (use transformers)"
+    },
+    {
+      "id": 265,
+      "question": "What is attention in the context of transformers?",
+      "answer": "**Attention** computes relevance between all tokens in a sequence.\n\n**Self-attention mechanism:**\n1. Convert each token to Query (Q), Key (K), Value (V)\n2. Compute similarity: Q·Kᵀ\n3. Apply softmax to get weights\n4. Weighted sum of Values\n\n**Formula:**\n```\nAttention(Q,K,V) = softmax(QKᵀ/√dₖ) V\n```\n\n**Example:**\n\"The cat sat on the mat\"\n- \"cat\" attends strongly to \"sat\" (subject-verb)\n- \"sat\" attends to \"mat\" (verb-object)\n\n**Multi-head attention:**\n- Multiple attention operations in parallel\n- Each head learns different patterns\n\n**Why powerful:** Can capture long-range dependencies"
+    },
+    {
+      "id": 266,
+      "question": "What is the difference between encoder and decoder in transformers?",
+      "answer": "**Encoder:**\n- Processes input sequence\n- Bidirectional (sees full context)\n- Uses self-attention\n- Output: contextualized representations\n- Example: BERT\n\n**Decoder:**\n- Generates output sequence\n- Unidirectional (autoregressive)\n- Uses masked self-attention + cross-attention\n- Output: predicted tokens\n- Example: GPT\n\n**Encoder-Decoder (Seq2Seq):**\n- Encoder processes source (e.g., English)\n- Decoder generates target (e.g., French)\n- Decoder attends to encoder outputs\n- Example: T5, BART\n\n**Use cases:**\n- Encoder-only: Classification, NER\n- Decoder-only: Text generation\n- Encoder-Decoder: Translation, summarization"
+    },
+    {
+      "id": 267,
+      "question": "What is transfer learning in NLP?",
+      "answer": "**Transfer learning**: Pre-train on large corpus, fine-tune on specific task.\n\n**Two-step process:**\n\n**1. Pre-training (unsupervised):**\n- Train on huge text corpus\n- Task: Masked Language Model (BERT) or Next Token Prediction (GPT)\n- Learns general language understanding\n\n**2. Fine-tuning (supervised):**\n- Train on task-specific labeled data\n- Adjust all weights\n- Much faster than training from scratch\n\n**Benefits:**\n- Requires less labeled data\n- Better performance\n- Faster convergence\n\n```python\nfrom transformers import AutoModelForSequenceClassification\n\nmodel = AutoModelForSequenceClassification.from_pretrained(\n    \"bert-base-uncased\", \n    num_labels=2\n)\n# Fine-tune on your data\n```"
+    },
+    {
+      "id": 268,
+      "question": "What is the SQL CASE statement and when do you use it?",
+      "answer": "**CASE** is SQL's if-then-else conditional.\n\n**Simple CASE:**\n```sql\nSELECT name,\n    CASE grade\n        WHEN 'A' THEN 'Excellent'\n        WHEN 'B' THEN 'Good'\n        ELSE 'Needs improvement'\n    END as feedback\nFROM students;\n```\n\n**Searched CASE:**\n```sql\nSELECT name, salary,\n    CASE\n        WHEN salary >= 100000 THEN 'High'\n        WHEN salary >= 50000 THEN 'Medium'\n        ELSE 'Low'\n    END as salary_bracket\nFROM employees;\n```\n\n**Use cases:**\n- Creating derived columns\n- Conditional aggregation\n- Pivot tables\n\n**Aggregate with CASE:**\n```sql\nSELECT\n    COUNT(CASE WHEN status='active' THEN 1 END) as active_count\nFROM users;\n```"
+    },
+    {
+      "id": 269,
+      "question": "What is positional encoding in transformers?",
+      "answer": "**Problem:** Transformers have no inherent notion of token order.\n\n**Solution:** Add positional information to embeddings.\n\n**Sinusoidal encoding (original Transformer):**\n```\nPE(pos, 2i) = sin(pos / 10000^(2i/d))\nPE(pos, 2i+1) = cos(pos / 10000^(2i/d))\n```\n\nWhere:\n- pos = position in sequence\n- i = dimension\n- d = embedding dimension\n\n**Properties:**\n- Deterministic\n- Can extrapolate to longer sequences\n- Smooth transitions\n\n**Learned positional embeddings:**\n- BERT uses learned embeddings\n- Limited to max_length seen during training\n\n**Result:** Token embedding = word embedding + positional encoding"
+    },
+    {
+      "id": 270,
+      "question": "What is word embedding and how does it differ from one-hot encoding?",
+      "answer": "**One-hot encoding:**\n- Sparse vector (size = vocabulary size)\n- Each word is independent\n- No semantic similarity\n```python\n\"cat\" → [0,0,0,1,0,0,...,0]  # 10,000 dimensions\n\"dog\" → [0,0,0,0,1,0,...,0]\n```\n\n**Word embedding:**\n- Dense vector (typically 100-300 dimensions)\n- Captures semantic similarity\n- Similar words have similar vectors\n```python\n\"cat\" → [0.2, -0.5, 0.8, ...]  # 300 dimensions\n\"dog\" → [0.3, -0.4, 0.7, ...]  # Similar to cat\n```\n\n**Popular embeddings:**\n- Word2Vec (CBOW, Skip-gram)\n- GloVe\n- FastText\n- Contextual: BERT, ELMo (different embedding per context)\n\n**Advantage:** Dimensionality reduction + semantic meaning"
+    },
+    {
+      "id": 271,
+      "question": "What is MLOps and why is it important?",
+      "answer": "**MLOps** (Machine Learning Operations) is a set of practices to deploy and maintain ML models in production.\n\n**Key components:**\n\n1. **Continuous Integration (CI):**\n   - Automated testing of code & data\n   - Version control for models & datasets\n\n2. **Continuous Deployment (CD):**\n   - Automated model deployment\n   - A/B testing in production\n\n3. **Monitoring:**\n   - Model performance tracking\n   - Data drift detection\n   - Retraining triggers\n\n**Why important:**\n- Reproducibility\n- Scalability\n- Faster iteration\n- Reduced deployment time\n\n**Tools:** MLflow, Kubeflow, Weights & Biases, DVC"
+    },
+    {
+      "id": 272,
+      "question": "What is model versioning and why is it necessary?",
+      "answer": "**Model versioning** tracks different iterations of ML models.\n\n**What to version:**\n- Model weights/parameters\n- Training code\n- Hyperparameters\n- Training data snapshot\n- Dependencies (requirements.txt)\n- Metrics & evaluation results\n\n**Why necessary:**\n- **Reproducibility**: Recreate exact model\n- **Rollback**: Revert to previous version if new model fails\n- **Comparison**: Track performance over time\n- **Compliance**: Audit trail for regulated industries\n\n**Tools:**\n```python\n# MLflow\nimport mlflow\nwith mlflow.start_run():\n    mlflow.log_param(\"lr\", 0.01)\n    mlflow.log_metric(\"accuracy\", 0.95)\n    mlflow.sklearn.log_model(model, \"model\")\n\n# DVC\n# dvc add model.pkl\n# git commit -m \"model v2.0\"\n```"
+    },
+    {
+      "id": 273,
+      "question": "What is data drift and how do you detect it?",
+      "answer": "**Data drift**: When input data distribution changes over time, degrading model performance.\n\n**Types:**\n\n**1. Covariate shift:** P(X) changes, P(Y|X) stays same\n   - Example: More young users than before\n\n**2. Prior probability shift:** P(Y) changes\n   - Example: Fraud rate increases\n\n**3. Concept drift:** P(Y|X) changes\n   - Example: User preferences change\n\n**Detection methods:**\n\n**Statistical tests:**\n- Kolmogorov-Smirnov test\n- Chi-square test\n- Population Stability Index (PSI)\n\n**Monitoring:**\n```python\n# Compare distributions\nfrom scipy.stats import ks_2samp\nstatistic, p_value = ks_2samp(train_data, prod_data)\nif p_value < 0.05:\n    print(\"Drift detected!\")\n```\n\n**Action:** Retrain model with recent data"
+    },
+    {
+      "id": 274,
+      "question": "What is A/B testing for ML models?",
+      "answer": "**A/B testing**: Compare two model versions in production to determine which performs better.\n\n**Setup:**\n- **Control group (A)**: Current model\n- **Treatment group (B)**: New model\n- Randomly assign users to each group\n\n**Process:**\n```python\nif user_id % 2 == 0:\n    prediction = model_A.predict(features)\nelse:\n    prediction = model_B.predict(features)\n```\n\n**Metrics to track:**\n- Business KPIs (revenue, conversion rate)\n- Model metrics (accuracy, latency)\n- User engagement\n\n**Statistical significance:**\n- Run until enough samples\n- Calculate p-value\n- Ensure practical significance (not just statistical)\n\n**Decision:** Deploy B if significantly better, else keep A\n\n**Advanced:** Multi-armed bandits for dynamic allocation"
+    },
+    {
+      "id": 275,
+      "question": "What is named entity recognition (NER)?",
+      "answer": "**NER**: Identifying and classifying named entities in text.\n\n**Common entity types:**\n- PERSON: \"Barack Obama\"\n- LOCATION: \"Paris\"\n- ORGANIZATION: \"Google\"\n- DATE: \"January 1, 2024\"\n- MONEY: \"$100\"\n\n**Example:**\n```\nInput: \"Apple Inc. was founded by Steve Jobs in California.\"\n\nOutput:\n- Apple Inc. → ORGANIZATION\n- Steve Jobs → PERSON\n- California → LOCATION\n```\n\n**Approaches:**\n\n**1. Rule-based:** Regex, gazetteers\n**2. ML-based:** CRF, HMM\n**3. Deep learning:** BiLSTM-CRF, BERT\n\n**Implementation:**\n```python\nimport spacy\nnlp = spacy.load(\"en_core_web_sm\")\ndoc = nlp(\"Apple Inc. was founded by Steve Jobs\")\nfor ent in doc.ents:\n    print(ent.text, ent.label_)\n```"
+    },
+    {
+      "id": 276,
+      "question": "What is the difference between extractive and abstractive summarization?",
+      "answer": "**Extractive summarization:**\n- Selects and copies sentences from source\n- No new text generation\n- Guaranteed grammatically correct\n- Simpler, faster\n\n**Example:**\nSource: \"The cat sat on the mat. It was very comfortable. The mat was soft.\"\nSummary: \"The cat sat on the mat. The mat was soft.\"\n\n**Abstractive summarization:**\n- Generates new sentences\n- Paraphrases and condenses\n- More human-like\n- Harder, may have errors\n\n**Example:**\nSource: \"The cat sat on the mat. It was very comfortable. The mat was soft.\"\nSummary: \"A cat comfortably rested on a soft mat.\"\n\n**Models:**\n- Extractive: TextRank, LexRank\n- Abstractive: T5, BART, GPT\n\n**Modern approach:** Abstractive with transformers"
+    },
+    {
+      "id": 277,
+      "question": "What is fine-tuning a pre-trained model?",
+      "answer": "**Fine-tuning**: Adapting a pre-trained model to a specific task by continuing training.\n\n**Steps:**\n\n1. **Load pre-trained model:**\n```python\nfrom transformers import AutoModelForSequenceClassification\nmodel = AutoModelForSequenceClassification.from_pretrained(\n    \"bert-base-uncased\",\n    num_labels=3\n)\n```\n\n2. **Prepare task-specific data:**\n- Sentiment analysis\n- Question answering\n- NER\n\n3. **Train with small learning rate:**\n```python\noptimizer = AdamW(model.parameters(), lr=2e-5)\n```\n\n**Why low learning rate?**\n- Preserve pre-trained knowledge\n- Avoid catastrophic forgetting\n\n**Types:**\n- **Full fine-tuning**: Update all weights\n- **Feature extraction**: Freeze base, train only head\n- **LoRA**: Low-rank adaptation (efficient)"
+    },
+    {
+      "id": 278,
+      "question": "What is CI/CD in the context of ML?",
+      "answer": "**CI/CD for ML**: Automated pipeline for testing, validating, and deploying models.\n\n**Continuous Integration (CI):**\n- **Code tests**: Unit tests for data processing\n- **Data validation**: Schema checks, distribution tests\n- **Model tests**: Performance on hold-out set\n\n```yaml\n# .github/workflows/ci.yml\nsteps:\n  - name: Test data pipeline\n    run: pytest tests/\n  - name: Validate model\n    run: python validate_model.py\n```\n\n**Continuous Deployment (CD):**\n- Automated model deployment\n- Gradual rollout (canary, blue-green)\n- Monitoring & alerts\n\n**Tools:**\n- GitHub Actions, GitLab CI\n- Jenkins\n- Kubeflow Pipelines\n- AWS SageMaker Pipelines\n\n**Benefits:**\n- Catch bugs early\n- Faster iteration\n- Reproducible deployments"
+    },
+    {
+      "id": 279,
+      "question": "What is the transformer architecture's attention mechanism complexity?",
+      "answer": "**Self-attention complexity:** O(n²·d)\n\nWhere:\n- n = sequence length\n- d = embedding dimension\n\n**Why O(n²)?**\n1. Compute QKᵀ: (n×d) × (d×n) = (n×n) matrix\n2. Each token attends to all other tokens\n3. Quadratic in sequence length\n\n**Memory bottleneck:**\n- Limits max sequence length (~512-1024 tokens)\n- GPUs run out of memory for long sequences\n\n**Solutions for long sequences:**\n\n**1. Sparse attention:**\n- Longformer: Local + global attention\n- BigBird: Random + window + global\n\n**2. Linear attention:**\n- Linformer: O(n) complexity\n- Performer: Kernel-based approximation\n\n**3. Recurrence:**\n- Transformer-XL: Segment-level recurrence\n\n**Trade-off:** Efficiency vs. ability to capture long-range dependencies"
+    },
+    {
+      "id": 280,
+      "question": "What is prompt engineering for LLMs?",
+      "answer": "**Prompt engineering**: Crafting inputs to guide LLM behavior without fine-tuning.\n\n**Techniques:**\n\n**1. Zero-shot:**\n```\n\"Classify the sentiment: I love this product!\"\n```\n\n**2. Few-shot (in-context learning):**\n```\n\"Classify sentiment:\nI love it → positive\nI hate it → negative\nIt's okay → neutral\nI love this product! →\n```\n\n**3. Chain-of-thought:**\n```\n\"Let's think step by step:\n1. First, identify key words...\n2. Then, analyze the tone...\"\n```\n\n**4. Role prompting:**\n```\n\"You are an expert data scientist. Explain regularization.\"\n```\n\n**5. Instruction following:**\n```\n\"Answer in 3 bullet points. Be concise.\"\n```\n\n**Best practices:**\n- Be specific\n- Provide examples\n- Specify format\n- Iterate on prompts"
     }
   ],
   "themes": [
@@ -1133,7 +1233,8 @@
         257,
         258,
         259,
-        260
+        260,
+        261
       ]
     },
     {
@@ -1151,7 +1252,10 @@
         252,
         253,
         254,
-        255
+        255,
+        261,
+        262,
+        268
       ]
     },
     {
@@ -1193,7 +1297,9 @@
         257,
         258,
         259,
-        260
+        260,
+        273,
+        274
       ]
     },
     {
@@ -1224,7 +1330,15 @@
         142,
         143,
         144,
-        145
+        145,
+        263,
+        264,
+        267,
+        270,
+        275,
+        276,
+        277,
+        280
       ]
     },
     {
@@ -1271,7 +1385,14 @@
         17,
         18,
         19,
-        259
+        259,
+        265,
+        266,
+        267,
+        269,
+        270,
+        277,
+        279
       ]
     },
     {
@@ -1283,7 +1404,15 @@
         163,
         164,
         165,
-        166
+        166,
+        265,
+        266,
+        267,
+        269,
+        276,
+        277,
+        279,
+        280
       ]
     },
     {
@@ -1369,7 +1498,12 @@
         167,
         168,
         169,
-        170
+        170,
+        271,
+        272,
+        273,
+        274,
+        278
       ]
     }
   ]

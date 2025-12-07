@@ -128,6 +128,16 @@ st.markdown("""
     [data-testid="stSidebar"] {
         background-color: #F2F0E3 !important;
     }
+
+    /* Couleur du texte dans les codeblocks et callouts */
+    pre, code, pre * , code * {
+        color: white !important;
+    }
+
+    /* Fond des codeblocks pour contraste */
+    pre {
+        background-color: #707C42 !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
