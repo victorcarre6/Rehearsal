@@ -703,42 +703,42 @@
     {
       "id": 160,
       "question": "Name two architectures of Recurrent layers.",
-      "answer": "1. **LSTM (Long Short-Term Memory)**\n   - Uses gates (forget, input, output) to control information flow\n   - Can learn long-term dependencies\n   - Solves vanishing gradient problem\n\n2. **GRU (Gated Recurrent Unit)**\n   - Simplified version of LSTM\n   - Uses reset and update gates\n   - Fewer parameters, faster to train\n   - Often similar performance to LSTM"
+      "answer": "\n1. **LSTM (Long Short-Term Memory)**\n   - Uses gates (forget, input, output) to control information flow\n   - Can learn long-term dependencies\n   - Solves vanishing gradient problem\n\n2. **GRU (Gated Recurrent Unit)**\n   - Simplified version of LSTM\n   - Uses reset and update gates\n   - Fewer parameters, faster to train\n   - Often similar performance to LSTM"
     },
     {
       "id": 161,
       "question": "What is the basic idea behind Transformer models?",
-      "answer": "Transformers use **attention mechanisms** to process sequences.\n\n**Key innovations:**\n- Process entire sequence **in parallel** (not sequentially like RNNs)\n- Handle **long-range dependencies** effectively\n- \"Attention is all you need\" - no recurrence or convolution\n\n**Result:** Much faster training, better at capturing relationships between distant words."
+      "answer": "\nTransformers use **attention mechanisms** to process sequences.\n\n**Key innovations:**\n- Process entire sequence **in parallel** (not sequentially like RNNs)\n- Handle **long-range dependencies** effectively\n- \"Attention is all you need\" - no recurrence or convolution\n\n**Result:** Much faster training, better at capturing relationships between distant words."
     },
     {
       "id": 162,
       "question": "What differentiates Transformers from RNNs?",
-      "answer": "**RNNs:**\n- Process sequences **step by step** (sequential)\n- Hidden state carries information forward\n- Struggle with long sequences (vanishing gradient)\n- Slow to train (can't parallelize)\n\n**Transformers:**\n- Process entire sequence **in parallel**\n- Use attention to relate any two positions directly\n- Handle long sequences well\n- Much faster training on GPUs"
+      "answer": "\n**RNNs:**\n- Process sequences **step by step** (sequential)\n- Hidden state carries information forward\n- Struggle with long sequences (vanishing gradient)\n- Slow to train (can't parallelize)\n\n**Transformers:**\n- Process entire sequence **in parallel**\n- Use attention to relate any two positions directly\n- Handle long sequences well\n- Much faster training on GPUs"
     },
     {
       "id": 163,
       "question": "What is the difference between self-attention and cross-attention?",
-      "answer": "**Self-attention:**\n- Parts of input interact **with each other**\n- Used in Encoders\n- Example: Understanding how words in a sentence relate to each other\n\n**Cross-attention:**\n- Decoder attends to **Encoder outputs**\n- Integrates source context into target generation\n- Example: In translation, aligning target words with relevant source words"
+      "answer": "\n**Self-attention:**\n- Parts of input interact **with each other**\n- Used in Encoders\n- Example: Understanding how words in a sentence relate to each other\n\n**Cross-attention:**\n- Decoder attends to **Encoder outputs**\n- Integrates source context into target generation\n- Example: In translation, aligning target words with relevant source words"
     },
     {
       "id": 164,
       "question": "What is GPT and how does it work?",
-      "answer": "**GPT = Generative Pre-trained Transformer**\n\n**Architecture:**\n- Decoder-only Transformer\n- Autoregressive: predicts next token based on previous tokens\n\n**Training:**\n1. Pre-training: Predict next word on huge corpus\n2. Fine-tuning: Adapt to specific tasks\n\n**Use:** Text generation based on prompts"
+      "answer": "\n**GPT = Generative Pre-trained Transformer**\n\n**Architecture:**\n- Decoder-only Transformer\n- Autoregressive: predicts next token based on previous tokens\n\n**Training:**\n1. Pre-training: Predict next word on huge corpus\n2. Fine-tuning: Adapt to specific tasks\n\n**Use:** Text generation based on prompts"
     },
     {
       "id": 165,
       "question": "What is BERT and what is it used for?",
-      "answer": "**BERT = Bidirectional Encoder Representations from Transformers**\n\n**Architecture:**\n- Encoder-only Transformer\n- Bidirectional: considers both left and right context\n\n**Pre-training tasks:**\n- Masked Language Model (MLM): predict masked words\n- Next Sentence Prediction (NSP)\n\n**Use cases:**\n- Text classification\n- Question answering\n- Named Entity Recognition\n- Sentiment analysis"
+      "answer": "\n**BERT = Bidirectional Encoder Representations from Transformers**\n\n**Architecture:**\n- Encoder-only Transformer\n- Bidirectional: considers both left and right context\n\n**Pre-training tasks:**\n- Masked Language Model (MLM): predict masked words\n- Next Sentence Prediction (NSP)\n\n**Use cases:**\n- Text classification\n- Question answering\n- Named Entity Recognition\n- Sentiment analysis"
     },
     {
       "id": 166,
       "question": "What is the attention mechanism in Transformers?",
-      "answer": "**Attention** lets the model focus on relevant parts of the input.\n\n**Components:**\n- **Query (Q)**: What we're looking for\n- **Key (K)**: What we're matching against\n- **Value (V)**: The actual information\n\n**Formula:**\nAttention(Q, K, V) = softmax(QKᵀ / √dₖ) × V\n\n**Multi-head attention:** Multiple attention layers in parallel, each learning different relationships."
+      "answer": "\n**Attention** lets the model focus on relevant parts of the input.\n\n**Components:**\n- **Query (Q)**: What we're looking for\n- **Key (K)**: What we're matching against\n- **Value (V)**: The actual information\n\n**Formula:**\nAttention(Q, K, V) = softmax(QKᵀ / √dₖ) × V\n\n**Multi-head attention:** Multiple attention layers in parallel, each learning different relationships."
     },
     {
       "id": 167,
       "question": "How can you check if a Python package is installed?",
-      "answer": "**Using pip:**\n\n```bash\n# List all installed packages\npip freeze\n\n# Check for specific package\npip freeze | grep package-name\n\n# Alternative\npip show package-name\n```\n\n**In Python:**\n```python\nimport pkg_resources\npkg_resources.get_distribution('package-name').version\n```"
+      "answer": "\n**Using pip:**\n\n```bash\n# List all installed packages\npip freeze\n\n# Check for specific package\npip freeze | grep package-name\n\n# Alternative\npip show package-name\n```\n\n**In Python:**\n```python\nimport pkg_resources\npkg_resources.get_distribution('package-name').version\n```"
     },
     {
       "id": 168,
@@ -758,17 +758,17 @@
     {
       "id": 201,
       "question": "What is a PyTorch tensor?",
-      "answer": "A **tensor** is a multi-dimensional array, similar to NumPy arrays but with GPU acceleration support.\n\n**Key features:**\n- Can run on GPU for faster computation\n- Automatic differentiation support (autograd)\n- Building block for all PyTorch operations\n\n**Creation:**\n```python\nimport torch\nx = torch.tensor([[1, 2], [3, 4]])\n```"
+      "answer": "\nA **tensor** is a multi-dimensional array, similar to NumPy arrays but with GPU acceleration support.\n\n**Key features:**\n- Can run on GPU for faster computation\n- Automatic differentiation support (autograd)\n- Building block for all PyTorch operations\n\n**Creation:**\n```python\nimport torch\nx = torch.tensor([[1, 2], [3, 4]])\n```"
     },
     {
       "id": 202,
       "question": "How do you move a tensor to GPU in PyTorch?",
-      "answer": "**Method 1: Using .to()**\n```python\ndevice = torch.device('cuda' if torch.cuda.is_available() else 'cpu')\ntensor_gpu = tensor.to(device)\n```\n\n**Method 2: Using .cuda()**\n```python\ntensor_gpu = tensor.cuda()\n```\n\n**Best practice:** Always check availability first to avoid errors on CPU-only machines."
+      "answer": "\n**Method 1: Using .to()**\n```python\ndevice = torch.device('cuda' if torch.cuda.is_available() else 'cpu')\ntensor_gpu = tensor.to(device)\n```\n\n**Method 2: Using .cuda()**\n```python\ntensor_gpu = tensor.cuda()\n```\n\n**Best practice:** Always check availability first to avoid errors on CPU-only machines."
     },
     {
       "id": 203,
       "question": "What is the difference between torch.tensor() and torch.Tensor()?",
-      "answer": "**torch.tensor()** (lowercase):\n- Factory function\n- Infers dtype from data\n- Recommended approach\n- More flexible\n\n**torch.Tensor()** (uppercase):\n- Constructor for default tensor type\n- Always creates FloatTensor\n- Legacy approach\n\n```python\ntorch.tensor([1, 2])  # IntTensor\ntorch.Tensor([1, 2])  # FloatTensor\n```"
+      "answer": "\n**torch.tensor()** (lowercase):\n- Factory function\n- Infers dtype from data\n- Recommended approach\n- More flexible\n\n**torch.Tensor()** (uppercase):\n- Constructor for default tensor type\n- Always creates FloatTensor\n- Legacy approach\n\n```python\ntorch.tensor([1, 2])  # IntTensor\ntorch.Tensor([1, 2])  # FloatTensor\n```"
     },
     {
       "id": 204,
@@ -1254,6 +1254,266 @@
       "id": 300,
       "question": "What is the vanishing gradient problem?",
       "answer": "**Vanishing gradient**: Gradients become extremely small in deep networks.\n\n**Why it happens:**\n\nIn backprop: ∂L/∂w₁ = ∂L/∂a_n · ∂a_n/∂a_(n-1) · ... · ∂a₂/∂a₁ · ∂a₁/∂w₁\n\nWith sigmoid/tanh:\n- Derivative ≤ 0.25\n- Multiply many small numbers → ≈ 0\n- Early layers learn very slowly\n\n**Consequences:**\n- Deep networks don't train well\n- Early layers barely update\n- Network \"forgets\" long-term dependencies\n\n**Solutions:**\n\n**1. ReLU activation:**\n- Derivative = 1 (when x > 0)\n- No vanishing gradient\n\n**2. Residual connections (ResNet):**\n- Skip connections\n- Gradient flows directly\n\n**3. LSTM/GRU:**\n- Gating mechanisms\n- Control information flow\n\n**4. Batch Normalization:**\n- Maintains activation scales\n\n**5. Proper initialization:**\n- Xavier, He initialization"
+    },
+    {
+      "id": 301,
+      "question": "What are database indexes types (B-tree, Hash, etc.)?",
+      "answer": "**B-tree Index (most common):**\n- Balanced tree structure\n- Good for range queries (>, <, BETWEEN)\n- Good for equality (=)\n- Used by default in most databases\n\n**Hash Index:**\n- Fast for equality lookups\n- Cannot do range queries\n- O(1) average case\n\n**Bitmap Index:**\n- For low-cardinality columns (gender, status)\n- Space efficient\n- Fast for AND/OR operations\n\n**Full-text Index:**\n- For text search\n- Tokenizes text\n- Supports MATCH queries\n\n**Spatial Index:**\n- For geographic data\n- R-tree structure\n- PostGIS, MySQL spatial\n\n**Example:**\n```sql\nCREATE INDEX idx_name ON users(name);  -- B-tree\nCREATE INDEX idx_email USING HASH ON users(email);\n```"
+    },
+    {
+      "id": 302,
+      "question": "What is database denormalization and when to use it?",
+      "answer": "**Denormalization**: Intentionally adding redundancy to improve read performance.\n\n**Normalization (removes redundancy):**\n```sql\n-- Normalized: 2 tables\nusers(id, name)\norders(id, user_id, amount)\n```\n\n**Denormalization (adds redundancy):**\n```sql\n-- Denormalized: 1 table\norders(id, user_id, user_name, amount)\n-- user_name duplicated!\n```\n\n**Benefits:**\n- Faster queries (no JOINs)\n- Reduced complexity\n- Better for read-heavy workloads\n\n**Costs:**\n- More storage\n- Update anomalies\n- Data inconsistency risk\n- Slower writes\n\n**When to use:**\n- Analytics/reporting databases\n- Data warehouses\n- Read >> Write scenarios\n- Caching layers\n\n**Don't use for:**\n- OLTP (many writes)\n- Strong consistency required"
+    },
+    {
+      "id": 303,
+      "question": "What is attention mask in transformers?",
+      "answer": "**Attention mask**: Prevents model from attending to certain positions.\n\n**Uses:**\n\n**1. Padding mask:**\n```python\ninput_ids = [101, 2023, 2003, 0, 0]  # 0 = padding\nattention_mask = [1, 1, 1, 0, 0]  # Don't attend to padding\n```\n\n**2. Causal mask (decoder):**\n```\nPosition:  0  1  2  3\n     0:  [ 1  0  0  0 ]  # Token 0 sees only itself\n     1:  [ 1  1  0  0 ]  # Token 1 sees 0,1\n     2:  [ 1  1  1  0 ]  # Token 2 sees 0,1,2\n     3:  [ 1  1  1  1 ]  # Token 3 sees all\n```\nPrevents looking ahead (autoregressive)\n\n**Implementation:**\n```python\n# Apply mask\nscores = scores + attention_mask * -1e9\nattention_weights = softmax(scores)\n```\n\n**Result:**\n- Masked positions get near-zero attention\n- Model ignores them"
+    },
+    {
+      "id": 304,
+      "question": "What is n-gram language modeling?",
+      "answer": "**N-gram**: Sequence of N consecutive words.\n\n**Examples:**\n- Unigram (1-gram): \"the\", \"cat\", \"sat\"\n- Bigram (2-gram): \"the cat\", \"cat sat\"\n- Trigram (3-gram): \"the cat sat\"\n\n**Language model:**\nP(word | previous words)\n\n**Bigram model:**\n```\nP(sat | cat) = Count(\"cat sat\") / Count(\"cat\")\n```\n\n**Limitations:**\n\n1. **Sparsity:**\n   - Many n-grams never seen in training\n   - Can't predict unseen sequences\n\n2. **Short context:**\n   - Trigrams only see 2 previous words\n   - Misses long-range dependencies\n\n3. **Storage:**\n   - Must store all n-gram counts\n   - Exponential with N\n\n**Smoothing:**\nAdd-one, Laplace, Kneser-Ney\n\n**Modern replacement:**\nNeural language models (RNN, Transformer) - no sparsity, longer context"
+    },
+    {
+      "id": 305,
+      "question": "What is early stopping in training?",
+      "answer": "**Early stopping**: Stop training when validation performance stops improving.\n\n**Algorithm:**\n```python\nbest_val_loss = float('inf')\npatience = 5\npatience_counter = 0\n\nfor epoch in range(num_epochs):\n    train_loss = train_one_epoch()\n    val_loss = validate()\n    \n    if val_loss < best_val_loss:\n        best_val_loss = val_loss\n        save_model()\n        patience_counter = 0\n    else:\n        patience_counter += 1\n    \n    if patience_counter >= patience:\n        print(\"Early stopping!\")\n        break\n```\n\n**Benefits:**\n- Prevents overfitting\n- Saves training time\n- Automatic regularization\n\n**Hyperparameters:**\n- **patience**: epochs to wait before stopping\n- **min_delta**: minimum improvement to consider\n\n**PyTorch Lightning:**\n```python\nfrom pytorch_lightning.callbacks import EarlyStopping\n\nearly_stop = EarlyStopping(\n    monitor='val_loss',\n    patience=5,\n    mode='min'\n)\n```"
+    },
+    {
+      "id": 306,
+      "question": "What is the difference between bagging and pasting?",
+      "answer": "Both are ensemble methods that train models on random subsets.\n\n**Bagging (Bootstrap Aggregating):**\n- Sampling **with replacement**\n- Same sample can appear multiple times\n- Subsets same size as original\n- Reduces variance\n- Example: Random Forest\n\n**Pasting:**\n- Sampling **without replacement**\n- Each sample appears at most once\n- Subsets smaller than original\n- Also reduces variance\n- Less common\n\n**Example:**\nOriginal: [1, 2, 3, 4, 5]\n\n**Bagging sample:**\n[1, 1, 3, 5, 5]  # duplicates allowed\n\n**Pasting sample:**\n[1, 3, 4]  # no duplicates, smaller\n\n**Which to use:**\n- Bagging: More popular, slightly better bias-variance\n- Pasting: If data is expensive to replicate\n\n**Aggregation:**\nBoth use voting (classification) or averaging (regression)"
+    },
+    {
+      "id": 307,
+      "question": "What is homoscedasticity in regression?",
+      "answer": "**Homoscedasticity**: Constant variance of residuals across all levels of X.\n\n**Good (homoscedastic):**\n```\nResiduals\n   |\n   |  •  • •\n   | •  •  •  •\n0 -|•  •  •  •  •\n   | •  •  •  •\n   |  •  • •\n   |___________  Predicted\n```\nResiduals spread evenly\n\n**Bad (heteroscedastic):**\n```\nResiduals\n   |         •\n   |       •  • •\n0 -|•  • •  •  •  •\n   | •  • •  •  •  •\n   |  •  •      •\n   |___________  Predicted\n```\nVariance increases with prediction\n\n**Why it matters:**\n- OLS assumes homoscedasticity\n- Heteroscedasticity → unreliable standard errors\n- Confidence intervals wrong\n\n**Detection:**\n- Plot residuals vs fitted values\n- Breusch-Pagan test\n\n**Solutions:**\n- Transform Y (log, sqrt)\n- Weighted Least Squares\n- Robust standard errors"
+    },
+    {
+      "id": 308,
+      "question": "What is residual analysis in regression?",
+      "answer": "**Residuals**: Differences between observed and predicted values.\n```\nresidual = y_actual - y_predicted\n```\n\n**What to check:**\n\n**1. Normality:**\n- Q-Q plot should be linear\n- Histogram should be bell-shaped\n\n**2. Zero mean:**\n- Residuals should center around 0\n\n**3. Homoscedasticity:**\n- Constant variance\n- No funnel shape\n\n**4. Independence:**\n- No patterns in residuals\n- No autocorrelation (time series)\n\n**5. Outliers:**\n- Check for extreme residuals\n- May indicate influential points\n\n**Diagnostic plots:**\n\n```python\nimport matplotlib.pyplot as plt\n\n# Residuals vs fitted\nplt.scatter(y_pred, residuals)\n\n# Q-Q plot\nfrom scipy import stats\nstats.probplot(residuals, plot=plt)\n```\n\n**If assumptions violated:**\n- Transform variables\n- Add/remove features\n- Use different model"
+    },
+    {
+      "id": 309,
+      "question": "What is outlier detection and common methods?",
+      "answer": "**Outlier**: Data point significantly different from others.\n\n**Methods:**\n\n**1. Statistical:**\n\n**Z-score:**\n```python\nz = (x - mean) / std\noutliers = abs(z) > 3\n```\n\n**IQR (Interquartile Range):**\n```python\nQ1, Q3 = np.percentile(data, [25, 75])\nIQR = Q3 - Q1\nlower = Q1 - 1.5*IQR\nupper = Q3 + 1.5*IQR\noutliers = (data < lower) | (data > upper)\n```\n\n**2. Distance-based:**\n\n**LOF (Local Outlier Factor):**\n```python\nfrom sklearn.neighbors import LocalOutlierFactor\nlof = LocalOutlierFactor()\npredictions = lof.fit_predict(X)\n```\n\n**3. Density-based:**\n- DBSCAN clustering\n- Points not in any cluster = outliers\n\n**4. Isolation Forest:**\n```python\nfrom sklearn.ensemble import IsolationForest\niso = IsolationForest(contamination=0.1)\npredictions = iso.fit_predict(X)\n```\n\n**Action:**\n- Investigate (data error or real?)\n- Remove, cap, or transform"
+    },
+    {
+      "id": 310,
+      "question": "What is the difference between correlation and causation?",
+      "answer": "**Correlation**: Two variables change together.\n**Causation**: One variable causes change in another.\n\n**Key point:** Correlation ≠ Causation!\n\n**Example:**\n- Ice cream sales & shark attacks are correlated\n- Both increase in summer\n- Ice cream doesn't CAUSE shark attacks!\n- **Confounding variable**: Temperature\n\n**Spurious correlation:**\nTwo unrelated variables happen to correlate\n- Nicolas Cage movies & pool drownings\n\n**Establishing causation:**\n\n**1. Randomized Controlled Trial (RCT):**\n- Gold standard\n- Random assignment eliminates confounders\n\n**2. Natural experiments:**\n- Find quasi-random variation\n\n**3. Causal inference techniques:**\n- Propensity score matching\n- Difference-in-differences\n- Instrumental variables\n\n**Bradford Hill criteria:**\n- Temporal precedence\n- Dose-response\n- Biological plausibility\n\n**Remember:** ML finds correlation, not causation!"
+    },
+    {
+      "id": 311,
+      "question": "What is SQL GROUP BY and how does it work?",
+      "answer": "**GROUP BY**: Aggregate rows that have same values in specified columns.\n\n**Basic example:**\n```sql\nSELECT department, COUNT(*) as employee_count\nFROM employees\nGROUP BY department;\n```\n\nResult:\n```\ndepartment   | employee_count\n-------------|---------------\nSales        | 10\nEngineering  | 25\nHR           | 5\n```\n\n**Multiple columns:**\n```sql\nSELECT department, job_title, AVG(salary)\nFROM employees\nGROUP BY department, job_title;\n```\n\n**With HAVING (filter groups):**\n```sql\nSELECT department, AVG(salary)\nFROM employees\nGROUP BY department\nHAVING AVG(salary) > 70000;\n```\n\n**Rule:** Every column in SELECT must be either:\n- In GROUP BY, OR\n- Inside an aggregate function (COUNT, SUM, AVG, MAX, MIN)"
+    },
+    {
+      "id": 312,
+      "question": "What is SQL LIMIT and OFFSET for pagination?",
+      "answer": "**LIMIT**: Restrict number of returned rows.\n**OFFSET**: Skip first N rows.\n\n**Basic LIMIT:**\n```sql\nSELECT * FROM products\nORDER BY price DESC\nLIMIT 10;  -- Top 10 most expensive\n```\n\n**Pagination:**\n```sql\n-- Page 1 (rows 0-9)\nSELECT * FROM products\nORDER BY id\nLIMIT 10 OFFSET 0;\n\n-- Page 2 (rows 10-19)\nSELECT * FROM products\nORDER BY id\nLIMIT 10 OFFSET 10;\n\n-- Page N\nLIMIT page_size OFFSET (page_number - 1) * page_size;\n```\n\n**Shorthand (MySQL, PostgreSQL):**\n```sql\nLIMIT 10, 20  -- Skip 10, take 20\n-- Equivalent to:\nLIMIT 20 OFFSET 10\n```\n\n**Performance tip:**\n- OFFSET is slow on large datasets\n- Better: Use WHERE id > last_seen_id"
+    },
+    {
+      "id": 313,
+      "question": "What is text classification in NLP?",
+      "answer": "**Text classification**: Assign predefined categories to text.\n\n**Types:**\n\n**Binary:**\n- Spam vs not spam\n- Positive vs negative sentiment\n\n**Multi-class:**\n- Topic classification (sports, politics, tech)\n- Language detection\n\n**Multi-label:**\n- Document can have multiple tags\n- Movie genres: [action, comedy, sci-fi]\n\n**Pipeline:**\n\n**1. Classical ML:**\n```python\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom sklearn.naive_bayes import MultinomialNB\n\nvectorizer = TfidfVectorizer()\nX = vectorizer.fit_transform(texts)\nclf = MultinomialNB()\nclf.fit(X, labels)\n```\n\n**2. Deep Learning:**\n```python\nfrom transformers import pipeline\n\nclassifier = pipeline(\n    \"text-classification\",\n    model=\"bert-base-uncased\"\n)\nresult = classifier(\"I love this product!\")\n```\n\n**Applications:**\n- Content moderation\n- Customer support routing\n- News categorization"
+    },
+    {
+      "id": 314,
+      "question": "What is feature importance and how to calculate it?",
+      "answer": "**Feature importance**: Measure how much each feature contributes to predictions.\n\n**Methods:**\n\n**1. Tree-based models (built-in):**\n```python\nfrom sklearn.ensemble import RandomForestClassifier\n\nrf = RandomForestClassifier()\nrf.fit(X, y)\n\nimportances = rf.feature_importances_\nfor feature, importance in zip(features, importances):\n    print(f\"{feature}: {importance}\")\n```\nBased on how much each feature decreases impurity\n\n**2. Permutation importance:**\n```python\nfrom sklearn.inspection import permutation_importance\n\nresult = permutation_importance(model, X_test, y_test, n_repeats=10)\nimportances = result.importances_mean\n```\nShuffle feature, measure performance drop\n\n**3. SHAP (SHapley Additive exPlanations):**\n```python\nimport shap\nexplainer = shap.TreeExplainer(model)\nshap_values = explainer.shap_values(X)\nshap.summary_plot(shap_values, X)\n```\n\n**Use cases:**\n- Feature selection\n- Model interpretability\n- Understanding predictions"
+    },
+    {
+      "id": 315,
+      "question": "What is the attention mechanism complexity in transformers?",
+      "answer": "**Self-attention complexity:**\n\n**Time:** O(n²·d)\n**Space:** O(n²)\n\nWhere:\n- n = sequence length\n- d = model dimension\n\n**Breakdown:**\n1. Q·Kᵀ: (n×d) · (d×n) → (n×n) matrix [O(n²d)]\n2. Softmax: (n×n) [O(n²)]\n3. Attention·V: (n×n) · (n×d) → (n×d) [O(n²d)]\n\n**Problem:**\nQuadratic growth limits max sequence length\n- BERT: 512 tokens\n- GPT-2: 1024 tokens\n- GPT-3: 2048 tokens (with optimizations)\n\n**Solutions:**\n\n**Longformer:** O(n) with local+global attention\n**Linformer:** O(n) with low-rank approximation\n**Reformer:** O(n log n) with LSH\n**Flash Attention:** Same complexity, optimized for GPUs\n\n**Trade-off:**\nEfficiency vs modeling capability"
+    },
+    {
+      "id": 316,
+      "question": "What is model serving and deployment?",
+      "answer": "**Model serving**: Make trained model available for predictions in production.\n\n**Deployment patterns:**\n\n**1. Batch prediction:**\n- Process large batches offline\n- Write results to database\n- No real-time requirement\n\n**2. Real-time API:**\n```python\nfrom flask import Flask, request\napp = Flask(__name__)\n\n@app.route('/predict', methods=['POST'])\ndef predict():\n    data = request.json\n    prediction = model.predict(data)\n    return {'prediction': prediction}\n```\n\n**3. Streaming:**\n- Process data as it arrives\n- Kafka, Kinesis\n\n**Serving frameworks:**\n\n**TensorFlow Serving:**\n```bash\ntensorflow_model_server \\\n  --model_base_path=/models/my_model\n```\n\n**TorchServe:**\n```bash\ntorch-model-archiver --model-name bert\ntorchserve --start --model-store model_store\n```\n\n**MLflow:**\n```python\nmlflow.pyfunc.serve_model(\n    model_uri=\"models:/my_model/1\",\n    port=5000\n)\n```\n\n**Considerations:**\n- Latency requirements\n- Throughput\n- Scalability\n- Monitoring"
+    },
+    {
+      "id": 317,
+      "question": "What is cross-validation and why use it?",
+      "answer": "**Cross-validation**: Evaluate model on multiple train/test splits.\n\n**K-Fold CV:**\n```\nFold 1: [Test][Train][Train][Train][Train]\nFold 2: [Train][Test][Train][Train][Train]\nFold 3: [Train][Train][Test][Train][Train]\nFold 4: [Train][Train][Train][Test][Train]\nFold 5: [Train][Train][Train][Train][Test]\n```\n\n**Implementation:**\n```python\nfrom sklearn.model_selection import cross_val_score\n\nscores = cross_val_score(\n    model, X, y,\n    cv=5,  # 5-fold\n    scoring='accuracy'\n)\nprint(f\"Mean: {scores.mean()}, Std: {scores.std()}\")\n```\n\n**Why use:**\n1. **Better estimate**: Uses all data for training/testing\n2. **Reduces variance**: Multiple evaluations\n3. **Detects overfitting**: If train >> test\n\n**Variants:**\n- **Stratified K-Fold**: Preserves class distribution\n- **Leave-One-Out**: K = n (expensive)\n- **Time Series Split**: Respects temporal order\n\n**Grid Search with CV:**\n```python\nGridSearchCV(model, param_grid, cv=5)\n```"
+    },
+    {
+      "id": 318,
+      "question": "What is the Poisson distribution and when is it used?",
+      "answer": "**Poisson distribution**: Probability of number of events in fixed interval.\n\n**Formula:**\n```\nP(X = k) = (λᵏ · e^(-λ)) / k!\n```\n\nWhere:\n- λ (lambda) = average rate (mean = variance)\n- k = number of events\n- e = 2.71828...\n\n**Properties:**\n- Discrete distribution (k = 0, 1, 2, ...)\n- Mean = Variance = λ\n- Events are independent\n- Rare events\n\n**Examples:**\n\n**1. Customer arrivals:**\n- λ = 3 customers/hour\n- P(exactly 5 customers) = ?\n\n**2. Website clicks:**\n- λ = 100 clicks/day\n- P(more than 120 clicks) = ?\n\n**3. Defects:**\n- λ = 2 defects/product\n\n**Python:**\n```python\nfrom scipy.stats import poisson\n\n# P(k=3) when λ=2\nprob = poisson.pmf(3, mu=2)\n\n# Generate samples\nsamples = poisson.rvs(mu=2, size=1000)\n```\n\n**When to use:**\nCounting rare events in fixed intervals"
+    },
+    {
+      "id": 319,
+      "question": "What is the relationship between logistic regression and sigmoid?",
+      "answer": "**Logistic regression** uses the **sigmoid function** to convert linear output to probability.\n\n**Linear part:**\n```\nz = β₀ + β₁x₁ + β₂x₂ + ... + βₙxₙ\n```\nz can be any real number (-∞ to +∞)\n\n**Sigmoid transformation:**\n```\np = σ(z) = 1 / (1 + e^(-z))\n```\np is now between 0 and 1 (valid probability)\n\n**Full model:**\n```\nP(y=1|x) = 1 / (1 + e^(-(β₀ + β₁x₁ + ... + βₙxₙ)))\n```\n\n**Why sigmoid:**\n1. **S-shaped curve**: smooth transition\n2. **Bounded**: always [0, 1]\n3. **Monotonic**: preserves ordering\n4. **Derivative**: easy to compute for gradient descent\n\n**Decision boundary:**\n```\nPredict 1 if p > 0.5\nPredict 0 if p ≤ 0.5\n```\n\nWhen z=0 → p=0.5 (decision boundary)\n\n**Alternative:** Probit regression uses Gaussian CDF instead of sigmoid"
+    },
+    {
+      "id": 320,
+      "question": "What is model interpretability vs explainability?",
+      "answer": "**Interpretability**: Understanding how the model works internally.\n**Explainability**: Understanding individual predictions.\n\n**Interpretable models:**\n- Linear regression: coefficients directly interpretable\n- Decision trees: can visualize rules\n- Rule-based models: explicit if-then rules\n\n**Black-box models (need explanation):**\n- Neural networks\n- Ensemble methods\n- Complex non-linear models\n\n**Explanation techniques:**\n\n**1. Global explanations (model-level):**\n- Feature importance\n- Partial dependence plots\n\n**2. Local explanations (prediction-level):**\n\n**LIME:**\n```python\nfrom lime.lime_tabular import LimeTabularExplainer\nexplainer = LimeTabularExplainer(X_train)\nexplanation = explainer.explain_instance(X_test[0], model.predict_proba)\n```\n\n**SHAP:**\n```python\nimport shap\nexplainer = shap.TreeExplainer(model)\nshap_values = explainer.shap_values(X_test[0])\n```\n\n**Why important:**\n- Trust & adoption\n- Debugging\n- Regulatory compliance (GDPR, fair lending)\n- Scientific discovery"
+    },
+    {
+      "id": 321,
+      "question": "What are SQL views and materialized views?",
+      "answer": "**View (Virtual table):**\n- Stored query, not data\n- Always shows current data\n- No storage overhead\n- Computed on each query\n\n```sql\nCREATE VIEW active_users AS\nSELECT * FROM users WHERE status = 'active';\n\nSELECT * FROM active_users;  -- Runs underlying query\n```\n\n**Materialized View:**\n- Stores actual query results\n- Faster queries (pre-computed)\n- Needs refresh to update\n- Uses storage\n\n```sql\nCREATE MATERIALIZED VIEW sales_summary AS\nSELECT date, SUM(amount) as total\nFROM sales\nGROUP BY date;\n\nREFRESH MATERIALIZED VIEW sales_summary;\n```\n\n**When to use:**\n- **View**: Simple, always fresh data\n- **Materialized**: Complex aggregations, read-heavy\n\n**Trade-off:**\nFreshness vs performance"
+    },
+    {
+      "id": 322,
+      "question": "What is word2vec and how does it work?",
+      "answer": "**Word2vec**: Creates dense word embeddings from text corpus.\n\n**Two architectures:**\n\n**1. CBOW (Continuous Bag of Words):**\n- Predict word from context\n- \"The ___ sat on mat\" → predict \"cat\"\n- Faster, better for frequent words\n\n**2. Skip-gram:**\n- Predict context from word\n- \"cat\" → predict [\"the\", \"sat\", \"on\", \"mat\"]\n- Better for rare words\n\n**Training:**\n```python\nfrom gensim.models import Word2Vec\n\nsentences = [[\"cat\", \"sat\", \"mat\"], ...]\nmodel = Word2Vec(\n    sentences,\n    vector_size=100,\n    window=5,\n    min_count=1,\n    sg=1  # 1=skip-gram, 0=CBOW\n)\n\nembedding = model.wv['cat']  # 100-dim vector\nsimilar = model.wv.most_similar('cat', topn=5)\n```\n\n**Properties:**\n- Similar words → similar vectors\n- king - man + woman ≈ queen\n- Captures semantic relationships"
+    },
+    {
+      "id": 323,
+      "question": "What is the transformer decoder and how does it work?",
+      "answer": "**Decoder**: Generates output sequence autoregressively.\n\n**Components:**\n\n**1. Masked self-attention:**\n- Can only attend to previous positions\n- Prevents looking ahead\n- Causal mask\n\n**2. Cross-attention:**\n- Attends to encoder outputs\n- Q from decoder, K,V from encoder\n- Integrates source information\n\n**3. Feed-forward network:**\n- Same as encoder\n\n**Generation process:**\n```python\n# Start with <START> token\noutput = [\"<START>\"]\n\nwhile output[-1] != \"<END>\":\n    # Feed current sequence to decoder\n    logits = decoder(output, encoder_output)\n    # Get next token\n    next_token = argmax(logits[-1])\n    output.append(next_token)\n```\n\n**Decoder-only models:**\n- GPT: No encoder, no cross-attention\n- Just masked self-attention\n\n**Use cases:**\n- Language modeling\n- Text generation\n- Machine translation (with encoder)"
+    },
+    {
+      "id": 324,
+      "question": "What is model performance degradation and how to detect it?",
+      "answer": "**Performance degradation**: Model accuracy decreases over time in production.\n\n**Causes:**\n\n**1. Data drift:**\n- Input distribution changes\n- P(X) changes\n\n**2. Concept drift:**\n- Relationship between X and y changes\n- P(y|X) changes\n\n**3. Label shift:**\n- Target distribution changes\n- P(y) changes\n\n**Detection:**\n\n**1. Monitor predictions:**\n```python\n# Track prediction distribution\nimport numpy as np\ncurrent_mean = np.mean(predictions)\nif abs(current_mean - baseline_mean) > threshold:\n    alert(\"Prediction drift detected\")\n```\n\n**2. A/B test continuously:**\n- Champion vs challenger\n- Monitor business metrics\n\n**3. Ground truth monitoring:**\n```python\nif labels_available:\n    current_accuracy = accuracy(predictions, labels)\n    if current_accuracy < threshold:\n        alert(\"Performance degradation\")\n```\n\n**4. Statistical tests:**\n- KS test, Chi-square test\n\n**Action:**\n- Retrain with recent data\n- Trigger retraining pipeline"
+    },
+    {
+      "id": 325,
+      "question": "What is zero-shot, one-shot, and few-shot learning?",
+      "answer": "**Classification without (or minimal) training examples.**\n\n**Zero-shot:**\n- No training examples for new classes\n- Uses descriptions or attributes\n\n```python\nfrom transformers import pipeline\nclassifier = pipeline(\"zero-shot-classification\")\n\ntext = \"This is about machine learning\"\nlabels = [\"tech\", \"sports\", \"politics\"]\nresult = classifier(text, labels)\n```\n\n**One-shot:**\n- ONE example per class\n- Learn from single instance\n\n**Few-shot:**\n- FEW examples per class (typically 2-10)\n- In-context learning for LLMs\n\n```python\nprompt = \"\"\"\nClassify sentiment:\nI love it → positive\nI hate it → negative\nIt's okay → neutral\nGreat product! →\n\"\"\"\n```\n\n**How it works:**\n- Pre-trained models\n- Transfer learning\n- Metric learning (compare to examples)\n- For LLMs: in-context learning\n\n**Applications:**\n- Rare classes\n- Rapid prototyping\n- Domain adaptation"
+    },
+    {
+      "id": 326,
+      "question": "What is the Central Limit Theorem?",
+      "answer": "**Central Limit Theorem (CLT)**: Sample means approach normal distribution as sample size increases.\n\n**Statement:**\nFor independent samples from ANY distribution:\n- Sample mean X̄ ~ N(μ, σ²/n) as n → ∞\n\nWhere:\n- μ = population mean\n- σ² = population variance\n- n = sample size\n\n**Key points:**\n\n1. **Any distribution**: Original can be skewed, uniform, etc.\n2. **Large n**: Usually n ≥ 30 is sufficient\n3. **Independent samples**: No correlation\n\n**Example:**\n```python\nimport numpy as np\nimport matplotlib.pyplot as plt\n\n# Uniform distribution\npopulation = np.random.uniform(0, 1, 10000)\n\n# Sample means\nsample_means = [np.mean(np.random.choice(population, 30)) \n                for _ in range(1000)]\n\nplt.hist(sample_means)  # Bell curve!\n```\n\n**Why important:**\n- Justifies hypothesis testing\n- Confidence intervals\n- Foundation of statistics"
+    },
+    {
+      "id": 327,
+      "question": "What is the coefficient of determination (R²) in detail?",
+      "answer": "**R²**: Proportion of variance in y explained by the model.\n\n**Formula:**\n```\nR² = 1 - (SS_res / SS_tot)\n\nwhere:\nSS_res = Σ(yᵢ - ŷᵢ)²  # Residual sum of squares\nSS_tot = Σ(yᵢ - ȳ)²   # Total sum of squares\n```\n\n**Interpretation:**\n- R² = 0: Model explains no variance (horizontal line)\n- R² = 0.7: Model explains 70% of variance\n- R² = 1: Perfect fit\n\n**Problems:**\n\n**1. Always increases with more features:**\n```python\n# More features → higher R²\nR²(5 features) = 0.75\nR²(10 features) = 0.82  # Even if useless!\n```\n\n**2. Solution: Adjusted R²:**\n```\nR²_adj = 1 - [(1-R²)(n-1) / (n-p-1)]\n```\nPenalizes extra features\n\n**When NOT to use:**\n- Non-linear relationships\n- Comparing models on different datasets\n\n**Alternative:** RMSE, MAE for absolute error"
+    },
+    {
+      "id": 328,
+      "question": "What is SQL normalization and normal forms?",
+      "answer": "**Normalization**: Organizing database to reduce redundancy.\n\n**1NF (First Normal Form):**\n- Atomic values (no lists in cells)\n- Each column has unique name\n- No row order dependency\n\n**2NF (Second Normal Form):**\n- Must be in 1NF\n- No partial dependencies\n- Non-key columns depend on entire primary key\n\n**3NF (Third Normal Form):**\n- Must be in 2NF\n- No transitive dependencies\n- Non-key columns depend ONLY on primary key\n\n**Example:**\n\n**Not normalized:**\n```\nstudents(id, name, course1, course2, course3)\n```\n\n**Normalized:**\n```\nstudents(id, name)\ncourses(id, name)\nenrollments(student_id, course_id)\n```\n\n**Benefits:**\n- No update anomalies\n- No redundancy\n- Data integrity\n\n**BCNF (Boyce-Codd):**\nStricter version of 3NF\n\n**Trade-off:**\nMore JOINs needed for queries"
+    },
+    {
+      "id": 329,
+      "question": "What is transfer learning in computer vision?",
+      "answer": "**Transfer learning**: Use pre-trained model as starting point.\n\n**Process:**\n\n**1. Load pre-trained model:**\n```python\nimport torchvision.models as models\nresnet = models.resnet50(pretrained=True)\n```\n\n**2. Replace final layer:**\n```python\nnum_features = resnet.fc.in_features\nresnet.fc = nn.Linear(num_features, num_classes)\n```\n\n**3. Freeze early layers (optional):**\n```python\nfor param in resnet.parameters():\n    param.requires_grad = False\n# Only train final layer\nfor param in resnet.fc.parameters():\n    param.requires_grad = True\n```\n\n**4. Fine-tune:**\n```python\noptimizer = torch.optim.Adam(\n    resnet.fc.parameters(),\n    lr=0.001\n)\n```\n\n**When to use:**\n- Small dataset\n- Similar domain (ImageNet → your images)\n- Limited compute\n\n**Strategies:**\n- **Feature extraction**: Freeze all, train classifier\n- **Fine-tuning**: Unfreeze some/all layers\n\n**Popular pre-trained models:**\nResNet, VGG, EfficientNet, Vision Transformer"
+    },
+    {
+      "id": 330,
+      "question": "What is the difference between L1 and L2 loss?",
+      "answer": "**L1 Loss (MAE - Mean Absolute Error):**\n```\nL1 = Σ|yᵢ - ŷᵢ|\n```\n\n**Properties:**\n- Not differentiable at 0\n- Robust to outliers\n- Gradient constant (±1)\n\n**L2 Loss (MSE - Mean Squared Error):**\n```\nL2 = Σ(yᵢ - ŷᵢ)²\n```\n\n**Properties:**\n- Smooth, differentiable everywhere\n- Sensitive to outliers\n- Gradient proportional to error\n\n**Comparison:**\n\n**Outlier:**\nError = 10\n- L1: |10| = 10\n- L2: 10² = 100 (penalizes more!)\n\n**Small error:**\nError = 0.1\n- L1: |0.1| = 0.1\n- L2: 0.1² = 0.01 (penalizes less)\n\n**When to use:**\n- **L1**: Outliers present, want median\n- **L2**: Standard choice, want mean\n\n**Huber Loss:**\nCombines both - L2 for small errors, L1 for large\n\n```python\ncriterion_l1 = nn.L1Loss()\ncriterion_l2 = nn.MSELoss()\n```"
+    },
+    {
+      "id": 331,
+      "question": "What are SQL stored procedures and functions?",
+      "answer": "**Stored Procedure:**\n- Reusable SQL code block\n- Can perform actions (INSERT, UPDATE)\n- Can return multiple result sets\n- Cannot be used in SELECT\n\n```sql\nCREATE PROCEDURE GetEmployeesByDept(dept_name VARCHAR(50))\nBEGIN\n    SELECT * FROM employees WHERE department = dept_name;\nEND;\n\nCALL GetEmployeesByDept('Engineering');\n```\n\n**Function:**\n- Must return single value\n- Read-only (no modifications)\n- Can be used in SELECT\n- Deterministic\n\n```sql\nCREATE FUNCTION GetFullName(first VARCHAR(50), last VARCHAR(50))\nRETURNS VARCHAR(100)\nBEGIN\n    RETURN CONCAT(first, ' ', last);\nEND;\n\nSELECT GetFullName(first_name, last_name) FROM employees;\n```\n\n**Benefits:**\n- Code reuse\n- Performance (compiled once)\n- Security (restrict direct table access)\n- Encapsulation"
+    },
+    {
+      "id": 332,
+      "question": "What is SQL query optimization?",
+      "answer": "**Techniques to make queries faster:**\n\n**1. Use indexes:**\n```sql\nCREATE INDEX idx_email ON users(email);\n-- Now WHERE email = '...' is fast\n```\n\n**2. Avoid SELECT *:**\n```sql\n-- Bad\nSELECT * FROM users;\n-- Good\nSELECT id, name FROM users;\n```\n\n**3. Use EXPLAIN:**\n```sql\nEXPLAIN SELECT * FROM users WHERE age > 25;\n-- Shows: index usage, rows scanned, cost\n```\n\n**4. Optimize JOINs:**\n- Index foreign keys\n- Join on indexed columns\n- Use appropriate JOIN type\n\n**5. Limit results:**\n```sql\nSELECT * FROM users LIMIT 100;\n```\n\n**6. Avoid functions on indexed columns:**\n```sql\n-- Bad (can't use index)\nWHERE YEAR(created_at) = 2024\n-- Good\nWHERE created_at >= '2024-01-01' AND created_at < '2025-01-01'\n```\n\n**7. Use UNION ALL instead of UNION:**\nIf duplicates don't matter\n\n**8. Partition large tables**"
+    },
+    {
+      "id": 333,
+      "question": "What is the difference between L1 and L2 regularization?",
+      "answer": "**L1 Regularization (Lasso):**\n```\nLoss = MSE + λ·Σ|wᵢ|\n```\n\n**Properties:**\n- Penalty proportional to absolute value\n- Creates sparse solutions (many weights = 0)\n- Feature selection\n- Not differentiable at 0\n\n**L2 Regularization (Ridge):**\n```\nLoss = MSE + λ·Σwᵢ²\n```\n\n**Properties:**\n- Penalty proportional to square\n- Shrinks all weights toward 0\n- Keeps all features\n- Smooth, differentiable\n\n**Geometric interpretation:**\n- L1: Diamond-shaped constraint\n- L2: Circular constraint\n\n**Example:**\n```python\nfrom sklearn.linear_model import Lasso, Ridge\n\nlasso = Lasso(alpha=1.0)  # L1\nridge = Ridge(alpha=1.0)  # L2\n```\n\n**When to use:**\n- **L1**: Want feature selection, sparse model\n- **L2**: All features important, prevent large weights\n- **Elastic Net**: Combine both"
+    },
+    {
+      "id": 334,
+      "question": "What is the log-likelihood function?",
+      "answer": "**Likelihood**: Probability of observing data given parameters.\n**Log-likelihood**: Natural log of likelihood.\n\n**Why use log?**\n\n1. **Numerical stability:**\n   - Products of small probabilities → underflow\n   - Log converts products to sums\n\n2. **Easier optimization:**\n   - Monotonic transformation\n   - Maximizing log-likelihood = maximizing likelihood\n\n**Example: Coin flips**\n\nData: {H, H, T, H, T} (3 heads, 2 tails)\nParameter: p (probability of heads)\n\n**Likelihood:**\n```\nL(p) = p³ · (1-p)²\n```\n\n**Log-likelihood:**\n```\nℓ(p) = log(L(p)) = 3·log(p) + 2·log(1-p)\n```\n\n**Maximum Likelihood Estimation:**\n```python\n# Find p that maximizes ℓ(p)\nd/dp [ℓ(p)] = 0\np̂ = 3/5 = 0.6\n```\n\n**In neural networks:**\nCross-entropy loss = negative log-likelihood"
+    },
+    {
+      "id": 335,
+      "question": "What is question answering in NLP?",
+      "answer": "**Question Answering (QA)**: Find answer to question from text.\n\n**Types:**\n\n**1. Extractive QA:**\n- Answer is substring of context\n- Find start and end positions\n\n```python\nfrom transformers import pipeline\n\nqa = pipeline(\"question-answering\")\n\ncontext = \"Paris is the capital of France.\"\nquestion = \"What is the capital of France?\"\n\nresult = qa(question=question, context=context)\n# {'answer': 'Paris', 'score': 0.95}\n```\n\n**2. Abstractive QA:**\n- Generate answer (not extract)\n- Can paraphrase\n\n**3. Open-domain QA:**\n- Answer from large corpus\n- Two-stage: retrieval + reading\n\n**Models:**\n- **BERT**: Fine-tuned on SQuAD\n- **T5**: \"question: ... context: ...\"\n- **RAG**: Retrieval-Augmented Generation\n\n**Evaluation:**\n- Exact Match (EM)\n- F1 score\n\n**Datasets:**\nSQuAD, Natural Questions, TriviaQA"
+    },
+    {
+      "id": 336,
+      "question": "What is machine translation and how does it work?",
+      "answer": "**Machine Translation**: Translate text from one language to another.\n\n**Approaches:**\n\n**1. Rule-based:**\n- Grammar rules + dictionaries\n- Difficult to scale\n\n**2. Statistical (SMT):**\n- Phrase-based translation tables\n- Language models\n\n**3. Neural (NMT):**\n\n**Sequence-to-sequence:**\n```\nEncoder (English) → Context → Decoder (French)\n\"Hello\" → [0.2, -0.5, ...] → \"Bonjour\"\n```\n\n**Transformer:**\n```python\nfrom transformers import MarianMTModel, MarianTokenizer\n\nmodel_name = \"Helsinki-NLP/opus-mt-en-fr\"\ntokenizer = MarianTokenizer.from_pretrained(model_name)\nmodel = MarianMTModel.from_pretrained(model_name)\n\ninputs = tokenizer(\"Hello world\", return_tensors=\"pt\")\noutputs = model.generate(**inputs)\ntranslation = tokenizer.decode(outputs[0], skip_special_tokens=True)\n# \"Bonjour le monde\"\n```\n\n**Challenges:**\n- Rare words\n- Idioms\n- Cultural context\n\n**Evaluation:**\nBLEU score"
+    },
+    {
+      "id": 337,
+      "question": "What is model quantization?",
+      "answer": "**Quantization**: Reduce numerical precision of weights/activations.\n\n**Standard:**\nfloat32 (32 bits per number)\n\n**Quantized:**\nint8 (8 bits per number)\n\n**Benefits:**\n- 4× smaller model size\n- 2-4× faster inference\n- Less memory\n- Lower power consumption\n\n**Types:**\n\n**1. Post-training quantization:**\n```python\nimport torch\n\nquantized_model = torch.quantization.quantize_dynamic(\n    model,\n    {torch.nn.Linear},\n    dtype=torch.qint8\n)\n```\n\n**2. Quantization-aware training:**\n- Simulate quantization during training\n- Better accuracy\n\n**Trade-off:**\n- Size/speed vs accuracy\n- int8: Usually <1% accuracy loss\n- int4: May need careful tuning\n\n**Applications:**\n- Mobile deployment\n- Edge devices\n- Cost reduction\n\n**Extreme:** Binary networks (1-bit)"
+    },
+    {
+      "id": 338,
+      "question": "What is attention collapse in transformers?",
+      "answer": "**Attention collapse**: Attention weights become uniform or degenerate.\n\n**Problem:**\n\n**Uniform attention:**\n```\nAttention weights: [0.2, 0.2, 0.2, 0.2, 0.2]\n# Equal attention to all tokens = no selectivity\n```\n\n**Causes:**\n\n1. **Poor initialization:**\n   - All Q, K similar → similar scores\n\n2. **Vanishing gradients:**\n   - Deep transformers\n   - Attention learns nothing\n\n3. **Over-smoothing:**\n   - Too many layers\n   - Representations become similar\n\n**Detection:**\n```python\n# Check attention entropy\nimport torch\nentropy = -(attn_weights * torch.log(attn_weights)).sum(dim=-1)\n# Low entropy → collapsed\n```\n\n**Solutions:**\n\n1. **Better initialization**\n2. **Layer normalization**\n3. **Residual connections**\n4. **Limit depth**\n5. **Attention dropout**\n\n**Related:** Mode collapse in GANs"
+    },
+    {
+      "id": 339,
+      "question": "What is model retraining strategy?",
+      "answer": "**When to retrain:**\n\n**1. Scheduled retraining:**\n- Daily, weekly, monthly\n- Simple, predictable\n- May retrain unnecessarily\n\n**2. Triggered retraining:**\n- Performance drops below threshold\n- Data drift detected\n- More efficient\n\n**3. Continuous retraining:**\n- Online learning\n- Real-time updates\n- Complex to implement\n\n**How to retrain:**\n\n**Full retraining:**\n```python\n# Start from scratch\nmodel = create_model()\nmodel.fit(all_data)\n```\n\n**Incremental retraining:**\n```python\n# Fine-tune on new data\nmodel.partial_fit(new_data)\n```\n\n**Best practices:**\n\n1. **Version control:**\n   - Track each retrained model\n\n2. **A/B test:**\n   - Compare new vs old model\n\n3. **Automated pipeline:**\n```python\nif data_drift_detected():\n    new_model = retrain(model, recent_data)\n    if new_model.performance > current.performance:\n        deploy(new_model)\n```\n\n4. **Keep training data window:**\n   - Last N months only"
+    },
+    {
+      "id": 340,
+      "question": "What is the curse of dimensionality in distance metrics?",
+      "answer": "**Problem**: In high dimensions, all points are approximately equidistant.\n\n**Example:**\nRandom points in d-dimensional unit cube\n\n**Low dimension (d=2):**\n```\nNearest neighbor: distance ≈ 0.2\nFarthest neighbor: distance ≈ 1.4\nRatio: 7×\n```\n\n**High dimension (d=100):**\n```\nNearest neighbor: distance ≈ 9.8\nFarthest neighbor: distance ≈ 10.1\nRatio: 1.03×\n```\n\n**Consequence:**\n- Nearest neighbor becomes meaningless\n- KNN fails\n- Clustering struggles\n- Distance metrics lose discrimination\n\n**Why it happens:**\nVolume concentrates at edges in high dimensions\n\n**Solutions:**\n\n1. **Dimensionality reduction:**\n   - PCA, t-SNE, UMAP\n\n2. **Feature selection:**\n   - Keep only relevant features\n\n3. **Different metrics:**\n   - Cosine similarity (angle, not distance)\n   - Learned metrics\n\n4. **Specialized methods:**\n   - Locality-sensitive hashing\n   - Approximate nearest neighbors"
+    },
+    {
+      "id": 341,
+      "question": "What is dependency parsing in NLP?",
+      "answer": "**Dependency parsing**: Analyze grammatical structure by showing relationships between words.\n\n**Example:**\n```\n\"John ate the apple\"\n\nRelations:\nate (ROOT)\n├── John (subject)\n└── apple (object)\n    └── the (determiner)\n```\n\n**Dependencies:**\n- nsubj: nominal subject (John → ate)\n- obj: object (apple → ate)\n- det: determiner (the → apple)\n\n**Implementation:**\n```python\nimport spacy\n\nnlp = spacy.load(\"en_core_web_sm\")\ndoc = nlp(\"John ate the apple\")\n\nfor token in doc:\n    print(f\"{token.text} <- {token.dep_} - {token.head.text}\")\n```\n\n**Use cases:**\n- Information extraction\n- Relation extraction\n- Question answering\n- Machine translation\n\n**Difference from constituency parsing:**\n- Dependency: Relations between words\n- Constituency: Phrase structure (NP, VP, etc.)"
+    },
+    {
+      "id": 342,
+      "question": "What is coreference resolution?",
+      "answer": "**Coreference resolution**: Identify which expressions refer to the same entity.\n\n**Example:**\n```\n\"John went to the store. He bought milk. \nThe man returned home.\"\n\nCoreferences:\n\"John\" = \"He\" = \"The man\"\n```\n\n**Types:**\n\n**Pronominal:**\n- \"Mary\" ← \"she\"\n\n**Nominal:**\n- \"Apple Inc.\" ← \"the company\"\n\n**Implementation:**\n```python\nimport spacy\nimport neuralcoref\n\nnlp = spacy.load('en_core_web_sm')\nneuralcoref.add_to_pipe(nlp)\n\ndoc = nlp('John went to the store. He bought milk.')\nprint(doc._.coref_clusters)\n# [[John, He]]\n```\n\n**Challenges:**\n- Ambiguous pronouns (\"it\", \"they\")\n- Long-distance references\n- Generic vs specific\n\n**Applications:**\n- Text summarization\n- Question answering\n- Information extraction"
+    },
+    {
+      "id": 343,
+      "question": "What is language modeling evaluation (perplexity)?",
+      "answer": "**Perplexity**: Measure of how well language model predicts text.\n\n**Definition:**\n```\nPerplexity = 2^H\n\nwhere H = -1/N · Σ log₂ P(wᵢ|context)\n```\n\n**Intuition:**\nAverage number of equally-likely choices at each step\n\n**Interpretation:**\n- **Lower is better**\n- PPL = 1: Perfect prediction\n- PPL = 10: \"Confused between 10 words\"\n- PPL = 100: Very confused\n\n**Example:**\n```python\nimport torch\nfrom transformers import GPT2LMHeadModel, GPT2Tokenizer\n\nmodel = GPT2LMHeadModel.from_pretrained('gpt2')\ntokenizer = GPT2Tokenizer.from_pretrained('gpt2')\n\ninputs = tokenizer(\"Hello world\", return_tensors=\"pt\")\nwith torch.no_grad():\n    outputs = model(**inputs, labels=inputs[\"input_ids\"])\n    perplexity = torch.exp(outputs.loss)\nprint(f\"Perplexity: {perplexity}\")\n```\n\n**Good perplexity:**\n- GPT-2: ~20-30\n- Human: ~10-15\n\n**Note:** Perplexity alone doesn't guarantee quality (fluency vs factuality)"
+    },
+    {
+      "id": 344,
+      "question": "What is text generation decoding (greedy vs sampling)?",
+      "answer": "**Greedy decoding:**\n- Always pick highest probability token\n- Deterministic\n- May get stuck in loops\n\n```python\noutputs = model.generate(\n    input_ids,\n    max_length=50\n)\n```\n\n**Sampling:**\n- Sample from probability distribution\n- Adds randomness\n\n```python\noutputs = model.generate(\n    input_ids,\n    do_sample=True,\n    max_length=50\n)\n```\n\n**Top-k sampling:**\n- Sample from top k most likely tokens\n\n```python\noutputs = model.generate(\n    input_ids,\n    do_sample=True,\n    top_k=50\n)\n```\n\n**Top-p (nucleus) sampling:**\n- Sample from smallest set with cumulative probability ≥ p\n\n```python\noutputs = model.generate(\n    input_ids,\n    do_sample=True,\n    top_p=0.9\n)\n```\n\n**Temperature:**\n```python\noutputs = model.generate(\n    input_ids,\n    do_sample=True,\n    temperature=0.7  # <1: conservative, >1: creative\n)\n```"
+    },
+    {
+      "id": 345,
+      "question": "What is the Vision Transformer (ViT)?",
+      "answer": "**Vision Transformer**: Apply transformer architecture to images.\n\n**How it works:**\n\n**1. Split image into patches:**\n```\nImage (224×224) → 196 patches (16×16 each)\n```\n\n**2. Flatten and project:**\n```python\npatch = image[:, :, i*16:(i+1)*16, j*16:(j+1)*16]\nembedding = linear(flatten(patch))  # Project to d dimensions\n```\n\n**3. Add positional encoding:**\n```python\nembedding += pos_encoding\n```\n\n**4. Feed to transformer:**\n```python\nclass VisionTransformer(nn.Module):\n    def __init__(self):\n        self.patch_embed = PatchEmbedding()\n        self.transformer = TransformerEncoder()\n        self.classifier = nn.Linear(d_model, num_classes)\n    \n    def forward(self, x):\n        patches = self.patch_embed(x)\n        features = self.transformer(patches)\n        return self.classifier(features[0])  # CLS token\n```\n\n**Advantages:**\n- Scalable to large datasets\n- Captures global relationships\n\n**Challenges:**\n- Needs lots of data\n- More compute than CNNs"
+    },
+    {
+      "id": 346,
+      "question": "What is sequence-to-sequence learning?",
+      "answer": "**Seq2Seq**: Map input sequence to output sequence.\n\n**Architecture:**\n```\nEncoder → Context Vector → Decoder\n\n[I, love, cats] → [0.2, -0.5, ...] → [J', aime, les, chats]\n```\n\n**Original (RNN-based):**\n```python\nclass Seq2Seq(nn.Module):\n    def __init__(self):\n        self.encoder = nn.LSTM(input_size, hidden_size)\n        self.decoder = nn.LSTM(hidden_size, hidden_size)\n        self.fc = nn.Linear(hidden_size, vocab_size)\n    \n    def forward(self, src, tgt):\n        # Encode\n        _, (hidden, cell) = self.encoder(src)\n        \n        # Decode\n        outputs, _ = self.decoder(tgt, (hidden, cell))\n        predictions = self.fc(outputs)\n        return predictions\n```\n\n**Modern (Transformer):**\n```python\nfrom transformers import T5Model\nmodel = T5Model.from_pretrained(\"t5-base\")\n```\n\n**Applications:**\n- Machine translation\n- Summarization\n- Dialogue systems\n- Code generation\n\n**Attention mechanism:**\nSolved bottleneck of single context vector"
+    },
+    {
+      "id": 347,
+      "question": "What is model explainability with LIME?",
+      "answer": "**LIME (Local Interpretable Model-agnostic Explanations):**\n\nExplains individual predictions by learning local linear approximation.\n\n**How it works:**\n\n1. **Perturb input:**\n   - Create variations of input\n   - For images: mask regions\n   - For text: remove words\n\n2. **Get predictions:**\n   - Run model on perturbed inputs\n\n3. **Fit linear model:**\n   - Learn simple model locally\n   - Weighted by similarity to original\n\n4. **Explain:**\n   - Linear coefficients = feature importance\n\n**Implementation:**\n\n**For tabular data:**\n```python\nfrom lime.lime_tabular import LimeTabularExplainer\n\nexplainer = LimeTabularExplainer(\n    X_train,\n    feature_names=features,\n    class_names=['No', 'Yes']\n)\n\nexp = explainer.explain_instance(\n    X_test[0],\n    model.predict_proba,\n    num_features=5\n)\nexp.show_in_notebook()\n```\n\n**For text:**\n```python\nfrom lime.lime_text import LimeTextExplainer\nexplainer = LimeTextExplainer()\nexp = explainer.explain_instance(text, classifier.predict_proba)\n```\n\n**Advantages:**\n- Model-agnostic\n- Local fidelity\n\n**Limitations:**\n- Instability\n- Sampling overhead"
+    },
+    {
+      "id": 348,
+      "question": "What is feature store in MLOps?",
+      "answer": "**Feature store**: Centralized repository for ML features.\n\n**Purpose:**\n\n1. **Consistency:**\n   - Same features for training & serving\n   - Avoid training-serving skew\n\n2. **Reusability:**\n   - Share features across teams/models\n   - Don't recompute\n\n3. **Governance:**\n   - Track feature lineage\n   - Versioning\n\n**Architecture:**\n```\nData Sources → Feature Engineering → Feature Store\n                                          ↓\n                              ┌─────────────────────┐\n                              │                     │\n                         Training              Serving\n                              │                     │\n                           Models              Online API\n```\n\n**Example (Feast):**\n```python\nfrom feast import FeatureStore\n\nstore = FeatureStore(repo_path=\".\")\n\n# Get historical features for training\ntraining_df = store.get_historical_features(\n    entity_df=entities,\n    features=[\n        \"user_features:age\",\n        \"user_features:location\"\n    ]\n).to_df()\n\n# Get online features for serving\nfeatures = store.get_online_features(\n    features=[\"user_features:age\"],\n    entity_rows=[{\"user_id\": 123}]\n).to_dict()\n```\n\n**Popular tools:**\nFeast, Tecton, Hopsworks"
+    },
+    {
+      "id": 349,
+      "question": "What is experiment tracking in ML?",
+      "answer": "**Experiment tracking**: Log and compare ML experiments.\n\n**What to track:**\n\n1. **Hyperparameters:**\n   - Learning rate, batch size, architecture\n\n2. **Metrics:**\n   - Accuracy, loss, F1 over time\n\n3. **Artifacts:**\n   - Model weights\n   - Plots, confusion matrices\n\n4. **Environment:**\n   - Dependencies, hardware, random seeds\n\n5. **Code:**\n   - Git commit hash\n\n**Example (MLflow):**\n```python\nimport mlflow\n\nwith mlflow.start_run():\n    # Log params\n    mlflow.log_param(\"lr\", 0.001)\n    mlflow.log_param(\"batch_size\", 32)\n    \n    # Train model\n    model.fit(X_train, y_train)\n    \n    # Log metrics\n    accuracy = model.score(X_test, y_test)\n    mlflow.log_metric(\"accuracy\", accuracy)\n    \n    # Log model\n    mlflow.sklearn.log_model(model, \"model\")\n    \n    # Log artifacts\n    mlflow.log_artifact(\"confusion_matrix.png\")\n```\n\n**Benefits:**\n- Reproducibility\n- Compare experiments\n- Track progress\n- Collaborate\n\n**Tools:**\nMLflow, Weights & Biases, TensorBoard, Neptune"
+    },
+    {
+      "id": 350,
+      "question": "What is shadow mode deployment?",
+      "answer": "**Shadow mode**: New model runs in parallel with production, but predictions aren't used.\n\n**How it works:**\n\n```\nIncoming request\n       ↓\n   ┌───────┐\n   │ Router│\n   └───┬───┘\n       ├──────────┬─────────────┐\n       ↓          ↓             ↓\n  Prod Model   Shadow     Shadow\n    (v1.0)     (v2.0)     (v3.0)\n       ↓          ↓             ↓\n   Return     Log only      Log only\n```\n\n**Benefits:**\n\n1. **Safe testing:**\n   - No impact on users\n   - Real production traffic\n\n2. **Comparison:**\n   - Compare predictions\n   - Latency testing\n\n3. **Gradual rollout:**\n   - Test before full deployment\n\n**Implementation:**\n```python\n@app.route('/predict', methods=['POST'])\ndef predict():\n    data = request.json\n    \n    # Production prediction\n    prod_pred = prod_model.predict(data)\n    \n    # Shadow predictions (async)\n    async_log(\n        shadow_v2.predict(data),\n        shadow_v3.predict(data)\n    )\n    \n    return prod_pred\n```\n\n**Next steps:**\n- Canary deployment (small %)\n- Blue-green deployment (full switch)"
+    },
+    {
+      "id": 351,
+      "question": "What is canary deployment?",
+      "answer": "**Canary deployment**: Gradually roll out new model to small subset of users.\n\n**Process:**\n\n```\nStep 1: 5% traffic → v2.0\n        95% traffic → v1.0\n        ↓\n        Monitor metrics\n        ↓\nStep 2: 25% traffic → v2.0\n        75% traffic → v1.0\n        ↓\n        Still good?\n        ↓\nStep 3: 100% traffic → v2.0\n```\n\n**Implementation:**\n```python\nimport random\n\n@app.route('/predict')\ndef predict():\n    if random.random() < CANARY_PERCENTAGE:\n        return model_v2.predict(data)\n    else:\n        return model_v1.predict(data)\n```\n\n**Monitoring:**\n- Error rates\n- Latency (p50, p95, p99)\n- Business metrics\n- User feedback\n\n**Benefits:**\n- Low risk\n- Early detection\n- Easy rollback\n\n**Rollback:**\nIf metrics degrade, set CANARY_PERCENTAGE = 0\n\n**vs A/B test:**\n- Canary: Gradual rollout\n- A/B: Fixed split, longer duration"
+    },
+    {
+      "id": 352,
+      "question": "What is blue-green deployment?",
+      "answer": "**Blue-green deployment**: Maintain two identical production environments.\n\n**Setup:**\n```\nBlue environment (v1.0) → Currently serving traffic\nGreen environment (v2.0) → Idle, ready to switch\n```\n\n**Deployment process:**\n\n1. **Prepare:**\n   - Deploy v2.0 to green\n   - Test thoroughly\n\n2. **Switch:**\n   - Route all traffic to green\n   - Instant cutover\n\n3. **Monitor:**\n   - Watch for issues\n\n4. **Rollback (if needed):**\n   - Switch back to blue\n   - Instant revert\n\n**Advantages:**\n- Zero downtime\n- Instant rollback\n- Test in prod-like environment\n\n**Disadvantages:**\n- 2× infrastructure cost\n- Database migrations tricky\n- Stateful applications complex\n\n**When to use:**\n- Critical services\n- Need instant rollback\n- Can afford infrastructure\n\n**vs Canary:**\n- Blue-green: All-or-nothing switch\n- Canary: Gradual rollout"
     }
   ],
   "themes": [
@@ -1280,7 +1540,15 @@
         290,
         291,
         297,
-        300
+        300,
+        310,
+        317,
+        319,
+        320,
+        326,
+        328,
+        330,
+        340
       ]
     },
     {
@@ -1315,7 +1583,14 @@
         98,
         99,
         297,
-        299
+        299,
+        307,
+        308,
+        310,
+        318,
+        326,
+        327,
+        334
       ]
     },
     {
@@ -1344,7 +1619,12 @@
         258,
         259,
         260,
-        261
+        261,
+        301,
+        302,
+        309,
+        314,
+        332
       ]
     },
     {
@@ -1367,7 +1647,15 @@
         262,
         268,
         291,
-        292
+        292,
+        301,
+        302,
+        311,
+        312,
+        321,
+        328,
+        331,
+        332
       ]
     },
     {
@@ -1418,13 +1706,20 @@
         285,
         286,
         290,
-        299
-      ]
-    },
-    {
-      "id": "regression",
-      "name": "Régression Linéaire et Logistique",
-      "question_ids": [
+        299,
+        305,
+        306,
+        309,
+        314,
+        317,
+        320,
+        324,
+        325,
+        329,
+        333,
+        339,
+        340,
+        347,
         128,
         129,
         130,
@@ -1439,10 +1734,13 @@
         139,
         140,
         141,
-        19,
-        284,
-        285,
-        288
+        288,
+        307,
+        308,
+        319,
+        327,
+        330,
+        334
       ]
     },
     {
@@ -1462,7 +1760,19 @@
         277,
         280,
         293,
-        294
+        294,
+        303,
+        304,
+        313,
+        322,
+        325,
+        335,
+        336,
+        341,
+        342,
+        343,
+        344,
+        346
       ]
     },
     {
@@ -1523,7 +1833,18 @@
         295,
         296,
         298,
-        300
+        300,
+        305,
+        315,
+        322,
+        323,
+        329,
+        330,
+        333,
+        337,
+        338,
+        345,
+        346
       ]
     },
     {
@@ -1544,7 +1865,18 @@
         277,
         279,
         280,
-        294
+        294,
+        303,
+        315,
+        323,
+        325,
+        335,
+        336,
+        338,
+        343,
+        344,
+        345,
+        346
       ]
     },
     {
@@ -1643,7 +1975,18 @@
         289,
         292,
         295,
-        296
+        296,
+        316,
+        320,
+        324,
+        337,
+        339,
+        347,
+        348,
+        349,
+        350,
+        351,
+        352
       ]
     }
   ]
