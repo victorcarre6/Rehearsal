@@ -14,12 +14,17 @@ st.set_page_config(
 st.markdown("""
 <style>
     :root {
-        --primary: #667236;
+        --primary: #707C42;
+        --background-main: #F2F0E3;
+    }
+
+    body {
+        background: var(--background-main);
     }
 
     /* Style du header */
     .main-header {
-        background: linear-gradient(135deg, #667236 0%, #565e2d 100%);
+        background: var(--primary);
         padding: 2rem;
         border-radius: 10px;
         margin-bottom: 2rem;
@@ -40,7 +45,7 @@ st.markdown("""
 
     /* Style des cartes */
     .card {
-        background: #f9fafb;
+        background: var(--background-main);
         border-radius: 10px;
         padding: 2rem;
         border: 1px solid #e5e7eb;
@@ -49,7 +54,7 @@ st.markdown("""
 
     /* Style des questions */
     .question-box {
-        background: white;
+        background: var(--background-main);
         padding: 1.5rem;
         border-radius: 8px;
         border-left: 4px solid #667236;
@@ -59,30 +64,30 @@ st.markdown("""
     .question-text {
         font-size: 1.3rem;
         font-weight: 600;
-        color: #1f2937;
+        color: black;
         line-height: 1.6;
     }
 
     .answer-box {
-        background: white;
+        background: var(--background-main);
         padding: 1.5rem;
         border-radius: 8px;
         border: 1px solid #e5e7eb;
         margin-top: 1rem;
         line-height: 1.7;
-        color: #4b5563;
+        color: black;
     }
 
     .counter {
         font-size: 0.9rem;
-        color: #6b7280;
+        color: black;
         font-weight: 500;
         margin-bottom: 1rem;
     }
 
     /* Boutons */
     .stButton button {
-        background: #667236;
+        background: var(--primary);
         color: white;
         border: none;
         padding: 0.75rem 1.5rem;
@@ -92,7 +97,7 @@ st.markdown("""
     }
 
     .stButton button:hover {
-        background: #565e2d;
+        background: #5F6A37;
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(102, 114, 54, 0.2);
     }
@@ -247,7 +252,7 @@ if st.session_state.current_theme:
         col1, col2 = st.columns([1, 1])
 
         with col1:
-            if st.button("👁️ Afficher la réponse", use_container_width=True, key="show_answer"):
+            if st.button("👁️ Afficher la réponse", use_container_width=True):
                 st.session_state.show_answer = True
 
         with col2:
