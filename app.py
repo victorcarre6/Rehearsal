@@ -6,7 +6,6 @@ from pathlib import Path
 # Configuration de la page
 st.set_page_config(
     page_title="Rehearsal",
-    page_icon="🎯",
     layout="wide"
 )
 
@@ -183,12 +182,12 @@ if 'current_questions' not in st.session_state:
 # Header
 st.markdown("""
 <div class="main-header">
-    <h1>🎯 Rehearsal</h1>
+    <h1>Rehearsal</h1>
 </div>
 """, unsafe_allow_html=True)
 
 # Section de sélection du thème
-st.markdown("### 📚 Sélectionner un thème")
+st.markdown("### Sélectionnez un thème")
 
 # Créer des colonnes pour les boutons de thème
 cols = st.columns(3)
@@ -256,10 +255,3 @@ if st.session_state.current_theme:
             )
 else:
     st.info("👆 Sélectionnez un thème pour commencer")
-
-# Footer
-st.markdown("---")
-st.markdown(
-    '<p style="text-align: center; color: #6b7280; font-size: 0.9rem;">Rehearsal</p>',
-    unsafe_allow_html=True
-)

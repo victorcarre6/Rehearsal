@@ -1204,6 +1204,56 @@
       "id": 290,
       "question": "What is the difference between parameters and hyperparameters?",
       "answer": "**Parameters:**\n- Learned from training data\n- Internal to the model\n- Optimized by training algorithm\n- Examples:\n  - Neural network weights\n  - Linear regression coefficients\n  - Decision tree split points\n\n**Hyperparameters:**\n- Set before training\n- External to the model\n- Tuned by data scientist\n- Examples:\n  - Learning rate\n  - Number of epochs\n  - Batch size\n  - Number of hidden layers\n  - Tree depth\n  - Regularization strength (λ)\n\n**Key difference:**\n- Parameters: Model learns these\n- Hyperparameters: You choose these\n\n**Hyperparameter tuning:**\n```python\nfrom sklearn.model_selection import GridSearchCV\n\nparam_grid = {\n    'max_depth': [3, 5, 7],\n    'learning_rate': [0.01, 0.1, 1.0]\n}\n\ngrid = GridSearchCV(model, param_grid, cv=5)\n```"
+    },
+    {
+      "id": 291,
+      "question": "What is an SQL transaction and ACID properties?",
+      "answer": "**Transaction**: A unit of work that either completes entirely or not at all.\n\n**ACID properties:**\n\n**A - Atomicity:**\n- All or nothing\n- If one part fails, entire transaction rolls back\n\n**C - Consistency:**\n- Database moves from one valid state to another\n- Constraints are maintained\n\n**I - Isolation:**\n- Concurrent transactions don't interfere\n- Serializable execution\n\n**D - Durability:**\n- Once committed, data persists (even after crash)\n\n**Example:**\n```sql\nBEGIN TRANSACTION;\n  UPDATE accounts SET balance = balance - 100 WHERE id = 1;\n  UPDATE accounts SET balance = balance + 100 WHERE id = 2;\nCOMMIT;  -- Both succeed\n-- or\nROLLBACK;  -- Both fail\n```"
+    },
+    {
+      "id": 292,
+      "question": "What is SQL injection and how do you prevent it?",
+      "answer": "**SQL injection**: Malicious SQL code inserted through user input.\n\n**Example attack:**\n```python\n# Vulnerable code\nuser_input = \"admin' OR '1'='1\"\nquery = f\"SELECT * FROM users WHERE username = '{user_input}'\"\n# Becomes: SELECT * FROM users WHERE username = 'admin' OR '1'='1'\n# Returns ALL users!\n```\n\n**Prevention:**\n\n**1. Parameterized queries (BEST):**\n```python\ncursor.execute(\n    \"SELECT * FROM users WHERE username = %s\",\n    (user_input,)\n)\n```\n\n**2. ORM (Object-Relational Mapping):**\n```python\nUser.objects.filter(username=user_input)\n```\n\n**3. Input validation:**\n- Whitelist allowed characters\n- Escape special characters\n\n**4. Least privilege:**\n- Database user has minimal permissions\n\n**Never:**\n- Concatenate user input into SQL\n- Trust user input"
+    },
+    {
+      "id": 293,
+      "question": "What is sentiment analysis?",
+      "answer": "**Sentiment analysis**: Determining emotional tone of text.\n\n**Levels:**\n\n**1. Document-level:**\nEntire document → Positive/Negative/Neutral\n\n**2. Sentence-level:**\nEach sentence classified separately\n\n**3. Aspect-based:**\nSentiment about specific aspects\n- \"Food was great but service was slow\"\n- Food → Positive\n- Service → Negative\n\n**Approaches:**\n\n**Rule-based:**\n```python\nfrom textblob import TextBlob\nblob = TextBlob(\"I love this product!\")\npolarity = blob.sentiment.polarity  # 0.5 (positive)\n```\n\n**ML-based:**\n- Naive Bayes\n- SVM\n- BERT fine-tuned on sentiment data\n\n**Applications:**\n- Social media monitoring\n- Customer feedback analysis\n- Stock market prediction"
+    },
+    {
+      "id": 294,
+      "question": "What is beam search in sequence generation?",
+      "answer": "**Beam search**: Keep top-k most likely sequences at each step.\n\n**Greedy search (beam=1):**\n- At each step, pick token with highest probability\n- Fast but may miss optimal sequence\n\n**Beam search (beam=k):**\n- Keep k best partial sequences\n- Explore multiple paths\n- Better quality but slower\n\n**Example (k=2):**\n```\nStep 1:\n- \"The\" (p=0.6)\n- \"A\" (p=0.3)\n\nStep 2:\n- \"The cat\" (p=0.6*0.5=0.3)\n- \"The dog\" (p=0.6*0.4=0.24)\n- \"A cat\" (p=0.3*0.7=0.21)\n- \"A dog\" (p=0.3*0.2=0.06)\n\nKeep top 2: \"The cat\", \"The dog\"\n```\n\n**Usage:**\n```python\noutputs = model.generate(\n    input_ids,\n    num_beams=5,\n    max_length=50\n)\n```\n\n**Trade-off:** Larger beam → better quality, slower"
+    },
+    {
+      "id": 295,
+      "question": "What is catastrophic forgetting in neural networks?",
+      "answer": "**Catastrophic forgetting**: When training on new task causes model to forget previous tasks.\n\n**Example:**\n1. Train model on Task A (French→English)\n2. Fine-tune on Task B (German→English)\n3. Performance on Task A drops dramatically!\n\n**Why it happens:**\n- Neural nets optimize for current task\n- Overwrite weights important for previous tasks\n- No inherent memory of old tasks\n\n**Solutions:**\n\n**1. Elastic Weight Consolidation (EWC):**\n- Penalize changes to important weights\n\n**2. Progressive Neural Networks:**\n- Add new columns for new tasks\n- Keep old columns frozen\n\n**3. Replay/Rehearsal:**\n- Mix old task data with new task\n\n**4. Multi-task learning:**\n- Train on all tasks simultaneously\n\n**5. Adapter layers:**\n- Add small task-specific modules\n- Keep base model frozen"
+    },
+    {
+      "id": 296,
+      "question": "What is model compression and why is it important?",
+      "answer": "**Model compression**: Reduce model size/computation while maintaining performance.\n\n**Techniques:**\n\n**1. Pruning:**\n- Remove unimportant weights\n- Structured: Remove entire neurons/channels\n- Unstructured: Remove individual weights\n\n**2. Quantization:**\n- Use fewer bits (float32 → int8)\n- 75% size reduction, faster inference\n```python\nquantized_model = torch.quantization.quantize_dynamic(\n    model, {torch.nn.Linear}, dtype=torch.qint8\n)\n```\n\n**3. Knowledge Distillation:**\n- Train small \"student\" to mimic large \"teacher\"\n- Student learns from teacher's soft predictions\n\n**4. Low-rank factorization:**\n- Decompose weight matrices\n\n**Why important:**\n- Deploy on mobile/edge devices\n- Faster inference\n- Lower cost\n- Energy efficient\n\n**Trade-off:** Size vs accuracy"
+    },
+    {
+      "id": 297,
+      "question": "What is the difference between type I and type II errors?",
+      "answer": "**Type I Error (False Positive):**\n- Reject true null hypothesis\n- Probability = α (significance level)\n- Example: \"Fire alarm when no fire\"\n\n**Type II Error (False Negative):**\n- Fail to reject false null hypothesis  \n- Probability = β\n- Example: \"No alarm when there IS fire\"\n\n**Example: Medical test**\n- H₀: Patient is healthy\n- H₁: Patient is sick\n\n**Type I:** Say sick when healthy (false alarm)\n**Type II:** Say healthy when sick (missed diagnosis)\n\n**Trade-off:**\n- Reducing α (stricter test) → increases β\n- Reducing β (more sensitive) → increases α\n\n**Power of test:**\n```\nPower = 1 - β\n```\nProbability of correctly detecting effect\n\n**Which is worse?**\nDepends on context - cancer screening: Type II worse"
+    },
+    {
+      "id": 298,
+      "question": "What is batch normalization?",
+      "answer": "**Batch Normalization**: Normalize layer inputs across mini-batch.\n\n**Formula (for each feature):**\n```\nx̂ = (x - μ_batch) / √(σ²_batch + ε)\ny = γx̂ + β\n```\n\nWhere:\n- μ_batch = mean of mini-batch\n- σ²_batch = variance of mini-batch\n- γ, β = learnable parameters\n\n**Benefits:**\n\n1. **Faster training:**\n   - Can use higher learning rates\n   - Reduces covariate shift\n\n2. **Regularization:**\n   - Adds noise (different batch stats each time)\n   - Can reduce need for dropout\n\n3. **Less sensitive to initialization**\n\n**Usage:**\n```python\nself.bn1 = nn.BatchNorm2d(64)\nx = self.bn1(x)\n```\n\n**Important:**\n- Different behavior in train vs eval\n- During eval: uses running statistics\n\n**Alternatives:** Layer Norm, Group Norm, Instance Norm"
+    },
+    {
+      "id": 299,
+      "question": "What is time series forecasting?",
+      "answer": "**Time series forecasting**: Predict future values based on past observations.\n\n**Components:**\n\n**1. Trend:** Long-term direction\n**2. Seasonality:** Regular patterns (daily, weekly, yearly)\n**3. Cyclical:** Irregular fluctuations\n**4. Noise:** Random variation\n\n**Classical methods:**\n\n**ARIMA (AutoRegressive Integrated Moving Average):**\n- AR: Past values predict future\n- I: Differencing for stationarity\n- MA: Past errors predict future\n\n**Exponential Smoothing:**\n- Weighted average (recent more important)\n\n**Modern approaches:**\n\n**RNNs/LSTMs:**\n```python\nmodel = LSTM(input_size, hidden_size, num_layers)\n```\n\n**Transformers:**\n- Temporal Fusion Transformer\n\n**Evaluation metrics:**\n- MAE, RMSE\n- MAPE (Mean Absolute Percentage Error)\n\n**Key challenge:** Distribution shift over time"
+    },
+    {
+      "id": 300,
+      "question": "What is the vanishing gradient problem?",
+      "answer": "**Vanishing gradient**: Gradients become extremely small in deep networks.\n\n**Why it happens:**\n\nIn backprop: ∂L/∂w₁ = ∂L/∂a_n · ∂a_n/∂a_(n-1) · ... · ∂a₂/∂a₁ · ∂a₁/∂w₁\n\nWith sigmoid/tanh:\n- Derivative ≤ 0.25\n- Multiply many small numbers → ≈ 0\n- Early layers learn very slowly\n\n**Consequences:**\n- Deep networks don't train well\n- Early layers barely update\n- Network \"forgets\" long-term dependencies\n\n**Solutions:**\n\n**1. ReLU activation:**\n- Derivative = 1 (when x > 0)\n- No vanishing gradient\n\n**2. Residual connections (ResNet):**\n- Skip connections\n- Gradient flows directly\n\n**3. LSTM/GRU:**\n- Gating mechanisms\n- Control information flow\n\n**4. Batch Normalization:**\n- Maintains activation scales\n\n**5. Proper initialization:**\n- Xavier, He initialization"
     }
   ],
   "themes": [
@@ -1227,7 +1277,10 @@
         282,
         283,
         286,
-        290
+        290,
+        291,
+        297,
+        300
       ]
     },
     {
@@ -1260,7 +1313,9 @@
         96,
         97,
         98,
-        99
+        99,
+        297,
+        299
       ]
     },
     {
@@ -1310,7 +1365,9 @@
         255,
         261,
         262,
-        268
+        268,
+        291,
+        292
       ]
     },
     {
@@ -1360,7 +1417,8 @@
         284,
         285,
         286,
-        290
+        290,
+        299
       ]
     },
     {
@@ -1402,7 +1460,9 @@
         275,
         276,
         277,
-        280
+        280,
+        293,
+        294
       ]
     },
     {
@@ -1459,7 +1519,11 @@
         279,
         282,
         286,
-        288
+        288,
+        295,
+        296,
+        298,
+        300
       ]
     },
     {
@@ -1479,7 +1543,8 @@
         276,
         277,
         279,
-        280
+        280,
+        294
       ]
     },
     {
@@ -1520,7 +1585,9 @@
         154,
         155,
         78,
-        282
+        282,
+        296,
+        298
       ]
     },
     {
@@ -1573,7 +1640,10 @@
         274,
         278,
         287,
-        289
+        289,
+        292,
+        295,
+        296
       ]
     }
   ]
