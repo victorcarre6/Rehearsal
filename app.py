@@ -23,17 +23,16 @@ st.markdown("""
 
     /* Style du header */
     .main-header {
-        background: var(--primary);
         padding: 2rem;
-        border-radius: 10px;
         margin-bottom: 2rem;
-        color: white;
+        text-align: center;
     }
 
     .main-header h1 {
         font-size: 2.5rem;
         margin-bottom: 0.5rem;
         font-weight: 600;
+        color: var(--primary);
     }
 
     .main-header p {
