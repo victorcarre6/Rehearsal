@@ -1,7 +1,6 @@
 import streamlit as st
 import json
 import random
-from collections import OrderedDict
 from pathlib import Path
 
 # Configuration de la page
@@ -74,23 +73,6 @@ st.markdown("""
         color: black;
     }
 
-    .justification-box {
-        background: #ECE9D4;
-        padding: 1.25rem;
-        border-radius: 8px;
-        border-left: 4px solid #B5A642;
-        margin-top: 1.5rem;
-        line-height: 1.6;
-        color: black;
-        font-size: 0.95rem;
-    }
-
-    .justification-title {
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        color: #6B5E20;
-    }
-
     .counter {
         font-size: 0.9rem;
         color: black;
@@ -157,54 +139,44 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Mapping des sets vers leur libellé
-SET_LABELS = OrderedDict([
-    (1, "Générales"),
-    (2, "Spécifiques"),
-    (3, "Avancées"),
-    (4, "Programmation"),
-])
-
-
+# Fonction pour charger les questions
 @st.cache_data
 def load_questions():
-    """Charge les questions et les regroupe par set puis par thème (champ `name`)."""
-    questions_file = Path(__file__).parent / "questions.json"
+    """Charge les questions depuis le fichier JSON"""
+    questions_file = Path(__file__).parent / "questions_cds.json"
     with open(questions_file, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
-    sets = OrderedDict()
-    for set_id in SET_LABELS:
-        sets[set_id] = OrderedDict()
+    # Créer un mapping des questions par ID pour accès rapide
+    questions_by_id = {q['id']: q for q in data['questions']}
 
-    for q in data['questions']:
-        set_id = q.get('set')
-        theme_name = q.get('name', 'Autres')
-        if set_id not in sets:
-            sets[set_id] = OrderedDict()
-        sets[set_id].setdefault(theme_name, []).append(q)
+    # Construire les thèmes avec leurs questions
+    themes = []
+    for theme_data in data['themes']:
+        questions = [questions_by_id[qid] for qid in theme_data['question_ids'] if qid in questions_by_id]
+        themes.append({
+            'id': theme_data['id'],
+            'name': theme_data['name'],
+            'questions': questions
+        })
 
-    return sets
-
+    return themes
 
 # Initialisation de l'état de session
-if 'sets' not in st.session_state:
-    st.session_state.sets = load_questions()
-
-if 'current_set' not in st.session_state:
-    st.session_state.current_set = None
+if 'themes' not in st.session_state:
+    st.session_state.themes = load_questions()
 
 if 'current_theme' not in st.session_state:
     st.session_state.current_theme = None
-
-if 'current_questions' not in st.session_state:
-    st.session_state.current_questions = []
 
 if 'current_question_index' not in st.session_state:
     st.session_state.current_question_index = 0
 
 if 'show_answer' not in st.session_state:
     st.session_state.show_answer = False
+
+if 'current_questions' not in st.session_state:
+    st.session_state.current_questions = []
 
 # Header
 st.markdown("""
@@ -224,51 +196,28 @@ st.markdown("""
 
 ###
 
-# Sélection du set
-st.markdown("### Sélectionnez un set")
-set_cols = st.columns(len(SET_LABELS))
-for idx, (set_id, set_label) in enumerate(SET_LABELS.items()):
-    total = sum(len(qs) for qs in st.session_state.sets.get(set_id, {}).values())
-    with set_cols[idx]:
+# Section de sélection du thème
+st.markdown("### Sélectionnez un thème")
+
+# Créer des colonnes pour les boutons de thème
+cols = st.columns(3)
+for idx, theme in enumerate(st.session_state.themes):
+    col = cols[idx % 3]
+    with col:
         if st.button(
-            f"{set_label}\n({total})",
-            key=f"set_{set_id}",
+            f"{theme['name']}\n({len(theme['questions'])})",
+            key=f"theme_{theme['id']}",
             use_container_width=True
         ):
-            st.session_state.current_set = set_id
-            st.session_state.current_theme = None
-            st.session_state.current_questions = []
+            st.session_state.current_theme = theme
+            st.session_state.current_questions = theme['questions']
             st.session_state.current_question_index = 0
             st.session_state.show_answer = False
-
-# Sélection du thème (filtré par set)
-if st.session_state.current_set is not None:
-    st.markdown("---")
-    set_label = SET_LABELS.get(st.session_state.current_set, "")
-    st.markdown(f"### Thèmes — {set_label}")
-
-    themes_dict = st.session_state.sets.get(st.session_state.current_set, {})
-    if not themes_dict:
-        st.info("Aucun thème disponible pour ce set.")
-    else:
-        theme_names = list(themes_dict.keys())
-        cols = st.columns(3)
-        for idx, theme_name in enumerate(theme_names):
-            col = cols[idx % 3]
-            with col:
-                if st.button(
-                    f"{theme_name}\n({len(themes_dict[theme_name])})",
-                    key=f"theme_{st.session_state.current_set}_{theme_name}",
-                    use_container_width=True
-                ):
-                    st.session_state.current_theme = theme_name
-                    st.session_state.current_questions = themes_dict[theme_name]
-                    st.session_state.current_question_index = 0
-                    st.session_state.show_answer = False
 
 # Affichage des questions
 if st.session_state.current_theme:
     st.markdown("---")
+
     questions = st.session_state.current_questions
 
     if not questions:
@@ -297,6 +246,7 @@ if st.session_state.current_theme:
 
         with col2:
             if st.button("➡️ Question suivante", use_container_width=True, key="next_question"):
+                # Sélectionner une question aléatoire différente de l'actuelle
                 if len(questions) > 1:
                     new_index = st.session_state.current_question_index
                     while new_index == st.session_state.current_question_index:
@@ -313,18 +263,5 @@ if st.session_state.current_theme:
                 f'<div class="answer-box">{current_q["answer"]}</div>',
                 unsafe_allow_html=True
             )
-
-        # Justification (toujours affichée en bas)
-        justification = current_q.get("justification")
-        if justification:
-            st.markdown(
-                f'<div class="justification-box">'
-                f'<div class="justification-title">Justification</div>'
-                f'{justification}'
-                f'</div>',
-                unsafe_allow_html=True
-            )
-elif st.session_state.current_set is None:
-    st.info("👆 Sélectionnez un set pour commencer")
 else:
     st.info("👆 Sélectionnez un thème pour commencer")

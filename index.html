@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rehearsal - Révision Interactive</title>
+    <title>Rehearsal</title>
     <style>
         * {
             margin: 0;
@@ -235,7 +235,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <div>
                 <h1>Rehearsal</h1>
-                <div class="subtitle">Outil de révision interactive pour Data Science & Machine Learning</div>
+                <div class="subtitle">Outil de révision interactive</div>
             </div>
             <button id="configBtn" style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; font-size: 0.9rem; border: 1px solid rgba(255,255,255,0.3);">
                 ⚙️ Config
@@ -253,19 +253,29 @@
         </div>
 
         <div class="theme-selector">
+            <h2>Sélectionner un set</h2>
+            <div class="theme-buttons" id="setButtons"></div>
+        </div>
+
+        <div class="theme-selector" id="themeSelector" style="display: none;">
             <h2>Sélectionner un thème</h2>
             <div class="theme-buttons" id="themeButtons"></div>
         </div>
 
         <div class="card" id="questionCard">
             <div class="question-counter" id="counter"></div>
-            <div class="question" id="question">Sélectionnez un thème pour commencer</div>
+            <div class="question" id="question">Sélectionnez un set puis un thème pour commencer</div>
             <div class="answer" id="answer"></div>
 
             <div class="controls">
                 <button id="showAnswerBtn" style="display: none;">Afficher la réponse</button>
                 <button id="reexplainBtn" style="display: none; background: #059669;">Réexpliquer</button>
                 <button id="nextQuestionBtn" style="display: none;">Question suivante</button>
+            </div>
+
+            <div id="justification" style="display: none; margin-top: 1.5rem; padding: 1.25rem; background: #ECE9D4; border-left: 4px solid #B5A642; border-radius: 6px; line-height: 1.6; color: #000;">
+                <div style="font-weight: 700; color: #6B5E20; margin-bottom: 0.5rem;">Justification</div>
+                <div id="justificationText"></div>
             </div>
         </div>
     </main>
@@ -298,11 +308,15 @@
 
     <script>
         let questionsData = null;
+        let groupedSets = {};
+        let currentSet = null;
         let currentTheme = null;
         let currentQuestionIndex = 0;
         let questions = [];
         let selectedTags = new Set();
         let apiKey = localStorage.getItem('openai_api_key') || '';
+
+        const SET_LABELS = {1: 'Générales', 2: 'Spécifiques', 3: 'Avancées', 4: 'Programmation'};
 
         const questionEl = document.getElementById('question');
         const answerEl = document.getElementById('answer');
@@ -310,9 +324,13 @@
         const showAnswerBtn = document.getElementById('showAnswerBtn');
         const nextQuestionBtn = document.getElementById('nextQuestionBtn');
         const reexplainBtn = document.getElementById('reexplainBtn');
+        const setButtonsContainer = document.getElementById('setButtons');
+        const themeSelector = document.getElementById('themeSelector');
         const themeButtonsContainer = document.getElementById('themeButtons');
         const tagFiltersContainer = document.getElementById('tagFilters');
         const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+        const justificationBox = document.getElementById('justification');
+        const justificationText = document.getElementById('justificationText');
         const configBtn = document.getElementById('configBtn');
         const configModal = document.getElementById('configModal');
         const apiKeyInput = document.getElementById('apiKeyInput');
@@ -383,51 +401,102 @@
 
         function filterQuestionsByTags() {
             if (!questionsData) return;
+            buildGroupedSets();
+            if (currentSet !== null) {
+                renderThemeButtons(currentSet);
+            }
+            renderSetButtons();
+        }
 
-            const filteredThemes = questionsData.themes.map(theme => ({
-                ...theme,
-                questions: theme.questions.filter(q => questionMatchesTags(q))
-            })).filter(t => t.questions.length > 0);
-
-            renderThemeButtons(filteredThemes);
+        function buildGroupedSets() {
+            groupedSets = {};
+            Object.keys(SET_LABELS).forEach(k => { groupedSets[k] = {}; });
+            questionsData.questions.forEach(q => {
+                if (!questionMatchesTags(q)) return;
+                const setId = q.set;
+                const themeName = q.name || 'Autres';
+                if (!groupedSets[setId]) groupedSets[setId] = {};
+                if (!groupedSets[setId][themeName]) groupedSets[setId][themeName] = [];
+                groupedSets[setId][themeName].push(q);
+            });
         }
 
         async function loadQuestions() {
             try {
                 const response = await fetch('questions.json');
                 questionsData = await response.json();
+                if (!questionsData.questions) {
+                    throw new Error('Format JSON invalide: clé "questions" manquante');
+                }
+                buildGroupedSets();
                 initTagFilters();
-                renderThemeButtons(questionsData.themes);
+                renderSetButtons();
             } catch (error) {
                 console.error('Erreur lors du chargement des questions:', error);
-                questionEl.textContent = 'Erreur lors du chargement des questions';
+                questionEl.textContent = 'Erreur lors du chargement des questions: ' + error.message;
             }
         }
 
-        function renderThemeButtons(themes) {
-            themeButtonsContainer.innerHTML = '';
-            themes.forEach(theme => {
+        function renderSetButtons() {
+            setButtonsContainer.innerHTML = '';
+            Object.keys(SET_LABELS).forEach(setId => {
+                const themes = groupedSets[setId] || {};
+                const total = Object.values(themes).reduce((a, arr) => a + arr.length, 0);
                 const btn = document.createElement('button');
                 btn.className = 'theme-btn';
-                btn.textContent = `${theme.name} (${theme.questions.length})`;
-                btn.onclick = () => selectTheme(theme.id, themes);
+                btn.textContent = `${SET_LABELS[setId]} (${total})`;
+                if (String(currentSet) === String(setId)) btn.classList.add('active');
+                btn.onclick = () => selectSet(setId);
+                setButtonsContainer.appendChild(btn);
+            });
+        }
+
+        function selectSet(setId) {
+            currentSet = setId;
+            currentTheme = null;
+            questions = [];
+            currentQuestionIndex = 0;
+            answerEl.classList.remove('visible');
+            justificationBox.style.display = 'none';
+            showAnswerBtn.style.display = 'none';
+            nextQuestionBtn.style.display = 'none';
+            reexplainBtn.style.display = 'none';
+            counterEl.textContent = '';
+            questionEl.textContent = 'Sélectionnez un thème pour commencer';
+            renderSetButtons();
+            themeSelector.style.display = 'block';
+            renderThemeButtons(setId);
+        }
+
+        function renderThemeButtons(setId) {
+            themeButtonsContainer.innerHTML = '';
+            const themes = groupedSets[setId] || {};
+            const themeNames = Object.keys(themes);
+            if (themeNames.length === 0) {
+                themeButtonsContainer.innerHTML = '<div style="color: var(--text-secondary);">Aucun thème disponible.</div>';
+                return;
+            }
+            themeNames.forEach(themeName => {
+                const btn = document.createElement('button');
+                btn.className = 'theme-btn';
+                btn.textContent = `${themeName} (${themes[themeName].length})`;
+                btn.onclick = (e) => selectTheme(setId, themeName, e);
                 themeButtonsContainer.appendChild(btn);
             });
         }
 
-        function selectTheme(themeId, themes) {
-            const themesToSearch = themes || questionsData.themes;
-            const theme = themesToSearch.find(t => t.id === themeId);
-            if (!theme) return;
+        function selectTheme(setId, themeName, evt) {
+            const themeQs = (groupedSets[setId] || {})[themeName];
+            if (!themeQs) return;
 
-            currentTheme = theme;
-            questions = theme.questions;
+            currentTheme = themeName;
+            questions = themeQs;
             currentQuestionIndex = 0;
 
             document.querySelectorAll('#themeButtons .theme-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            event.target.classList.add('active');
+            if (evt && evt.target) evt.target.classList.add('active');
 
             showAnswerBtn.style.display = 'block';
             nextQuestionBtn.style.display = 'block';
@@ -439,6 +508,7 @@
         function displayQuestion() {
             if (questions.length === 0) {
                 questionEl.innerHTML = '<div class="no-questions">Aucune question disponible pour ce thème</div>';
+                justificationBox.style.display = 'none';
                 return;
             }
 
@@ -447,6 +517,13 @@
             questionEl.textContent = currentQ.question;
             answerEl.textContent = currentQ.answer;
             answerEl.classList.remove('visible');
+
+            if (currentQ.justification) {
+                justificationText.textContent = currentQ.justification;
+                justificationBox.style.display = 'block';
+            } else {
+                justificationBox.style.display = 'none';
+            }
         }
 
         // Configuration Modal
