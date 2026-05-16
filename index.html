@@ -137,9 +137,112 @@
             background: white;
             border-radius: 6px;
             border: 1px solid var(--border);
-            white-space: pre-wrap;
             display: none;
             margin-bottom: 2rem;
+        }
+
+        .markdown p {
+            margin-bottom: 0.75rem;
+        }
+
+        .markdown p:last-child {
+            margin-bottom: 0;
+        }
+
+        .markdown h1,
+        .markdown h2,
+        .markdown h3,
+        .markdown h4 {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin: 1rem 0 0.5rem;
+            line-height: 1.3;
+        }
+
+        .markdown h1 { font-size: 1.4rem; }
+        .markdown h2 { font-size: 1.25rem; }
+        .markdown h3 { font-size: 1.1rem; }
+        .markdown h4 { font-size: 1rem; }
+
+        .markdown ul,
+        .markdown ol {
+            margin: 0.5rem 0 0.75rem 1.5rem;
+        }
+
+        .markdown li {
+            margin-bottom: 0.3rem;
+        }
+
+        .markdown strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .markdown em {
+            font-style: italic;
+        }
+
+        .markdown a {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        .markdown code {
+            background: #f3f4f6;
+            color: #b91c1c;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 0.9em;
+        }
+
+        .markdown pre {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 0.75rem 0;
+            line-height: 1.5;
+        }
+
+        .markdown pre code {
+            background: transparent;
+            color: inherit;
+            padding: 0;
+            font-size: 0.9rem;
+        }
+
+        .markdown blockquote {
+            border-left: 4px solid var(--border);
+            padding-left: 1rem;
+            margin: 0.75rem 0;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .markdown table {
+            border-collapse: collapse;
+            margin: 0.75rem 0;
+            width: 100%;
+        }
+
+        .markdown th,
+        .markdown td {
+            border: 1px solid var(--border);
+            padding: 0.5rem 0.75rem;
+            text-align: left;
+        }
+
+        .markdown th {
+            background: #f3f4f6;
+            font-weight: 600;
+        }
+
+        .markdown hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 1rem 0;
         }
 
         .answer.visible {
@@ -229,6 +332,8 @@
             }
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.9/dist/purify.min.js"></script>
 </head>
 <body>
     <header>
@@ -265,7 +370,7 @@
         <div class="card" id="questionCard">
             <div class="question-counter" id="counter"></div>
             <div class="question" id="question">Sélectionnez un set puis un thème pour commencer</div>
-            <div class="answer" id="answer"></div>
+            <div class="answer markdown" id="answer"></div>
 
             <div class="controls">
                 <button id="showAnswerBtn" style="display: none;">Afficher la réponse</button>
@@ -275,7 +380,7 @@
 
             <div id="justification" style="display: none; margin-top: 1.5rem; padding: 1.25rem; background: #ECE9D4; border-left: 4px solid #B5A642; border-radius: 6px; line-height: 1.6; color: #000;">
                 <div style="font-weight: 700; color: #6B5E20; margin-bottom: 0.5rem;">Justification</div>
-                <div id="justificationText"></div>
+                <div class="markdown" id="justificationText"></div>
             </div>
         </div>
     </main>
@@ -307,6 +412,57 @@
     </footer>
 
     <script>
+        if (window.marked) {
+            marked.setOptions({ breaks: true, gfm: true });
+        } else {
+            console.warn('marked.js not loaded — markdown will not render');
+        }
+
+        function preprocessAnswer(text) {
+            if (!text) return '';
+            // Process paragraph by paragraph.
+            return text.split(/\n\n+/).map(paragraph => {
+                // Find all "(N)" markers that look like list enumerators:
+                // preceded by start, space, or punctuation. Require sequential 1,2,...
+                const markerRe = /(^|[\s])\((\d+)\)\s+/g;
+                const markers = [];
+                let m;
+                while ((m = markerRe.exec(paragraph)) !== null) {
+                    markers.push({ num: parseInt(m[2], 10), start: m.index + m[1].length, end: markerRe.lastIndex });
+                }
+                if (markers.length < 2) return paragraph;
+                // Check sequential 1,2,3...
+                for (let i = 0; i < markers.length; i++) {
+                    if (markers[i].num !== i + 1) return paragraph;
+                }
+                const head = paragraph.slice(0, markers[0].start).trim();
+                const items = [];
+                for (let i = 0; i < markers.length; i++) {
+                    const itemStart = markers[i].end;
+                    const itemEnd = i + 1 < markers.length ? markers[i + 1].start : paragraph.length;
+                    const item = paragraph.slice(itemStart, itemEnd).trim().replace(/[.;,]\s*$/, '');
+                    items.push(`${markers[i].num}. ${item}`);
+                }
+                return (head ? head + '\n\n' : '') + items.join('\n');
+            }).join('\n\n');
+        }
+
+        function renderMarkdown(text) {
+            if (!text) return '';
+            const processed = preprocessAnswer(text);
+            let html;
+            if (window.marked) {
+                html = marked.parse(processed);
+            } else {
+                // Fallback: minimal paragraph + line break handling
+                html = processed
+                    .split(/\n\n+/)
+                    .map(p => '<p>' + p.replace(/\n/g, '<br>') + '</p>')
+                    .join('');
+            }
+            return window.DOMPurify ? DOMPurify.sanitize(html) : html;
+        }
+
         let questionsData = null;
         let groupedSets = {};
         let currentSet = null;
@@ -515,11 +671,11 @@
             const currentQ = questions[currentQuestionIndex];
             counterEl.textContent = `Question ${currentQuestionIndex + 1} sur ${questions.length}`;
             questionEl.textContent = currentQ.question;
-            answerEl.textContent = currentQ.answer;
+            answerEl.innerHTML = renderMarkdown(currentQ.answer);
             answerEl.classList.remove('visible');
 
             if (currentQ.justification) {
-                justificationText.textContent = currentQ.justification;
+                justificationText.innerHTML = renderMarkdown(currentQ.justification);
                 justificationBox.style.display = 'block';
             } else {
                 justificationBox.style.display = 'none';
@@ -591,12 +747,12 @@
 
                 // Afficher la réponse simplifiée
                 answerEl.innerHTML = `
-                    <div style="background: #fef3c7; padding: 1rem; border-radius: 6px; margin-bottom: 1rem; border-left: 4px solid #f59e0b;">
-                        <strong>🤖 Version simplifiée :</strong><br><br>
-                        ${simplifiedAnswer}
+                    <div class="markdown" style="background: #fef3c7; padding: 1rem; border-radius: 6px; margin-bottom: 1rem; border-left: 4px solid #f59e0b;">
+                        <div style="font-weight: 600; margin-bottom: 0.5rem;">🤖 Version simplifiée :</div>
+                        ${renderMarkdown(simplifiedAnswer)}
                     </div>
                     <div style="color: #6b7280; font-size: 0.9rem; margin-bottom: 0.5rem;"><strong>Version originale :</strong></div>
-                    ${currentQ.answer}
+                    <div class="markdown">${renderMarkdown(currentQ.answer)}</div>
                 `;
                 answerEl.classList.add('visible');
 

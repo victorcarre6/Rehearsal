@@ -83,7 +83,7 @@
     {
       "id": 11,
       "set": 1,
-      "name": "Pipeline de données",
+      "name": "Data Engineering",
       "question": "Comment gères-tu les mises à jour incrémentales du corpus ?",
       "answer": "Deux stratégies : (1) **Upsert par hash de document** — calculer un hash MD5 du contenu, stocker dans les métadonnées. Avant l'ingestion, vérifier si le hash existe déjà. Si oui, skip (ou remplacer si le doc a changé). (2) **Versioning des chunks** — conserver l'historique des versions avec un timestamp, permettre des requêtes sur une version spécifique. Pour les bases vectorielles : ChromaDB supporte l'upsert natif par ID.",
       "justification": "Production scaling : pipelines doivent être idempotents. Hash + versioning = patterns standards data engineering. Mauvaise réponse = re-ingest tout à chaque update."
@@ -91,7 +91,7 @@
     {
       "id": 12,
       "set": 1,
-      "name": "Pipeline de données",
+      "name": "Data Engineering",
       "question": "Quelle stratégie de chunking as-tu utilisée sur tes projets ?",
       "answer": "→ **Mobiliser GraphRAG/Nexus** : chunking sémantique sur des thèses et articles scientifiques (séparation sur les frontières de sections, pas de découpage fixe). L'extraction d'entités et de relations se fait au niveau du chunk, ce qui impose des chunks suffisamment grands pour avoir du contexte (512–1024 tokens) mais pas trop (dégradation de la précision d'embedding). Sur les 25 thèses du corpus photochimie : 43 000 nœuds dans le graphe, ce qui donne une idée de la granularité.",
       "justification": "Décision chunking impacte tout downstream. Mobiliser GraphRAG Nexus pour donner chiffres concrets (43k nœuds, 512-1024 tokens). Montre expérience terrain."
@@ -99,7 +99,7 @@
     {
       "id": 13,
       "set": 1,
-      "name": "Pipeline de données",
+      "name": "Data Engineering",
       "question": "Quels outils utilises-tu pour extraire du texte depuis des PDF scientifiques ?",
       "answer": "Hiérarchie selon complexité : `pdfplumber` pour PDF simples (préserve layout textuel). `pymupdf` (fitz) pour speed sur gros volumes. `unstructured` pour pipeline production multi-format (PDF/HTML/DOCX + OCR via Tesseract). `Docling` (IBM) pour PDF scientifiques complexes — modèle de layout détecte tableaux, formules, captions. Pipeline PhotoBoss : Docling → Markdown → chunking sémantique sections → GraphRAG → fine-tuning dataset.",
       "justification": "Connaissance outillage pratique. Docling = signal veille tech récente (IBM 2024). PyPDF baseline vs unstructured production = niveau de maturité."
@@ -107,7 +107,7 @@
     {
       "id": 14,
       "set": 1,
-      "name": "Pipeline de données",
+      "name": "Data Engineering",
       "question": "Comment tu valides la qualité d'un pipeline d'ingestion en production ?",
       "answer": "Trois layers : (1) **Schema validation** via Great Expectations ou Pydantic — types, ranges, regex. (2) **Métriques métier** sur sample : taux de chunks vides, taille moyenne, distribution embeddings (clustering pour détecter doublons). (3) **Monitoring drift** via Evidently — distribution des features comparée à baseline. Alertes si drift Wasserstein > seuil. Pattern : 1 dashboard Grafana par pipeline d'ingestion.",
       "justification": "Production data quality = sujet souvent ignoré. Great Expectations + Evidently = stack moderne. Montre rigueur ingénieur senior."
@@ -115,7 +115,7 @@
     {
       "id": 15,
       "set": 1,
-      "name": "Pipeline de données",
+      "name": "Data Engineering",
       "question": "Quelle stratégie d'embeddings pour un corpus multilingue FR/EN ?",
       "answer": "Modèle multilingue dédié : `bge-m3` (BAAI, 1024D, 100+ langues), `multilingual-e5-large` (intfloat). Évite `text-embedding-3-small` OpenAI moyennement perf en FR. Pour Nexus souverain : `nomic-embed-text` via Ollama suffit FR/EN. Cross-lingual retrieval : query FR matche docs EN si embeddings alignés. Fine-tuning domaine spécifique (cf notebook Fine_tuning/05) si vocab technique manque.",
       "justification": "Cross-lingual = scénario réel France (corpus FR/EN mixte). bge-m3 vs nomic = niveau de connaissance des modèles open-source récents."
@@ -123,7 +123,7 @@
     {
       "id": 16,
       "set": 1,
-      "name": "Pipeline de données",
+      "name": "Data Engineering",
       "question": "Comment dédupliquer un corpus à grande échelle ?",
       "answer": "Pipeline 3 étapes : (1) **Hash exact** MD5/SHA256 sur contenu normalisé → bloque clones parfaits. (2) **MinHash + LSH** pour near-duplicates (paragraphes reformulés) — Datasketch library. (3) **Semantic dedup** via cosine similarity embeddings > 0.95 sur sample. Pour bibliographie : dédup par DOI normalisé + fallback fuzzy title+authors (rapidfuzz ratio > 0.9). Pattern Alexandria : `BaseCleanerAgent` agrège ces stratégies en background.",
       "justification": "Dedup = problème difficile à grande échelle. MinHash + LSH = signal expertise data engineering. Mauvaise réponse = juste hash MD5 (rate near-duplicates)."
@@ -131,7 +131,7 @@
     {
       "id": 17,
       "set": 1,
-      "name": "Pipeline de données",
+      "name": "Data Engineering",
       "question": "Tu reçois 1 To de PDF à indexer en RAG, comment tu structures ?",
       "answer": "(1) **Storage** : S3 / object storage pour les bruts. (2) **Queue** : SQS / Celery + Redis pour distribuer le traitement. (3) **Workers** : N pods Docker scalables, chacun consume jobs (1 PDF par job), output chunks + embeddings vers DB. (4) **DB** : PostgreSQL avec pgvector pour les embeddings + métadonnées. (5) **Monitoring** : queue depth, workers stuck, échecs par type d'erreur. Throughput cible : 100 PDF/min sur 10 workers GPU.",
       "justification": "Question système distribué. Capacité à dessiner architecture batch processing à grande échelle. Critique pour Do IT Now (HPC focus)."
@@ -139,7 +139,7 @@
     {
       "id": 18,
       "set": 1,
-      "name": "Pipeline de données",
+      "name": "Data Engineering",
       "question": "Différence entre fixed-size, recursive et semantic chunking ?",
       "answer": "Fixed-size = découpe tous les N tokens avec overlap. Simple, baseline, perd les frontières sémantiques. Recursive = découpe hiérarchique (paragraphes → phrases → words si trop long), respecte structure markdown. Semantic = découpe sur similarité cosine entre phrases consécutives (rupture si sim < seuil), capture vraies frontières de sens mais coûteux en embeddings. Pour PhotoBoss : recursive avec `[\"##\", \"###\", \"\\n\\n\", \"\\n\", \". \"]` séparateurs, taille 800 tokens.",
       "justification": "Connaissance théorique chunking. Recursive vs semantic vs fixed = trade-offs précision/coût. Capacité à choisir selon contexte."
@@ -147,7 +147,7 @@
     {
       "id": 19,
       "set": 1,
-      "name": "Pipeline de données",
+      "name": "Data Engineering",
       "question": "Comment gères-tu un pipeline qui doit retraiter tout le corpus quand un modèle d'embedding change ?",
       "answer": "Versioning embeddings : colonne `embedding_model_version` dans la table chunks. Au changement de modèle : (1) script de migration progressif (batch 1000 chunks à la fois) en background. (2) Lecture utilise les deux versions pendant la transition (UNION ALL ou OR sur version). (3) Atomic switch quand 100% migré. (4) Cleanup ancienne version après validation. Sans downtime. Pour 10M chunks : compter 2-5h sur GPU.",
       "justification": "Production patterns DB migration sans downtime. Versioning embeddings = problème fréquent ignoré. Senior reconnaît le piège."
@@ -155,7 +155,7 @@
     {
       "id": 20,
       "set": 1,
-      "name": "Pipeline de données",
+      "name": "Data Engineering",
       "question": "Quelle métrique pour mesurer la qualité d'un chunking ?",
       "answer": "(1) **Boundary coherence** : proximité sémantique inter-chunk (devrait être faible) vs intra-chunk (forte). Quantifié via embedding similarity. (2) **Information density** : ratio mots techniques / mots total — chunks trop courts dilués. (3) **Retrieval recall@k** : sur un eval set, k-chunk-top retourné contient-il l'info ? (4) **Token efficiency** : moyenne tokens / chunk, distribution écart-type. Optimum : chunks suffisamment gros pour contexte, suffisamment petits pour précision retrieval (512-1024 tokens typique).",
       "justification": "Métriques objectives = signal scientifique. Capacité à mesurer ce qu'on optimise sinon = bricolage. Lead Tech valorise quantification."
@@ -163,7 +163,7 @@
     {
       "id": 21,
       "set": 1,
-      "name": "RAG avancé",
+      "name": "RAG & Recherche",
       "question": "Comment améliores-tu le recall d'un pipeline RAG qui rate des informations pertinentes ?",
       "answer": "Approche systématique : (1) Analyser les échecs — est-ce un problème de chunking (info coupée au mauvais endroit), d'embedding (la question et le chunk pertinent ont une faible similarité cosinus), ou de contexte trop petit ? (2) Essayer multi-query retrieval pour augmenter la surface de recherche. (3) Augmenter k (retriever plus de chunks), puis filtrer avec un reranker. (4) Passer à HyDE si les questions sont très différentes stylistiquement des documents. (5) GraphRAG si les relations entre entités sont importantes pour la réponse.",
       "justification": "Diagnostic systématique problèmes RAG. Listing 5 approches montre profondeur expertise vs candidat qui dit juste 'augmenter k'."
@@ -171,7 +171,7 @@
     {
       "id": 22,
       "set": 1,
-      "name": "RAG avancé",
+      "name": "RAG & Recherche",
       "question": "Quelle est la différence entre ChromaDB, FAISS et Pinecone ?",
       "answer": "FAISS : librairie C++ de Meta pour la recherche de vecteurs. Très rapide, in-memory ou sur disque, pas de persistance native ni de métadonnées. Idéal pour l'expérimentation et les petits corpus. ChromaDB : base vectorielle avec persistance, métadonnées filtrables, API Python simple. Bonne option pour des projets locaux et du prototypage avancé. Pinecone : solution cloud managée, scalable à des milliards de vecteurs, avec filtrage avancé sur métadonnées. Coût variable selon la charge. Pour tes projets freelance (souveraineté des données) : ChromaDB + FAISS locaux. En enterprise avec contraintes cloud : Pinecone ou Weaviate.",
       "justification": "Comparaison outils vector DB. Connaissance trade-offs (FAISS librairie vs ChromaDB persistance vs Pinecone managed) = signal veille produit."
@@ -179,7 +179,7 @@
     {
       "id": 23,
       "set": 1,
-      "name": "RAG avancé",
+      "name": "RAG & Recherche",
       "question": "Explique GraphRAG vs RAG classique avec un cas concret.",
       "answer": "RAG classique = retrieval par similarité vectorielle sur chunks isolés. Limite : rate les relations multi-hop (\"Quels auteurs ont travaillé avec X et publié sur Y ?\"). GraphRAG = pipeline qui extrait entités + relations via LLM, construit graphe NetworkX, détecte communautés (Leiden), génère résumés par communauté, embed les résumés. Retrieval hybride : vector sur résumés + traversée graphe pour relations. Cas concret Nexus : corpus photochimie 30 thèses, 43 000 nœuds, 8 communautés. Score RAGAS semantic_connectivity : 0.15 (RAG) → 0.88 (GraphRAG).",
       "justification": "GraphRAG = projet phare Nexus. Métriques chiffrées (Leiden, communautés, RAGAS 0.15→0.88) différenciantes. Démontre expérience réelle pas que théorique."
@@ -187,7 +187,7 @@
     {
       "id": 24,
       "set": 1,
-      "name": "RAG avancé",
+      "name": "RAG & Recherche",
       "question": "Qu'est-ce que le reranking et quand l'utiliser ?",
       "answer": "Reranking = re-scorer top-N chunks récupérés (bi-encoder rapide) avec un cross-encoder précis (modèle qui voit (query, chunk) ensemble). Pattern : bi-encoder retrieve top-50 → cross-encoder rerank → top-10 envoyé au LLM. Cross-encoders : `bge-reranker-v2-m3` (multilingue), `ms-marco-MiniLM-L-12-v2` (EN). Gain : +20-30 pts Precision@5 sans changer recall. Coût : +50-200 ms latence. Utiliser dès qu'on a > 100 docs et précision compte.",
       "justification": "Reranking = technique avancée souvent mal connue. bge-reranker-v2-m3 = veille modèles 2024. Pattern shortlist+rerank = signal production-grade."
@@ -195,7 +195,7 @@
     {
       "id": 25,
       "set": 1,
-      "name": "RAG avancé",
+      "name": "RAG & Recherche",
       "question": "Comment mesurer la qualité d'un système RAG en production ?",
       "answer": "Framework RAGAS : (1) **Faithfulness** = réponse est-elle ancrée dans contexte ? Détecte hallucinations. (2) **Answer relevancy** = couvre la question ? (3) **Context precision** = chunks retournés pertinents ? (4) **Context recall** = info nécessaire récupérée ? Cibles prod : faithfulness > 0.85, recall > 0.75. Pattern : éval automatique 5-10% requêtes prod via LLM-as-judge (qwen3 local), tracé Grafana, alerte si dégradation > 10% sur 24h.",
       "justification": "RAGAS = framework standard 2024. Connaissance des 4 métriques (faithfulness/relevancy/precision/recall) + cibles production (>0.85, >0.75) = expertise opérationnelle."
@@ -203,7 +203,7 @@
     {
       "id": 26,
       "set": 1,
-      "name": "RAG avancé",
+      "name": "RAG & Recherche",
       "question": "Hybrid search BM25 + vector — quand et comment ?",
       "answer": "Vector excelle sémantique mais rate matches exacts (CAS numbers, DOIs, codes produits, sigles). BM25 capture ces matches lexicaux via IDF. Combinaison via Reciprocal Rank Fusion (RRF) : `score(d) = Σ 1/(60 + rank_i(d))` cross-méthodes. Indépendant de l'échelle des scores. Implémentation : `rank_bm25` + ChromaDB en parallèle, fusion en Python. Gain typique +15-25 pts Recall@5 sur corpus technique mixte (réglementaire, brevets).",
       "justification": "Hybrid search = problème classique IUPAC/CAS/AMM exacts. RRF = pattern Cormack 2009. Capacité à combiner outils signal architecture."
@@ -211,7 +211,7 @@
     {
       "id": 27,
       "set": 1,
-      "name": "RAG avancé",
+      "name": "RAG & Recherche",
       "question": "HyDE — Hypothetical Document Embeddings, principe ?",
       "answer": "Problème : query courte (\"Comment marche X ?\") embeddée sémantiquement loin des docs longs techniques. Solution HyDE : (1) LLM génère réponse hypothétique à la query (peut halluciner, on s'en fout). (2) On embed cette pseudo-réponse au lieu de la query. (3) Search ChromaDB avec ce vecteur. La pseudo-réponse a le même style que les docs cibles → embedding proche. Gain +10-20 pts Recall@5 sur corpus stylistiquement uniforme (papers scientifiques, code). Coût : +1 LLM call par query.",
       "justification": "HyDE = paper Gao 2022. Connaissance techniques récentes recall. Coût/bénéfice +1 LLM call = thinking trade-off."
@@ -219,7 +219,7 @@
     {
       "id": 28,
       "set": 1,
-      "name": "RAG avancé",
+      "name": "RAG & Recherche",
       "question": "Self-RAG / Corrective RAG, qu'est-ce que ça apporte ?",
       "answer": "Agent qui auto-évalue retrieval et corrige. Pipeline : retrieve → grader LLM note pertinence chunks → si tous \"none\", reformuler query → re-retrieve, max N itérations → si toujours rien, fallback web search (CRAG). Évite hallucinations RAG quand corpus indexé ne couvre pas. Implémentation LangGraph : nœuds (retrieve, grade, rewrite, generate) avec conditional edges. Borné par `recursion_limit`. Pattern utile quand on n'a pas confiance dans le retriever ou que le corpus est partiel.",
       "justification": "Self-RAG / CRAG = architectures émergentes 2023-2024. Connaissance papers récents + capacité à les implémenter en LangGraph = niveau expert."
@@ -227,7 +227,7 @@
     {
       "id": 29,
       "set": 1,
-      "name": "RAG avancé",
+      "name": "RAG & Recherche",
       "question": "Quand préférer un knowledge graph type Neo4j à une base vectorielle ?",
       "answer": "Neo4j brille sur multi-hop traversals (\"Quels labels ont co-publié des papers cités par X dans les 5 dernières années ?\") — requêtes Cypher déclaratives. Base vectorielle brille sur similarité sémantique floue (\"papers similaires à celui-ci\"). Pattern Nexus hybride : Neo4j pour relations structurelles (citations, co-auteurs, affiliations), ChromaDB pour retrieval sémantique. Au query time : Neo4j shortlist entités candidates, ChromaDB rank par similarité textuelle.",
       "justification": "Décision Neo4j vs vector DB = architecture data. Multi-hop vs similarity = use cases distincts. Capacité à mixer les deux = senior."
@@ -235,7 +235,7 @@
     {
       "id": 30,
       "set": 1,
-      "name": "RAG avancé",
+      "name": "RAG & Recherche",
       "question": "Adaptive RAG / routing — c'est quoi ?",
       "answer": "LLM router en frontal qui classifie la query et dispatch vers la meilleure stratégie : `simple_rag` pour factuel, `graphrag` pour multi-hop, `direct_llm` pour connaissance générale, `web_search` pour actualité. Pattern LangGraph : node router + conditional_edges vers sous-graphes. Évite latence GraphRAG sur questions simples. Évite hallucinations LLM-only sur questions corpus-specific. Latence overhead : ~1 sec router LLM call.",
       "justification": "Adaptive RAG = pattern Orchestrator avancé. Routing intelligent = optimisation latence + coût. Pertinent pour Do IT Now (architecture services)."
@@ -243,7 +243,7 @@
     {
       "id": 31,
       "set": 1,
-      "name": "FastAPI & Backend",
+      "name": "Backend & API",
       "question": "Comment gères-tu la concurrence dans un service FastAPI qui orchestre plusieurs agents en parallèle ?",
       "answer": "FastAPI est async nativement. Pour des agents parallèles : `asyncio.gather()` pour lancer plusieurs agents concurrents, ou une file de tâches (Celery + Redis/RabbitMQ) pour les tâches longues qui ne doivent pas bloquer le thread principal. Pour des agents CPU-bound (ex. embedding local) : ProcessPoolExecutor pour sortir du GIL Python.\n\n```python\nimport asyncio\n\n@router.post(\"/parallel-agents\")\nasync def run_parallel(requests: list[QueryRequest]):\n    tasks = [run_agent(req) for req in requests]\n    results = await asyncio.gather(*tasks, return_exceptions=True)\n    return [r for r in results if not isinstance(r, Exception)]\n```",
       "justification": "Concurrence Python = piège fréquent. asyncio.gather vs Celery vs ProcessPoolExecutor = trois patterns distincts. Mauvaise réponse = bloquer event loop avec sync code."
@@ -251,7 +251,7 @@
     {
       "id": 32,
       "set": 1,
-      "name": "FastAPI & Backend",
+      "name": "Backend & API",
       "question": "Pydantic, comment tu l'utilises dans un contexte IA ?",
       "answer": "Pour les schémas d'entrée/sortie des API (validation automatique, génération de doc OpenAPI). Mais aussi pour le structured output des LLMs : Pydantic permet de forcer le LLM à retourner un JSON valide correspondant à un schéma défini (`llm.with_structured_output(MySchema)`). C'est critique pour les agents qui doivent parser des réponses LLM de manière fiable.",
       "justification": "Pydantic = standard Python typing moderne. Usage cross-purpose (API + structured outputs LLM) montre vision holistique. Critique pour agents fiables."
@@ -259,7 +259,7 @@
     {
       "id": 33,
       "set": 1,
-      "name": "FastAPI & Backend",
+      "name": "Backend & API",
       "question": "Async vs sync handlers FastAPI — règle de choix ?",
       "answer": "`async def` si la fonction `await` au moins 1 appel I/O (asyncpg, httpx, aiofiles). Sinon `def` (sync), FastAPI le run dans threadpool sans bloquer event loop. Anti-pattern : `async def` qui appelle `time.sleep()` ou requests sync → bloque event loop, serveur entier ralentit. Pour code legacy sync (RDKit, SQLite, ML inference CPU) : garder `def`. Pour LLM async (Ollama, Anthropic) : `async def`.",
       "justification": "Piège classique async/await. Anti-pattern (sync dans async def) = bug de scaling fréquent. Senior identifie immédiatement."
@@ -267,7 +267,7 @@
     {
       "id": 34,
       "set": 1,
-      "name": "FastAPI & Backend",
+      "name": "Backend & API",
       "question": "Comment streamer une réponse LLM via FastAPI ?",
       "answer": "`StreamingResponse` + async generator + `text/event-stream` pour SSE. Pattern Nexus :\n\n```python\nasync def generate():\n    async for chunk in llm.astream(messages):\n        yield f\"data: {json.dumps({'content': chunk.content})}\\n\\n\"\n    yield \"data: [DONE]\\n\\n\"\n\nreturn StreamingResponse(generate(), media_type=\"text/event-stream\")\n```\n\nCôté frontend React : `fetch()` + `ReadableStream` reader (EventSource ne supporte pas POST). WebSockets si interactivité bi-directionnelle (interruption, streaming user input).",
       "justification": "SSE streaming = compétence requise applications LLM. Frontend ne peut pas utiliser EventSource pour POST. Détail crucial souvent ignoré."
@@ -275,7 +275,7 @@
     {
       "id": 35,
       "set": 1,
-      "name": "FastAPI & Backend",
+      "name": "Backend & API",
       "question": "Comment tu structures un projet FastAPI > 50 endpoints ?",
       "answer": "Pattern modulaire : `app/api/v1/` avec un router par domaine (auth, papers, agents, biblio). `app/services/` logique métier indépendante du transport. `app/repositories/` accès DB. `app/models/` Pydantic + SQLAlchemy. `app/core/` config, dependencies, security. Tests miroir : `tests/unit/`, `tests/integration/`, `tests/e2e/`. Convention Nexus : un router = un fichier = une responsabilité. `main.py` juste mount routers + middleware.",
       "justification": "Architecture projets >50 endpoints. Modularité = différence entre projet maintenable et spaghetti. Pattern conventions Nexus à montrer."
@@ -283,7 +283,7 @@
     {
       "id": 36,
       "set": 1,
-      "name": "FastAPI & Backend",
+      "name": "Backend & API",
       "question": "Dependency injection FastAPI — patterns avancés ?",
       "answer": "(1) **Sub-dependencies** chaînées : `get_current_user → get_db → get_settings`. (2) **lru_cache** pour singletons coûteux (Settings, LLM client). (3) **Class-based dep** avec `__init__` config + `__call__` exécution. (4) **`use_cache=False`** force re-exec dans même requête. (5) **`dependency_overrides`** pour swap en tests (mock LLM, fake DB). Pattern critique : 1 dep par responsabilité = chainage modulaire testable.",
       "justification": "DI avancée = niveau senior FastAPI. lru_cache settings + sub-dependencies + overrides tests = patterns production. Différencie débutant."
@@ -291,7 +291,7 @@
     {
       "id": 37,
       "set": 1,
-      "name": "FastAPI & Backend",
+      "name": "Backend & API",
       "question": "Comment tester un endpoint qui appelle un LLM sans casser la facture API ?",
       "answer": "(1) **Mock via `dependency_overrides`** : swap `get_llm` par un mock qui retourne `AIMessage(content=\"response prédéfinie\")`. (2) **LangChain `FakeListLLM`** pour séquences fixes. (3) **VCR.py / pytest-recording** : enregistre vraies réponses LLM lors du premier run, replay ensuite. (4) **Modèle local léger** pour E2E : `llama3.2:1b` via Ollama, gratuit, déterministe avec seed. Pattern Nexus : tests unit/integration mockent, tests E2E utilisent qwen2.5:7b local.",
       "justification": "Testing LLM = sujet pratique critique (factures API). Stratégies mocking (Pydantic dep_overrides, FakeListLLM, VCR, modèle local) = expertise."
@@ -299,7 +299,7 @@
     {
       "id": 38,
       "set": 1,
-      "name": "FastAPI & Backend",
+      "name": "Backend & API",
       "question": "Background tasks FastAPI vs Celery — quand chacun ?",
       "answer": "`BackgroundTasks` FastAPI : tâche post-response courte (envoyer email, log async), tourne dans le même process, perdue si crash. Limite : < 30 sec. Celery : tâches longues (training, batch import), workers séparés, retry, scheduling, monitoring Flower. Setup plus complexe : broker (Redis/RabbitMQ), workers déployés à part. Pattern Alexandria : Celery pour FetchAgent (collecte papers arxiv périodique), BackgroundTasks pour notifications Slack post-action.",
       "justification": "Background tasks pattern. FastAPI BackgroundTasks vs Celery = limite < 30s. Mauvaise réponse = mettre training Celery dans BackgroundTasks."
@@ -307,7 +307,7 @@
     {
       "id": 39,
       "set": 1,
-      "name": "FastAPI & Backend",
+      "name": "Backend & API",
       "question": "Quels middlewares FastAPI obligatoires en prod ?",
       "answer": "(1) **CORS** (`fastapi.middleware.cors`) : whitelist origins frontend, sinon browsers bloquent. (2) **GZip** : compresse réponses > 1KB, économie bande passante. (3) **TrustedHost** : bloque Host header attacks. (4) **Custom logging** : request_id UUID, durée, status, JSON structuré pour Loki. (5) **Security headers custom** : HSTS, CSP, X-Frame-Options. Pour rate limiting : slowapi en plus, Redis storage pour multi-instances.",
       "justification": "Production hardening checklist. Middlewares obligatoires montrent expérience prod réelle (pas juste dev)."
@@ -315,7 +315,7 @@
     {
       "id": 40,
       "set": 1,
-      "name": "FastAPI & Backend",
+      "name": "Backend & API",
       "question": "Comment tu gères les erreurs LLM côté FastAPI (rate limits, timeouts, context overflow) ?",
       "answer": "Exception handlers globaux centralisés :\n\n```python\n@app.exception_handler(RateLimitError)\nasync def rate_limit_handler(req, exc):\n    return JSONResponse({\"error\": \"LLM rate limited\", \"retry_after\": 60}, status_code=429)\n\n@app.exception_handler(ContextWindowExceededError)\nasync def context_overflow(req, exc):\n    return JSONResponse({\"error\": \"Input too long\", \"max_tokens\": 128_000}, status_code=400)\n```\n\n+ Tenacity retry exponentiel sur les calls LLM (3 tentatives, jitter). + Circuit breaker (py-breaker) qui ouvre après N échecs consécutifs. + Fallback vers modèle alternatif (Anthropic → Ollama local) si provider down.",
       "justification": "Gestion erreurs LLM spécifiques (rate limit, context overflow, timeout). Exception handlers + tenacity + circuit breaker = production maturity."
@@ -403,7 +403,7 @@
     {
       "id": 51,
       "set": 1,
-      "name": "LLMOps",
+      "name": "LLMOps & Observabilité",
       "question": "Tu n'as pas d'expérience AWS directe. Comment tu comptes combler ça ?",
       "answer": "\"Je n'ai pas de prod enterprise sur AWS mais j'ai deux atouts.\nPremièrement, j'ai GCP en production (BigQuery, Cloud Run) et les concepts IAM, networking, et orchestration de containers sont directement transposables — le vocabulaire change, les patterns restent.\nDeuxièmement, je gère une infrastructure locale CUDA dual-GPU sous Arch Linux : NUMA topology, drivers NVIDIA, allocation de ressources. Quelqu'un qui résout des problèmes de domain shift GPU à 2h du matin n'a pas peur d'un kubeconfig AWS. Ma montée en compétences sera rapide.\"\n\n**Correspondance AWS ↔ GCP** (à mobiliser pour montrer la transposition immédiate des concepts) :\n\n| Domaine | AWS | GCP | Concept commun |\n|---------|-----|-----|----------------|\n| Identité & permissions | IAM (users, roles, policies) | IAM (members, roles) | Policies déclaratives, least privilege |\n| Compute VM | EC2 | Compute Engine | Instances avec types (CPU/GPU/RAM) |\n| Containers managés | ECS / Fargate | Cloud Run / GKE Autopilot | Serverless containers |\n| Kubernetes managé | EKS | GKE | Control plane managé, worker nodes |\n| Object storage | S3 | Cloud Storage | Buckets, lifecycle policies |\n| DB SQL managée | RDS | Cloud SQL | PostgreSQL/MySQL managé |\n| Data warehouse | Redshift | BigQuery | OLAP analytique |\n| Secrets | Secrets Manager / SSM | Secret Manager | Coffre-fort centralisé |\n| Réseau privé | VPC | VPC | Sous-réseaux, security groups / firewall rules |\n| Monitoring | CloudWatch | Cloud Monitoring | Métriques + logs + alerting |\n| Identité workload K8s | IRSA (IAM Roles for SA) | Workload Identity | Lier ServiceAccount à identité cloud |\n\n**Domain shift GPU** : phénomène où un modèle entraîné sur une distribution de données (le **source domain**) voit ses performances chuter quand on l'inférence sur une distribution différente (le **target domain**) — pertinent pour la question car c'est exactement le type de problème opérationnel qui demande de comprendre la pile complète (driver CUDA, version cuDNN, précision flottante, batch size, calibration de quantification) et pas juste l'API du framework. Si on sait diagnostiquer pourquoi un modèle Qwen3-14B quantifié en INT8 dégrade sur une RTX 5070 Ti alors qu'il marche en bf16 sur RTX A6000, on a la maturité d'infrastructure pour debugger n'importe quel cluster GPU AWS (P4/P5/G6).",
       "justification": "Gap honnête AWS. Pivot vers GCP + infra locale CUDA = arguments solides. Anti-pattern : prétendre savoir."
@@ -411,7 +411,7 @@
     {
       "id": 52,
       "set": 1,
-      "name": "LLMOps",
+      "name": "LLMOps & Observabilité",
       "question": "Comment tu déploierais un modèle d'inférence LLM (vLLM, Ollama, TGI) sur Kubernetes ?",
       "answer": "Pod avec ressources GPU (`nvidia.com/gpu: 1`), nodeSelector pour cibler un node pool GPU, Deployment avec `replicas` limité (les modèles 70B ne tiennent pas dans tous les Pods), Service ClusterIP exposé en interne, Ingress optionnel pour l'accès externe. Pour la prod : DaemonSet du device plugin NVIDIA, HPA basé sur métriques custom (queue depth de vLLM via Prometheus). Préférer vLLM ou Text Generation Inference (TGI) à Ollama pour la prod — meilleurs throughputs avec PagedAttention et batching dynamique.",
       "justification": "Kubernetes deployment LLM. vLLM/TGI vs Ollama (production vs dev) = veille tech. NVIDIA Device Plugin = ops réelles."
@@ -419,7 +419,7 @@
     {
       "id": 53,
       "set": 1,
-      "name": "LLMOps",
+      "name": "LLMOps & Observabilité",
       "question": "Quelle stratégie de release pour minimiser le risque ?",
       "answer": "Trois patterns :\n- **Rolling update** (défaut K8s) : remplacer les Pods un par un. Simple, downtime nul si les Pods sont stateless.\n- **Blue/green** : deux environnements complets, switch DNS/Service. Rollback instantané mais double coût d'infra pendant la transition.\n- **Canary** : router 5 % du trafic vers la nouvelle version, monitor les KPIs, puis 25 %, 50 %, 100 %. Idéal pour les changements de modèle LLM — détecte les régressions de qualité avant l'impact massif.",
       "justification": "Stratégies release production. Canary = pattern critique pour changements modèle LLM (régressions qualité)."
@@ -427,7 +427,7 @@
     {
       "id": 54,
       "set": 1,
-      "name": "LLMOps",
+      "name": "LLMOps & Observabilité",
       "question": "Tu gères les coûts d'infra LLM comment ?",
       "answer": "(1) Cache de réponses LLM (Redis avec hash de prompt+model) — gain typique 20–40 % sur les FAQ. (2) Routing intelligent vers le plus petit modèle capable de répondre (Haiku < Sonnet < Opus). (3) Spot Instances / preemptible VMs pour le fine-tuning batch. (4) Quotas par tenant/feature avec alerting sur dérive. (5) Suivi `$/req` via LangFuse, dashboards Grafana de coût par endpoint.",
       "justification": "FinOps LLM. Cache + routing modèles + Spot + monitoring coût = différenciant. Anthropic API peut exploser facture."
@@ -435,7 +435,7 @@
     {
       "id": 55,
       "set": 1,
-      "name": "LLMOps",
+      "name": "LLMOps & Observabilité",
       "question": "Disaster recovery — que se passe-t-il si ton fournisseur LLM (OpenAI/Anthropic) tombe ?",
       "answer": "Abstraction multi-provider via une factory (`get_llm(model=\"claude-sonnet-4-6\")` qui mappe vers Anthropic, Bedrock, ou un fallback local). Retry avec circuit breaker (`tenacity`). Fallback explicite vers un modèle local (Qwen3 via Ollama on-prem) pour les requêtes critiques. Tests de chaos engineering périodiques pour valider que le fallback marche vraiment.",
       "justification": "DR planning. Multi-provider abstraction + fallback local Ollama = pattern souveraineté. Critique applications business."
@@ -443,7 +443,7 @@
     {
       "id": 56,
       "set": 1,
-      "name": "LLMOps",
+      "name": "LLMOps & Observabilité",
       "question": "Quels métriques pour monitorer un service LLM en production ?",
       "answer": "4 dimensions : (1) **Système** : latence P50/P95/P99, time-to-first-token (TTFT critique UX), throughput tokens/sec, error rate. (2) **Coût** : tokens in/out par requête (input plus cher généralement), $/session, alerte spike. (3) **Qualité** : RAGAS faithfulness sur sample 5%, refus rate (\"je ne peux pas répondre\"), valid_sources_rate. (4) **Agent** : steps par requête (détecte boucles), tools_distribution, abandon rate HITL. Stack : Prometheus + Grafana + LangFuse pour LLM-specific.",
       "justification": "Monitoring LLM-specific. TTFT, RAGAS, cost/req = métriques différentes du backend classique. Niveau expert observabilité."
@@ -451,7 +451,7 @@
     {
       "id": 57,
       "set": 1,
-      "name": "LLMOps",
+      "name": "LLMOps & Observabilité",
       "question": "Différence Docker Compose vs Kubernetes — quand passer de l'un à l'autre ?",
       "answer": "Compose : 1-10 services, 1 host, dev local + small prod. Simple YAML, networking auto, hot reload. K8s : multi-host, scaling auto, rolling updates, multi-tenant, HA. Overhead : control plane managé (EKS/GKE) sinon ops lourd. Pattern Nexus self-hosted = Docker Compose sur VPS Hetzner (suffit, 25€/mois). Alexandria SaaS = K8s via Fly.io ou Render (scale + multi-region). Règle : K8s quand >3 hosts ou >10 services ou multi-tenant.",
       "justification": "Décision architecture déploiement. Compose simple vs K8s complexité. Capacité à choisir selon scale."
@@ -459,7 +459,7 @@
     {
       "id": 58,
       "set": 1,
-      "name": "LLMOps",
+      "name": "LLMOps & Observabilité",
       "question": "Tu déploies en production, qu'est-ce qui doit absolument être en place ?",
       "answer": "Checklist non négociable : (1) **TLS** Let's Encrypt auto (Traefik/Caddy). (2) **Secrets** Vault ou K8s Secrets, JAMAIS .env committé. (3) **Backups** automatiques + restoration testée (restic + S3, daily, 30j retention). (4) **Monitoring** Prometheus + AlertManager → Slack/PagerDuty. (5) **Logs centralisés** Loki, retention 30j. (6) **CI/CD** : tests + scan Trivy + deploy automatisé. (7) **Rate limiting** + WAF basique (Cloudflare gratuit). (8) **Health checks** + restart policies. (9) **Audit logs** RGPD-compliant.",
       "justification": "Checklist production. Sans cette liste = déploiement amateur. Lead Tech valorise rigueur."
@@ -467,7 +467,7 @@
     {
       "id": 59,
       "set": 1,
-      "name": "LLMOps",
+      "name": "LLMOps & Observabilité",
       "question": "Comment tu fais un fine-tuning LLM en production sans downtime ?",
       "answer": "(1) **Training offline** : batch job (Spot Instance pour gros coût), output adapter LoRA + base model. (2) **Quantization** : GGUF Q5_K_M ou GPTQ 4-bit pour déploiement (économie VRAM). (3) **Upload registry** : ECR / HF Hub. (4) **Canary deploy** : 5% traffic vers nouveau modèle, monitor RAGAS + user feedback. (5) **A/B test** 1 semaine, comparer métriques. (6) **Full rollout** si validation OK. (7) **Old model en standby** 1 semaine pour rollback instant. Argo Rollouts ou Flagger automatise sur K8s.",
       "justification": "Fine-tuning sans downtime = pattern production avancé. Canary + A/B + standby rollback = niveau senior."
@@ -475,7 +475,7 @@
     {
       "id": 60,
       "set": 1,
-      "name": "LLMOps",
+      "name": "LLMOps & Observabilité",
       "question": "GitHub Actions CI/CD pour app IA — pipeline minimal ?",
       "answer": "```yaml\non: push\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: pip install -e \".[dev]\" && pytest --cov\n      - run: ruff check . && mypy backend/\n      - run: bandit -r backend/ -ll\n      - run: trivy fs .\n  build:\n    needs: test\n    permissions:\n      id-token: write   # OIDC AWS, pas de secret long-term\n    steps:\n      - uses: aws-actions/configure-aws-credentials@v4\n        with: { role-to-assume: arn:aws:iam::...:role/CIRole }\n      - run: docker build -t ECR/nexus:${{ github.sha }} . && docker push\n  deploy:\n    needs: build\n    environment: production   # manual approval gate\n    steps:\n      - run: kubectl set image deployment/nexus api=ECR/nexus:${{ github.sha }}\n```",
       "justification": "CI/CD modern. GitHub Actions OIDC = veille sécurité (vs old access keys). Pipeline complet montre expérience."
@@ -483,7 +483,7 @@
     {
       "id": 61,
       "set": 1,
-      "name": "LLMOps",
+      "name": "LLMOps & Observabilité",
       "question": "Tu suspectes un memory leak sur ton service Python en prod, comment debug ?",
       "answer": "(1) **Métriques RSS** Prometheus : confirme leak (croissance constante vs stabilité). (2) **`tracemalloc`** activé en dev, snapshot avant/après requête, diff alloc. (3) **`memory_profiler`** sur endpoints suspects, line-by-line. (4) **`objgraph`** pour trouver cycles refs (rare en Python 3 grâce GC). (5) **`py-spy`** non-intrusif en prod, dump stack + heap. (6) Causes fréquentes : caches sans bounded size, listeners non détachés, async tasks non awaited, gros tensors PyTorch non `del`+`torch.cuda.empty_cache()`.",
       "justification": "Debug production. Méthodologie debug memory leak = niveau senior Python. tracemalloc + py-spy = outils non-évidents."
@@ -491,7 +491,7 @@
     {
       "id": 62,
       "set": 1,
-      "name": "Data Management",
+      "name": "Data Engineering",
       "question": "Tu choisis pgvector ou une base vectorielle dédiée — pourquoi ?",
       "answer": "Tradeoff classique. pgvector : tout dans une base, transactions ACID entre données relationnelles et vecteurs (un upsert de document + ses chunks dans une seule transaction), moins d'infra à opérer, joins SQL directs avec les métadonnées (`WHERE doc.author = 'Dupont' ORDER BY embedding <=> $1`). Limite : performance qui plafonne autour de 10–50M vecteurs selon le hardware, pas de sharding natif. Base dédiée (Qdrant, Weaviate) : optimisations avancées (IVF+PQ, recherche disque pour milliards de vecteurs), filtres riches sur payload, hybrid search natif. Mon défaut : pgvector tant qu'on est sous 10M vecteurs et que la cohérence transactionnelle compte. Bascule vers Qdrant/Weaviate quand le scale ou la latence le justifie.",
       "justification": "Décision architecture vector DB. pgvector vs Qdrant trade-offs (ACID vs scale). Capacité à choisir selon contraintes."
@@ -499,7 +499,7 @@
     {
       "id": 63,
       "set": 1,
-      "name": "Data Management",
+      "name": "Data Engineering",
       "question": "Comment tu modélises des données fortement relationnelles dans une base vectorielle ?",
       "answer": "On ne le fait pas dans la base vectorielle — elle est faite pour la similarité, pas pour les jointures. On garde le **modèle relationnel dans PostgreSQL** (auteurs, articles, citations, métadonnées) et on **ne stocke que les chunks et leurs embeddings** dans la base vectorielle, avec une clé étrangère `document_id` qui pointe vers Postgres. Au retrieval : (1) similarity search retourne les top-k chunks avec leurs `document_id`, (2) requête Postgres pour enrichir avec les métadonnées et les relations. Si les relations sont vraiment au cœur du raisonnement (multi-hop) : Neo4j en plus, en gardant la base vectorielle pour le retrieval initial des entités.",
       "justification": "Modélisation hybride. Vector DB + Postgres + Neo4j = architecture data sophistiquée. Anti-pattern : tout dans vector."
@@ -507,7 +507,7 @@
     {
       "id": 64,
       "set": 1,
-      "name": "Data Management",
+      "name": "Data Engineering",
       "question": "Index ivfflat vs hnsw dans pgvector — lequel choisir ?",
       "answer": "- `ivfflat` : partitionne l'espace en `lists` clusters. Construction rapide (`O(N)`), recall correct, paramètre `lists` à ajuster (~ √N). Bon pour des datasets statiques.\n- `hnsw` : graphe multi-niveaux. Construction plus lente et plus coûteuse en mémoire mais **meilleur recall** et **support natif des inserts** (pas besoin de reconstruire l'index). C'est devenu le défaut dans la majorité des cas depuis pgvector 0.5.",
       "justification": "pgvector specifics. HNSW vs IVFFlat = trade-off recall/insert. Connaissance détail technique récent."
@@ -515,7 +515,7 @@
     {
       "id": 65,
       "set": 1,
-      "name": "Data Management",
+      "name": "Data Engineering",
       "question": "Comment tu testes une migration de schéma sur une base de prod ?",
       "answer": "(1) **Migrations versionnées** via Alembic — chaque migration est un script Python idempotent avec `upgrade()`/`downgrade()`. (2) **Test sur un dump de prod anonymisé** en pré-prod. (3) **Migrations zero-downtime** : pas de `ALTER COLUMN NOT NULL` à chaud sur une table massive, on procède par étapes (ajouter colonne nullable → backfill → ajouter contrainte). (4) **Backups** vérifiés juste avant la migration. (5) **Feature flag** côté code pour activer la lecture/écriture de la nouvelle colonne progressivement.",
       "justification": "Production DB safety. Migrations zero-downtime + feature flags = niveau senior DBA."
@@ -523,7 +523,7 @@
     {
       "id": 66,
       "set": 1,
-      "name": "Data Management",
+      "name": "Data Engineering",
       "question": "JSONB PostgreSQL — quand l'utiliser plutôt qu'une table normalisée ?",
       "answer": "Pour metadata flexible où le schéma évolue souvent (papers metadata custom par revue, scores ML pluri-modèles, audit logs). Avantages : pas de migration à chaque nouveau champ, queries `@>` containment puissantes, indexes GIN performants. Limites : pas de FK vers JSON keys, queries plus lentes que colonnes pour aggregations massives. Règle : JSONB pour <20% des accès, colonnes typées pour data hot path. Pattern Alexandria : Paper.metadata JSONB pour scores ML / venues / keywords variables, colonnes pour title/year/doi standards.",
       "justification": "JSONB usage. Décision NoSQL-in-SQL. Pattern Alexandria. Capacité à juger flexibilité vs typing."
@@ -531,7 +531,7 @@
     {
       "id": 67,
       "set": 1,
-      "name": "Data Management",
+      "name": "Data Engineering",
       "question": "Comment partitionner une table de 100M+ rows time-series ?",
       "answer": "PostgreSQL native partitioning (PG 13+) par RANGE sur `created_at`. Partitions par mois (au-delà 100M total). Auto-creation via pg_partman extension. Pruning auto : `WHERE created_at > '2024-01-01'` scanne seulement partitions concernées. Retention policy : DROP TABLE partition_2020_XX (instantané vs DELETE massif). Pour time-series pures : TimescaleDB extension (hypertables, continuous aggregates, compression 90%+). Use case Nexus : `agent_logs` partitionné mensuel, retention 90 jours.",
       "justification": "Partitioning time-series. TimescaleDB extension = veille tech récente. Production scaling problem."
@@ -539,7 +539,7 @@
     {
       "id": 68,
       "set": 1,
-      "name": "Data Management",
+      "name": "Data Engineering",
       "question": "Réplication PostgreSQL — sync vs async, quand chacun ?",
       "answer": "Streaming replication standard. Async (default) : primary ne wait pas replica ack → max throughput, possibilité perte récente si crash primary entre commit + replication. Sync (`synchronous_commit=remote_apply`) : commit confirmé seulement après replica apply WAL → zero data loss, latence +réseau. Mix : 1 replica sync (HA + data safety) + N async (read scaling). Patroni + etcd pour failover auto. RTO < 5 min, RPO = 0 cible Alexandria prod.",
       "justification": "Réplication HA. Sync vs async trade-offs + Patroni failover = expertise DBA senior."
@@ -547,7 +547,7 @@
     {
       "id": 69,
       "set": 1,
-      "name": "Data Management",
+      "name": "Data Engineering",
       "question": "Connection pooling PostgreSQL avec PgBouncer — pourquoi obligatoire ?",
       "answer": "Chaque connexion PG = 1 process forked (~10 MB RAM, ~5ms open). Apps web ouvrent/ferment souvent → overhead constant + saturation > 200 connexions. PgBouncer multiplex : 500 clients front → 25 connexions PG backend (`transaction` mode libère après commit). Économie RAM massive + latence connexions. Setup : `pgbouncer.ini` config par DB, apps connectent à port 6432. Pattern obligatoire production > 50 concurrent users.",
       "justification": "Connection pooling obligatoire. PgBouncer = pattern standard production. Sans ça = crash sous charge."
@@ -555,7 +555,7 @@
     {
       "id": 70,
       "set": 1,
-      "name": "Data Management",
+      "name": "Data Engineering",
       "question": "Backup PostgreSQL stratégie production ?",
       "answer": "3 layers : (1) **Continuous WAL archiving** vers S3 (PITR possible toute minute). (2) **Daily base backups** via pgbackrest (incremental + full hebdo). (3) **Replica HA** pour failover instantané. Outil de référence : `pgbackrest` (dedup, parallel, encryption, S3 backend). Retention : 30 daily + 12 weekly + 6 monthly. **Test de restauration trimestriel obligatoire** sinon backup non vérifié = pas de backup. Coût ~3€/mois B2 pour 100GB.",
       "justification": "Backup strategy. PITR + pgbackrest + S3 + test restore = niveau professionnel. Mauvaise réponse = juste pg_dump."
@@ -563,7 +563,7 @@
     {
       "id": 71,
       "set": 1,
-      "name": "Data Management",
+      "name": "Data Engineering",
       "question": "Sharding PostgreSQL avec Citus — quand basculer ?",
       "answer": "Citus = extension PG qui distribue table sur N workers via shard_key. Use case : multi-tenant SaaS > 1000 tenants, > 1TB de data, > 100k QPS. Distribution par tenant_id → tenant queries restent local 1 shard (rapides). Cross-tenant aggregations parallélisées sur tous workers. Pas avant 1TB. Avant : verticale scaling (machine plus grosse) + indexes optimization + caching Redis suffisent. Alexandria : pas besoin avant 10000+ tenants payants.",
       "justification": "Scaling horizontal. Citus = solution mature. Capacité à juger quand basculer (>1TB, >1000 tenants)."
@@ -571,7 +571,7 @@
     {
       "id": 72,
       "set": 1,
-      "name": "Questions transversales & culture ingénierie",
+      "name": "Culture ingénierie",
       "question": "Microservices vs monolithe pour une application IA ?",
       "answer": "Dépend du stade du projet. En exploration/startup : monolithe modulaire — plus simple à développer, à debugger, à déployer. L'overhead des microservices (networking, sérialisation, service mesh) n'est pas justifié. Quand les composants ont des besoins de scaling indépendants (le service d'embedding scale différemment du service de génération), des équipes séparées, ou des cycles de déploiement différents : passer aux microservices. Pour une boîte comme Do IT Now qui intervient chez des clients variés : l'approche modulaire-monolithe permet de commencer vite et d'extraire des services au besoin.",
       "justification": "Décision architecture. Micro vs monolithe = bias selon stade projet. Capacité à argumenter avec contexte business."
@@ -579,7 +579,7 @@
     {
       "id": 73,
       "set": 1,
-      "name": "Questions transversales & culture ingénierie",
+      "name": "Culture ingénierie",
       "question": "Comment tu gères le versioning d'une API IA en production ?",
       "answer": "Versioning d'URL (`/api/v1/`, `/api/v2/`) pour les breaking changes. Changelog explicite. Déprécation progressive avec période de transition (6 mois minimum). Pour les modèles LLM : pin explicite de la version du modèle (`gpt-4-0125-preview` pas `gpt-4`), car les modèles évoluent et peuvent changer les comportements de production. Tests de non-régression sur chaque changement de modèle.",
       "justification": "API versioning. Pin modèle LLM = piège prod (comportements changent). Signal production maturity."
@@ -587,7 +587,7 @@
     {
       "id": 74,
       "set": 1,
-      "name": "Questions transversales & culture ingénierie",
+      "name": "Culture ingénierie",
       "question": "Tu rejoins un projet IA en cours avec 0 tests — par où commences-tu ?",
       "answer": "(1) **Audit** : `ruff check`, `mypy`, coverage actuelle (souvent 0%), CI status, dependency security (`safety`, `trivy`). (2) **Tests smoke** d'abord : 10-20 tests E2E sur les flux critiques (login, principal use case), évite régressions immédiates. (3) **Tests intégration** sur endpoints critiques avec mock LLM. (4) **Tests unitaires** sur les nouvelles features puis backfill code existant lors de bugfix. (5) Pre-commit hooks : ruff + bandit + gitleaks. Cible 60% en 1 mois, 80% en 3 mois.",
       "justification": "Méthodologie débutant projet. Audit + tests smoke + backfill = approche systématique. Anti-pattern : refactor immédiat."
@@ -595,7 +595,7 @@
     {
       "id": 75,
       "set": 1,
-      "name": "Questions transversales & culture ingénierie",
+      "name": "Culture ingénierie",
       "question": "Comment tu prends une décision technique controversée dans une équipe ?",
       "answer": "(1) **Document le problème** clairement avec contraintes (latence, coût, time-to-market). (2) **Liste options** + trade-offs, pas opinion personnelle. (3) **POC rapide** si désaccord persiste — 1-2 jours pour valider hypothèses critiques. (4) **ADR (Architecture Decision Record)** : décision, contexte, alternatives considérées, conséquences. (5) **Disagree-and-commit** si vote tranche : on s'engage même si pas d'accord. Re-review dans 3 mois si nécessaire. Évite analysis paralysis.",
       "justification": "Soft skills technical. ADR + POC + disagree-and-commit = pratiques ingénierie matures. Critique culture équipe."
@@ -603,7 +603,7 @@
     {
       "id": 76,
       "set": 1,
-      "name": "Questions transversales & culture ingénierie",
+      "name": "Culture ingénierie",
       "question": "Tu hérites d'un service en prod qui plante régulièrement, méthodologie ?",
       "answer": "(1) **Stop the bleeding** : si critique, rollback ou rollforward selon récence. (2) **Observabilité d'abord** : si pas de logs structurés ou métriques, c'est priorité 1. (3) **MTTR > MTBF** : focus sur réduire temps de récupération avant cause racine. (4) **Post-mortems blameless** systématiques + action items trackés. (5) **5 whys** sur incidents répétés. (6) **Tests qui reproduisent les bugs trouvés** (regression suite). Anti-pattern : ajouter alerting partout sans réduire bruit.",
       "justification": "Production firefighting. Stop the bleeding + observabilité + post-mortems blameless = expérience ops réelle."
@@ -611,7 +611,7 @@
     {
       "id": 77,
       "set": 1,
-      "name": "Questions transversales & culture ingénierie",
+      "name": "Culture ingénierie",
       "question": "Comment communiquer un risque technique à un manager non-technique ?",
       "answer": "Format BLUF (Bottom Line Up Front) : (1) **Impact business** d'abord : \"Si on ne fait rien, dans 3 mois le coût Anthropic dépasse le revenu Alexandria de 30%\". (2) **Cause** en 1 phrase non-technique. (3) **Options** avec coût/délai (3 choix typique : minimal, complet, hybride). (4) **Recommandation** + risque inaction. (5) Skip jargon (RAG, embeddings) sauf si expliqué une fois. Pas de FUD, pas de catastrophisme. Métriques toujours.\n\n### 8.2 Bonnes pratiques de développement\n\n**Tests** : pyramide classique — beaucoup de tests unitaires (outils, fonctions pures), moins de tests d'intégration (routes API avec DB mockée), peu de tests E2E (flux complets avec LLM). Le LLM lui-même est mocké dans les tests unitaires et d'intégration ; les tests E2E peuvent utiliser un modèle local léger (ex. llama3.2:1b via Ollama).\n\n**Documentation** : FastAPI génère automatiquement le doc OpenAPI/Swagger. Compléter avec des descriptions des paramètres et des exemples. Pour les comportements d'agent : docstrings sur les tools (le LLM les lit pour savoir comment les utiliser), CLAUDE.md pour les conventions du projet.\n\n**Code quality** : `ruff` (linting + formatting, remplace black + flake8), `mypy` (typage statique), pre-commit hooks. Coverage cible : >80% sur les services critiques.",
       "justification": "Communication non-technique. BLUF + options + impact business = compétence manager. Lead Tech valorise."
@@ -619,7 +619,7 @@
     {
       "id": 78,
       "set": 1,
-      "name": "Questions transversales & culture ingénierie",
+      "name": "Culture ingénierie",
       "question": "Comment tu fais code review d'une PR d'un collègue moins expérimenté ?",
       "answer": "(1) **Pull la branche localement**, tourne tests, regarde l'app fonctionner. (2) **Commentaires structurés** : `[nit]` cosmétique optionnel, `[suggestion]` amélioration non-bloquante, `[required]` doit être fixé. (3) **Explique le pourquoi**, pas juste le quoi. Lien doc/ADR si concept. (4) **Pair pour gros changes** plutôt que 5 rounds reviews. (5) **Approve quand \"acceptable\"**, pas \"parfait\" — perfect is enemy of done. (6) **Pas de bikeshedding** sur naming si fonction marche.",
       "justification": "Code review. Commentaires structurés + pair vs reviews multiples = pratiques modernes. Soft skill important équipe."
@@ -627,7 +627,7 @@
     {
       "id": 79,
       "set": 1,
-      "name": "Questions transversales & culture ingénierie",
+      "name": "Culture ingénierie",
       "question": "Quels outils Python tu mets en place sur un nouveau projet ?",
       "answer": "(1) **uv** ou **poetry** : dependency manager moderne. (2) **ruff** : lint + format (remplace black, flake8, isort). (3) **mypy** : typage statique strict. (4) **pytest** + pytest-asyncio + pytest-cov. (5) **pre-commit** : ruff + bandit + gitleaks + check-yaml. (6) **pydantic** + pydantic-settings. (7) **httpx** ou requests selon async. (8) **structlog** pour logging structuré. (9) **Pour FastAPI** : ajout fastapi, uvicorn[standard]. CI GitHub Actions configuré jour 1.\n\n### 8.3 Veille technologique\n\nLe poste demande explicitement de \"réaliser une veille technologique et proposer des innovations concrètes.\"\n\n**Ta réponse unique** : Nexus est ton système de veille IA automatisée. Ce n'est pas juste une pratique, c'est un projet concret. Citer les sources : arXiv (papers), HuggingFace Hub (nouveaux modèles), GitHub trending, LangChain/LangGraph release notes, newsletters (The Batch, Import AI, TLDR AI).\n\n**Innovations récentes à connaître** :\n- **MCP (Model Context Protocol)** : standard Anthropic pour l'interface outil des LLMs — les tools deviennent des serveurs MCP interopérables\n- **LangGraph Platform** : nouveau service cloud Langchain pour déployer des agents en prod (concurrence Temporal)\n- **Structured Outputs** : OpenAI force maintenant le JSON schema sans post-traitement\n- **Reasoning models** (o3, Qwen3, DeepSeek R1) : les modèles à chaîne de pensée étendue changent les patterns d'agents (moins de ReAct, plus de \"think then act\")\n- **Multimodal agents** : GPT-4o, Gemini 2.0 permettent des agents qui voient des images et des PDFs directement",
       "justification": "Stack Python moderne. uv + ruff + mypy + pre-commit = outillage 2024. Signal veille outillage."
@@ -723,7 +723,7 @@
     {
       "id": 91,
       "set": 2,
-      "name": "Python avancé",
+      "name": "Python",
       "question": "Différence entre `async def` et `def` — quand utiliser asyncio ?",
       "answer": "`def` = exécution synchrone bloquante. `async def` définit une coroutine, exécutée sur l'event loop, suspend via `await` sans bloquer le thread. **Utiliser asyncio** quand : (1) **I/O-bound** : appels HTTP, requêtes DB, lectures fichiers — l'event loop gère 1000s connections concurrentes. (2) **FastAPI handlers** : `async def` par défaut sauf si CPU-bound. (3) **Streaming LLM** : `async for` sur tokens.\n\n**Ne pas utiliser** : tâches CPU-bound (training ML, calcul scientifique) — utiliser `asyncio.to_thread()` ou `ProcessPoolExecutor`.\n\n```python\n@app.post(\"/chat\")\nasync def chat(msg: Message):\n    response = await llm.ainvoke(msg.content)  # I/O bound, await\n    return {\"reply\": response}\n```",
       "justification": "Fiche poste : 'Python avancé' + 'FastAPI' + 'agents IA'. Concurrence asyncio = backbone backend IA moderne. Question éliminatoire si candidat confond threading/asyncio/multiprocessing."
@@ -731,7 +731,7 @@
     {
       "id": 92,
       "set": 2,
-      "name": "Python avancé",
+      "name": "Python",
       "question": "Qu'est-ce que le GIL et comment le contourner ?",
       "answer": "**GIL (Global Interpreter Lock)** = mutex CPython qui empêche plusieurs threads d'exécuter du bytecode Python simultanément. Conséquence : threading Python **inefficace pour CPU-bound** (1 seul thread actif à la fois), mais fonctionne pour I/O-bound (le GIL est libéré pendant I/O).\n\n**Contournements** : (1) **multiprocessing** : process séparés, chacun son GIL — utiliser pour CPU-bound. (2) **asyncio** : single-thread mais event loop — I/O concurrent. (3) **C extensions** : numpy, PyTorch libèrent le GIL pour calculs lourds. (4) **Python 3.13+** : option `--disable-gil` (PEP 703, expérimental).\n\n**En pratique IA** : training PyTorch contourne GIL via CUDA kernels. Inference Ollama = process externe, pas concerné.",
       "justification": "Fiche : 'Python avancé'. GIL = question piège classique. Junior répond 'utiliser threading', senior explique GIL + multiprocessing + asyncio selon nature workload."
@@ -739,7 +739,7 @@
     {
       "id": 93,
       "set": 2,
-      "name": "Python avancé",
+      "name": "Python",
       "question": "Type hints avancés : `Generic`, `Protocol`, `TypeVar` — exemples concrets ?",
       "answer": "**TypeVar** : type générique paramétrique. `T = TypeVar('T')` puis `def first(xs: list[T]) -> T`.\n**Generic** : classe paramétrée. `class Repository(Generic[T])`.\n**Protocol** : duck typing typé (structural subtyping, PEP 544). Pas besoin d'hériter, suffit d'implémenter la signature.\n\n```python\nfrom typing import Protocol, TypeVar, Generic\n\nclass HasEmbed(Protocol):\n    def embed(self, text: str) -> list[float]: ...\n\nT = TypeVar('T', bound=HasEmbed)\n\nclass VectorStore(Generic[T]):\n    def __init__(self, embedder: T): self.embedder = embedder\n    def index(self, doc: str): return self.embedder.embed(doc)\n```\n\nProtocol particulièrement utile pour découpler interfaces dans codebase IA (swap OpenAI/Ollama/Anthropic).",
       "justification": "Fiche : 'Python avancé' + 'qualité code'. Type hints avancés = signal expertise. Protocol pattern = injection dépendances type-safe sans hierarchie classes. Mypy strict mode = standard prod."
@@ -747,7 +747,7 @@
     {
       "id": 94,
       "set": 2,
-      "name": "Python avancé",
+      "name": "Python",
       "question": "Decorators — comment écrire un decorator avec arguments ?",
       "answer": "Decorator = fonction qui prend une fonction et retourne une fonction. Avec arguments = 3 niveaux d'imbrication.\n\n```python\nfrom functools import wraps\nimport time\n\ndef retry(max_attempts: int = 3, delay: float = 1.0):\n    def decorator(fn):\n        @wraps(fn)\n        def wrapper(*args, **kwargs):\n            for attempt in range(max_attempts):\n                try:\n                    return fn(*args, **kwargs)\n                except Exception as e:\n                    if attempt == max_attempts - 1: raise\n                    time.sleep(delay * 2 ** attempt)\n        return wrapper\n    return decorator\n\n@retry(max_attempts=5, delay=0.5)\ndef call_llm(prompt: str): ...\n```\n\n**Points clés** : `@wraps` préserve `__name__`/`__doc__`. Pour async : `@wraps` puis `async def wrapper` + `await fn(...)`.",
       "justification": "Fiche : 'Python avancé'. Decorators = pattern récurrent FastAPI (`@app.get`, `@app.middleware`). Retry/cache/auth decorators = fondations prod. Async wrapper = piège commun."
@@ -755,7 +755,7 @@
     {
       "id": 95,
       "set": 2,
-      "name": "FastAPI",
+      "name": "Backend & API",
       "question": "Comment fonctionne Depends() dans FastAPI ?",
       "answer": "`Depends()` = système d'injection de dépendances FastAPI. La dépendance est une callable (fonction ou classe) résolue automatiquement avant le handler. Avantages : (1) factorisation logique commune (auth, DB session, validation), (2) testabilité (override en test), (3) sub-dependencies récursives, (4) caching par request (`use_cache=True` par défaut).\n\n```python\nasync def get_db() -> AsyncSession:\n    async with SessionLocal() as session:\n        yield session\n\nasync def get_current_user(\n    token: str = Depends(oauth2_scheme),\n    db: AsyncSession = Depends(get_db)\n) -> User:\n    return await verify_token(token, db)\n\n@app.get(\"/me\")\nasync def me(user: User = Depends(get_current_user)):\n    return user\n```\n\n**Override en test** : `app.dependency_overrides[get_db] = mock_db`.",
       "justification": "Fiche : 'FastAPI' + 'tests'. Depends() = pattern central FastAPI. Override = clé pour tests unitaires propres. Question quasi-obligatoire entretien Lead Tech IA."
@@ -763,7 +763,7 @@
     {
       "id": 96,
       "set": 2,
-      "name": "FastAPI",
+      "name": "Backend & API",
       "question": "BackgroundTasks vs Celery vs ARQ — comment choisir ?",
       "answer": "**BackgroundTasks FastAPI** : tâches courtes exécutées **après réponse** au client, dans le même process. OK pour : logs, email simple, cleanup. **Pas OK** : process long, crash = perte tâche, pas de retry.\n\n**Celery** : queue de tâches distribuée avec Redis/RabbitMQ broker, workers séparés. **Avantages** : retry, scheduling (Celery Beat), monitoring (Flower), scaling horizontal. **Inconvénients** : sync par design (async récent et limité), overhead config.\n\n**ARQ** : async-native (asyncio + Redis), moins de fonctionnalités que Celery mais intégration FastAPI plus naturelle.\n\n**Règle** : tâche < 5s et non-critique → BackgroundTasks. Long-running / critique → Celery (ou ARQ si full-async).",
       "justification": "Fiche : 'FastAPI' + 'mise en production'. Tâches async/queue = obligatoire prod (envoi email, ingestion docs, embedding batch). Choix selon contraintes = signal pragmatisme."
@@ -771,7 +771,7 @@
     {
       "id": 97,
       "set": 2,
-      "name": "FastAPI",
+      "name": "Backend & API",
       "question": "Pydantic v2 vs v1 — qu'est-ce qui change ?",
       "answer": "Pydantic v2 (juin 2023) = **rewrite Rust** (pydantic-core). **Gains** : 5-50× plus rapide.\n\n**Changements API** : (1) `BaseModel.dict()` → `model_dump()`. (2) `Config` class → `model_config = ConfigDict(...)`. (3) `validator` → `field_validator`, `root_validator` → `model_validator`. (4) `Optional[X]` ne donne plus défaut implicite : il faut `X | None = None`. (5) Validation strict mode plus rigoureuse (string '1' n'est plus auto-converti en int sans `coerce`).\n\n**Migration** : `bump-pydantic` outil officiel. FastAPI ≥ 0.100 supporte v2 nativement. Vérifier que tous les sub-deps suivent (langchain, instructor).",
       "justification": "Fiche : 'FastAPI' + 'qualité code'. Pydantic v2 = standard 2024+. Capacité à migrer + connaître pièges = signal maturité. Cite outils officiels = veille."
@@ -779,7 +779,7 @@
     {
       "id": 98,
       "set": 2,
-      "name": "API REST",
+      "name": "Backend & API",
       "question": "Quels status codes HTTP pour quelles situations ?",
       "answer": "**2xx Success** : 200 OK (GET/PUT), 201 Created (POST création), 202 Accepted (async accepté), 204 No Content (DELETE OK).\n**3xx Redirect** : 301 Moved Permanently, 304 Not Modified (cache).\n**4xx Client error** : 400 Bad Request (validation), 401 Unauthorized (pas auth), 403 Forbidden (auth mais droits insuffisants), 404 Not Found, 409 Conflict (état incompatible), 422 Unprocessable Entity (FastAPI Pydantic), 429 Too Many Requests (rate limit).\n**5xx Server error** : 500 Internal Server Error, 502 Bad Gateway, 503 Service Unavailable (maintenance), 504 Gateway Timeout.\n\n**Pièges classiques** : retourner 200 avec `{\"error\": ...}` au lieu de 4xx = anti-pattern. 401 vs 403 souvent confondus : 401 = qui es-tu ?, 403 = je sais qui tu es mais non.",
       "justification": "Fiche : 'API RESTful'. Maîtrise codes HTTP = basique mais éliminatoire. 401 vs 403 = piège classique. Lead Tech vérifie hygiène API."
@@ -787,7 +787,7 @@
     {
       "id": 99,
       "set": 2,
-      "name": "API REST",
+      "name": "Backend & API",
       "question": "Idempotence — pourquoi GET/PUT/DELETE le sont mais pas POST ?",
       "answer": "**Idempotent** = N appels = 1 appel (même résultat). **GET** : lecture, pas d'effet de bord. **PUT** : remplace entièrement la ressource (N PUT identiques = état final identique). **DELETE** : supprime — 2e DELETE retourne 404 mais état final = idem.\n\n**POST** = création, non-idempotent par nature : 2 POST = 2 ressources créées (2 commandes, 2 paiements).\n\n**Mais on peut rendre POST idempotent** via **Idempotency-Key** header (Stripe pattern) : client génère UUID, serveur le stocke avec response, 2e appel avec même key = retourne cached response. Critique pour : paiements, envois emails, déclenchements jobs LLM (coût ≠).\n\nFastAPI : middleware custom + Redis pour stocker keys + TTL.",
       "justification": "Fiche : 'API RESTful' + 'robustesse'. Idempotence = concept fondamental architecture distribuée. Idempotency-Key pattern Stripe = expertise paiement/jobs critiques."
@@ -795,7 +795,7 @@
     {
       "id": 100,
       "set": 2,
-      "name": "Tests",
+      "name": "Tests & Qualité",
       "question": "Pyramide de tests — proportion unit / intégration / E2E ?",
       "answer": "**Mike Cohn 2009** : 70% unit, 20% intégration, 10% E2E.\n\n**Unit** : rapide (ms), isolé (mocks deps), large volume. Teste 1 fonction/classe. **Intégration** : teste interactions (DB réelle, API mockée). Plus lent (s). **E2E** : flow utilisateur complet (UI ou client API + backend réel + DB réelle). Lent (min), fragile.\n\n**Anti-pattern \"Ice cream cone\"** : trop d'E2E, peu d'unit → tests lents, flaky, debug horrible.\n\n**Spécificité IA** : LLM en E2E coûteux + non-déterministe → mocker en unit/intégration, run E2E sur subset représentatif avec snapshot testing (`syrupy`) + LLM-as-judge pour qualité.",
       "justification": "Fiche : 'Tests, robustesse, qualité code'. Pyramide = fondamental. Spécificité LLM non-déterministe = signal expérience prod IA. Lead Tech valorise candidat qui pense tests dès design."
@@ -803,7 +803,7 @@
     {
       "id": 101,
       "set": 2,
-      "name": "Tests",
+      "name": "Tests & Qualité",
       "question": "Comment tester du code asyncio avec pytest ?",
       "answer": "Plugin **pytest-asyncio**. Marquer test avec `@pytest.mark.asyncio`. Event loop géré automatiquement.\n\n```python\nimport pytest\nfrom httpx import AsyncClient\n\n@pytest.mark.asyncio\nasync def test_chat_endpoint(app):\n    async with AsyncClient(app=app, base_url=\"http://test\") as client:\n        r = await client.post(\"/chat\", json={\"msg\": \"hi\"})\n    assert r.status_code == 200\n\n# Mock async fonction\n@pytest.mark.asyncio\nasync def test_with_mock(mocker):\n    mock_llm = mocker.AsyncMock(return_value=\"hello\")\n    result = await my_func(llm=mock_llm)\n    assert result == \"hello\"\n```\n\n**Config** dans `pyproject.toml` : `asyncio_mode = \"auto\"` pour éviter `@pytest.mark.asyncio` partout. **AsyncMock** (vs MagicMock) pour mocker coroutines.",
       "justification": "Fiche : 'FastAPI' + 'tests'. Tests async = obligatoire backend FastAPI. AsyncMock vs MagicMock = piège commun (test passe à tort si MagicMock sur async)."
@@ -811,7 +811,7 @@
     {
       "id": 102,
       "set": 2,
-      "name": "AWS",
+      "name": "DevOps & Cloud",
       "question": "Différence IAM User, Role, Policy ? Quand utiliser quoi ?",
       "answer": "**User** : identité long-terme avec credentials (access key ID + secret). À éviter en prod (rotation lourde, fuite = catastrophe).\n**Role** : identité **temporaire assumable** par une entité (EC2, EKS pod, autre compte AWS, fédération OIDC GitHub Actions). Credentials STS de courte durée. **C'est le pattern par défaut**.\n**Policy** : document JSON listant les permissions (Effect: Allow/Deny, Action, Resource, Condition). Attachée à User OU Role.\n\n**Best practices** : (1) **Pas de User pour services** — EC2 → Instance Role, EKS pod → IRSA (IAM Role for Service Account), CI/CD → OIDC Role. (2) **Principle of least privilege** : Resource exact ARN, pas `*`. (3) **MFA obligatoire** pour humains. (4) **AWS Organizations** pour multi-comptes.",
       "justification": "Fiche : 'Notions AWS (IAM, EC2, EKS)'. IAM = surface d'attaque #1 cloud. IRSA + OIDC GitHub Actions = pattern 2024 sans credentials longue durée. Question quasi-certaine entretien Do IT Now."
@@ -819,7 +819,7 @@
     {
       "id": 103,
       "set": 2,
-      "name": "AWS",
+      "name": "DevOps & Cloud",
       "question": "EC2 vs EKS — quand choisir l'un ou l'autre ?",
       "answer": "**EC2** : VM brute. Tu gères OS, runtime, app. **Pour** : (1) workload simple ou monolithe, (2) HPC custom (Slurm, MPI), (3) instances GPU spécialisées (P5, P4d), (4) coût optimisé via Spot. **Contre** : scaling manuel, déploiement lourd.\n\n**EKS** (Elastic Kubernetes Service) : control plane K8s managé. **Pour** : (1) microservices, (2) scaling auto (HPA + Karpenter), (3) écosystème K8s (Helm, Argo CD, KEDA), (4) multi-tenancy. **Contre** : complexité, coût control plane (~73$/mois) + complexité réseau (VPC CNI, Security Groups for Pods).\n\n**Choix Do IT Now (HPC + IA)** : EKS pour applications IA (FastAPI + workers GPU), EC2 pour HPC pur (calcul scientifique batch). Hybride possible : EKS + nodes GPU via Karpenter.",
       "justification": "Fiche : 'Notions AWS (IAM, EC2, EKS)' + 'HPC'. Distinction VM vs K8s = base cloud-native. Spot instances + Karpenter = ops AWS coût optimisé."
@@ -827,7 +827,7 @@
     {
       "id": 104,
       "set": 2,
-      "name": "Docker/K8s",
+      "name": "DevOps & Cloud",
       "question": "Multi-stage Docker build — pourquoi et comment ?",
       "answer": "**Problème** : image finale grosse (compilateurs, dev deps), surface d'attaque large.\n\n**Solution** : multi-stage = plusieurs `FROM` dans un Dockerfile. **Stage build** : SDK complet, installe deps, compile. **Stage runtime** : image minimale (distroless, alpine), copie uniquement artefacts compilés.\n\n```dockerfile\nFROM python:3.11 AS builder\nWORKDIR /app\nCOPY pyproject.toml .\nRUN pip install --target=/deps fastapi uvicorn pydantic\n\nFROM gcr.io/distroless/python3-debian12\nWORKDIR /app\nCOPY --from=builder /deps /deps\nCOPY ./app .\nENV PYTHONPATH=/deps\nUSER nonroot\nCMD [\"-m\", \"uvicorn\", \"main:app\", \"--host\", \"0.0.0.0\"]\n```\n\n**Gains** : 1.2GB → 150MB, pas de shell (distroless = pas d'exec attaque), USER non-root.",
       "justification": "Fiche : 'Docker, Kubernetes' + 'mise en production' + 'sécurité'. Multi-stage = standard prod. Distroless + non-root = sécurité supply chain. Notebook ops/01 le couvre."
@@ -835,7 +835,7 @@
     {
       "id": 105,
       "set": 2,
-      "name": "Docker/K8s",
+      "name": "DevOps & Cloud",
       "question": "Liveness, readiness, startup probes K8s — quelle différence ?",
       "answer": "**Liveness probe** : pod en vie ? Si échec → kill + restart pod. Détecte deadlock, OOM partial. Ex : `GET /healthz` retourne 200.\n\n**Readiness probe** : pod prêt à recevoir trafic ? Si échec → retirer du Service endpoint (mais **pas restart**). Détecte : warmup en cours, DB déconnectée. Ex : `GET /ready` qui check DB + Redis.\n\n**Startup probe** : pour applications lentes à démarrer (modèle LLM 10GB à load). Suspend liveness/readiness jusqu'à success. Évite kill pendant le warmup.\n\n```yaml\nstartupProbe:\n  httpGet: { path: /healthz, port: 8000 }\n  failureThreshold: 30\n  periodSeconds: 10  # 5 min max startup\nlivenessProbe:\n  httpGet: { path: /healthz, port: 8000 }\n  periodSeconds: 10\nreadinessProbe:\n  httpGet: { path: /ready, port: 8000 }\n```\n\n**Piège** : liveness qui check DB → si DB down, tous pods restart en cascade. Liveness = self only, readiness = deps.",
       "justification": "Fiche : 'Kubernetes'. Probes mal configurées = downtime classique. Piège liveness DB cascade = question piège senior."
@@ -843,7 +843,7 @@
     {
       "id": 106,
       "set": 2,
-      "name": "CI/CD",
+      "name": "DevOps & Cloud",
       "question": "Pipeline GitHub Actions pour app FastAPI sur EKS — étapes typiques ?",
       "answer": "(1) **Trigger** : push main / PR. (2) **Lint** : ruff + black --check. (3) **Type check** : mypy strict. (4) **Tests** : pytest + coverage ≥ 80%. (5) **Security scan** : gitleaks (secrets), bandit (Python sec), trivy (image CVE). (6) **Build image** : docker buildx multi-arch (amd64/arm64), tag = git sha. (7) **Push ECR** : auth via OIDC (pas de secret long-terme). (8) **Deploy** : `kubectl set image` ou Helm upgrade ou Argo CD sync. (9) **Smoke test** post-deploy : curl /healthz. (10) **Notify Slack**.\n\n```yaml\n# Auth OIDC (sans AWS_ACCESS_KEY_ID)\n- uses: aws-actions/configure-aws-credentials@v4\n  with:\n    role-to-assume: arn:aws:iam::123:role/gh-deploy\n    aws-region: eu-west-3\n```\n\n**Bonnes pratiques** : tags immutables (git sha pas latest), rollback Argo CD en 1 clic, GitOps pour audit.",
       "justification": "Fiche : 'CI/CD' + 'AWS' + 'sécurité'. Pipeline complet = pratique attendue. OIDC sans credentials longue durée = standard 2024 sécurité."
@@ -851,7 +851,7 @@
     {
       "id": 107,
       "set": 2,
-      "name": "PostgreSQL",
+      "name": "Bases de données",
       "question": "Index B-tree vs Hash vs GIN vs GiST — quand utiliser quoi ?",
       "answer": "**B-tree** (default) : ordre, égalité, range. `WHERE x = ?`, `x > ?`, `ORDER BY x`. 95% des cas.\n**Hash** : égalité uniquement, plus rapide que B-tree pour `=` strict mais ne supporte pas range. Rare en pratique.\n**GIN (Generalized Inverted Index)** : multi-valeurs. Idéal pour JSONB (`@>`, `?`), arrays (`&&`, `@>`), full-text search (`tsvector`). Lent à écrire, rapide à lire.\n**GiST (Generalized Search Tree)** : géospatial (PostGIS), ranges (tstzrange), full-text. Plus flexible que GIN, moins performant.\n**BRIN (Block Range Index)** : très gros tables temporelles avec données triées (logs, télémétrie). Index minuscule, scan rapide sur range.\n\nExemple Nexus : `CREATE INDEX idx_meta ON docs USING GIN (metadata jsonb_path_ops);` pour filtres JSON.",
       "justification": "Fiche : 'PostgreSQL'. Connaissance index types = sépare junior de senior. GIN sur JSONB = pattern Nexus / RAG metadata filtering."
@@ -859,7 +859,7 @@
     {
       "id": 108,
       "set": 2,
-      "name": "PostgreSQL",
+      "name": "Bases de données",
       "question": "Comment optimiser une requête lente PostgreSQL ?",
       "answer": "**Méthode** : (1) **EXPLAIN ANALYZE** : voir plan exécution réel + temps. Repérer : Seq Scan sur gros tables, Nested Loop avec >10k rows, Sort en mémoire dépassant `work_mem` (Disk: ...).\n\n(2) **Index manquant** : `WHERE` ou `JOIN` sur colonne non indexée. Créer index approprié.\n\n(3) **Statistiques périmées** : `ANALYZE table` ou augmenter `default_statistics_target`.\n\n(4) **Réécriture** : éviter `SELECT *`, préférer CTE matérialisée pour sous-queries répétées, `EXISTS` au lieu de `IN` sur large set.\n\n(5) **Partitionnement** (déclaratif PG12+) sur tables > 100M rows.\n\n(6) **`work_mem`** : augmenter pour requêtes complexes (hash join, sort).\n\n(7) **pg_stat_statements** : extension qui agrège stats par requête normalisée, identifier top 10 consommateurs.\n\n**Outils** : pgBadger (log analysis), pganalyze (SaaS), depesz.com (visualiseur EXPLAIN).",
       "justification": "Fiche : 'PostgreSQL'. Optimisation requête = compétence DBA quotidienne. EXPLAIN ANALYZE + index = base. pg_stat_statements = signal expérience prod."
@@ -867,7 +867,7 @@
     {
       "id": 109,
       "set": 2,
-      "name": "Bases vectorielles",
+      "name": "RAG & Recherche",
       "question": "pgvector vs Pinecone vs Weaviate vs ChromaDB — comment choisir ?",
       "answer": "**pgvector** : extension PostgreSQL. **Pour** : déjà sur Postgres, scale modéré (< 10M vectors), transactions ACID avec données business, simplicité ops. **Contre** : performance < dédiés sur > 50M.\n\n**Pinecone** : SaaS managed. **Pour** : pas d'ops, scaling auto, faible latence. **Contre** : coût, vendor lock-in, données hors infra.\n\n**Weaviate** : self-hosted ou cloud, schema GraphQL, modules embeddings intégrés. **Pour** : flexibilité hybrid search (vector + BM25), multi-tenancy. **Contre** : courbe apprentissage.\n\n**ChromaDB** : embeddings-first, simple, embedded ou client/server. **Pour** : POC, dev local, projets Python natifs. **Contre** : pas scale > 10M, jeunesse projet.\n\n**Nexus** : ChromaDB local (traces conversations < 1M), pgvector envisagé pour prod scale. Décision = volume + ops budget + colocalisation data.",
       "justification": "Fiche : 'Bases vectorielles'. Trade-offs vector DB = quotidien Lead Tech IA. Mention pgvector dans contexte HPC / souveraineté Do IT Now = bonus."
@@ -875,7 +875,7 @@
     {
       "id": 110,
       "set": 2,
-      "name": "Bases vectorielles",
+      "name": "RAG & Recherche",
       "question": "HNSW vs IVFFlat — comment ça marche et lequel choisir ?",
       "answer": "**IVFFlat (Inverted File)** : partitionne espace vectoriel en `lists` clusters (k-means). À la recherche, ne visite que `probes` clusters proches. **Trade-off** : `lists` plus grand = chercher moins par cluster (rapide) mais moins de précision. **Tuning** : `lists ≈ sqrt(N)`. **Build rapide**, **recall correct**, **moins de mémoire**.\n\n**HNSW (Hierarchical Navigable Small World)** : graphe multi-couches, navigation greedy de couche haute (peu de nœuds, longue distance) vers basse (dense). **Trade-off** : `m` (connexions/nœud), `ef_construction` (qualité build), `ef_search` (qualité query). **Build lent**, **excellent recall**, **plus de mémoire** (~1.5× IVFFlat).\n\n**Choix** : HNSW par défaut (qualité). IVFFlat si RAM contrainte ou très gros corpus avec build périodique. pgvector supporte les 2 depuis v0.5.\n\n```sql\nCREATE INDEX ON docs USING hnsw (embedding vector_cosine_ops)\nWITH (m = 16, ef_construction = 64);\n```",
       "justification": "Fiche : 'Bases vectorielles'. HNSW = standard 2024 (recall > IVFFlat). Connaître tuning (m, ef) = signal expérience prod vector search. Notebook database/02-03 couvrent."
@@ -883,7 +883,7 @@
     {
       "id": 111,
       "set": 2,
-      "name": "Bases de graphes",
+      "name": "Bases de données",
       "question": "Neo4j Cypher — comment trouver tous les chemins entre 2 nœuds ?",
       "answer": "Cypher = langage déclaratif graph. **Shortest path** :\n```cypher\nMATCH path = shortestPath(\n  (a:Paper {id: 'p1'})-[*..6]-(b:Paper {id: 'p2'})\n)\nRETURN path\n```\n\n**Tous les chemins (attention combinatoire)** :\n```cypher\nMATCH path = (a:Paper {id: 'p1'})-[*..4]-(b:Paper {id: 'p2'})\nRETURN path LIMIT 100\n```\n\n**APOC pour weighted** : `apoc.algo.dijkstra` avec poids sur edge.\n\n**Optim** : (1) labels + index sur propriété de départ. (2) borne longueur `*..N`. (3) `WHERE` early pour filtrer. (4) `EXPLAIN`/`PROFILE` pour plan. (5) GDS (Graph Data Science) library pour algos lourds (PageRank, communities Leiden).\n\n**Nexus** : GraphRAG sur Neo4j pour relations entre concepts photochimie/biostim. Cypher pour exploration, GDS pour communities détection.",
       "justification": "Fiche : 'Bases de graphes'. Cypher = compétence rare = différenciante. Pattern matching graph + GraphRAG = sujet brûlant 2024-2025."
@@ -915,7 +915,7 @@
     {
       "id": 115,
       "set": 2,
-      "name": "Monitoring",
+      "name": "LLMOps & Observabilité",
       "question": "Comment monitorer une app LLM en prod ?",
       "answer": "**4 axes** (cité fiche poste) : latence, coût, qualité, alerting.\n\n(1) **Latence** : Prometheus + Grafana. Métriques par endpoint : p50/p95/p99 (histogram). Spécifique LLM : TTFT (time to first token), TPS (tokens/sec), total latency. Distinguer prefill vs decode.\n\n(2) **Coût** : compteur tokens input/output × prix modèle par request. Dashboard par user/tenant/agent. Alerte budget mensuel.\n\n(3) **Qualité** : (a) **online** : feedback user (👍👎), regex match (refus types), longueur anomalies. (b) **offline batch** : LLM-as-judge sur sample, RAGAS (faithfulness, answer_relevancy, context_precision) hebdomadaire.\n\n(4) **Alerting** : PagerDuty / Slack. Règles : p95 latence > seuil, error rate > 1%, coût horaire > budget, hallucination score < 0.7.\n\n**Tools** : LangSmith (LangChain natif), Langfuse (OSS), Helicone, Arize Phoenix. Tracing OpenTelemetry pour distribué.",
       "justification": "Fiche EXPLICITE : 'monitoring des applications IA : latence, coût d'inférence, qualité des réponses, alerting, tableaux de bord'. Réponse exhaustive = candidat senior. Notebook ops/04 couvre."
@@ -923,7 +923,7 @@
     {
       "id": 116,
       "set": 2,
-      "name": "Veille",
+      "name": "Culture ingénierie",
       "question": "Comment fais-tu ta veille IA ?",
       "answer": "**Sources écrites** : (1) **arXiv cs.CL/cs.AI** quotidien (filtre keywords). (2) **Papers with Code** trending. (3) **Blogs** : Anthropic, OpenAI, Mistral, Hugging Face. (4) **Newsletters** : The Batch (Andrew Ng), Import AI (Jack Clark), TLDR AI.\n\n**Communautés** : (1) **LocalLLaMA Reddit** pour open-source / ops. (2) **HF Forums** pour debug. (3) **Discord** spécialisés (LangChain, vLLM).\n\n**Live** : (1) **Conférences** : NeurIPS, ICML, EMNLP (videos). (2) **Podcasts** : Latent Space, MLST.\n\n**Pratique** : (1) reproduire papers clés (Tutorial > read passif). (2) **Twitter/X** : @karpathy, @ylecun, @jeremyphoward, @swyx. (3) Side projects (Nexus = veille appliquée GraphRAG, LangGraph, Ollama souveraineté).\n\nNexus lui-même est un système de veille = méta-veille.",
       "justification": "Fiche EXPLICITE : 'veille technologique IA/agents'. Question récurrente. Réponse structurée = signal organisation. Side projects = preuve appliquée."
@@ -931,7 +931,7 @@
     {
       "id": 117,
       "set": 3,
-      "name": "Inference Optimization",
+      "name": "Fine-tuning & Training",
       "question": "Comment fonctionne PagedAttention de vLLM et pourquoi c'est révolutionnaire ?",
       "answer": "**Problème** : KV cache d'un LLM (mémoire des tokens passés) alloue contiguë max_context tokens **par séquence**, même si la séquence en utilise 10%. → fragmentation, gaspillage 60-80% VRAM.\n\n**PagedAttention** (Kwon et al. 2023) : inspiré pagination OS. KV cache divisé en **blocks de taille fixe** (typiquement 16 tokens). Table de pages mappe logical blocks → physical blocks. Allocation à la demande, partage de blocks entre séquences (prompts identiques = mêmes blocks → **prefix caching** gratuit).\n\n**Gains** : (1) 2-4× throughput vs HuggingFace TGI baseline. (2) Batch dynamique avec séquences hétérogènes. (3) **Continuous batching** : nouvelle séquence rejoint batch en cours sans attendre fin.\n\n**Conséquence ops** : 1 GPU H100 sert 100-200 utilisateurs concurrents au lieu de 10-20. Standard de fait 2024 pour serving LLM open-source.",
       "justification": "Architecture inference 2023-2024. Connaître PagedAttention + continuous batching = signal expertise serving LLM. Question CTO / Lead Tech IA Do IT Now (HPC)."
@@ -939,7 +939,7 @@
     {
       "id": 118,
       "set": 3,
-      "name": "Inference Optimization",
+      "name": "Fine-tuning & Training",
       "question": "Speculative decoding — comment ça marche ?",
       "answer": "**Idée** : utiliser **petit modèle draft** (rapide) pour générer N tokens à l'avance, puis **gros modèle target** valide en **1 forward pass** au lieu de N.\n\n**Algorithme** : (1) Draft model génère tokens t1..tN (auto-regressive, rapide). (2) Target model forward parallèle sur prompt + t1..tN. (3) Compare probas target vs draft : si target acceptable selon ratio, garder token. Premier rejet = stop, sample from corrected distribution.\n\n**Gain** : 2-3× speedup decoding sans perte qualité (math equivalent à sampling target seul, garanti par rejection sampling).\n\n**Conditions** : draft model bien aligné avec target (même family idéalement). Llama-3-70B + Llama-3-8B = paire classique. Variante **Medusa** : ajoute têtes de prédiction multiple au target lui-même, pas de draft model séparé.\n\nSupport : vLLM, TGI, TensorRT-LLM, llama.cpp.",
       "justification": "Optimization inference. Méthode mathématiquement correcte (pas approximation). Signal lecture papers (Leviathan 2023, Medusa). Critique pour latence interactive."
@@ -947,7 +947,7 @@
     {
       "id": 119,
       "set": 3,
-      "name": "Architecture distribuée",
+      "name": "Architecture & Systèmes distribués",
       "question": "Comment scale un service LLM à 10k req/s ?",
       "answer": "**Architecture** : (1) **Load balancer L7** (Envoy, ALB) avec affinité par session si stateful. (2) **API Gateway** (Kong, Apigee) : auth, rate limit, quotas, observability. (3) **Pool d'instances inference** (vLLM cluster) derrière load balancer. (4) **Caching agressif** : (a) **Semantic cache** (GPTCache) : embedding query, hit si similarité > 0.95. (b) **Prefix cache** : reuse KV pour prompts répétés (system prompt long). (5) **Async queues** pour requêtes longues (Celery + Redis) → réponse 202 + webhook. (6) **Batch inference** offline pour non-temps-réel.\n\n**Scaling vertical** : H100/H200 + tensor parallelism (model split sur N GPUs). **Horizontal** : K8s HPA sur metrics custom (queue depth, TPS GPU).\n\n**Optim coûts** : (1) Spot GPUs pour batch offline. (2) Quantization INT8/INT4 (×2-4 throughput). (3) Petit modèle pour requêtes simples (router LLM). (4) PagedAttention partage KV.\n\n**Observabilité** : OpenTelemetry distributed tracing, métriques Prom, logs Loki, RUM front.",
       "justification": "System design haut volume. Réponse complète = senior architect. Mention Do IT Now HPC contexte = candidat aligné. Couvre fiche : 'mise en production', 'optimisation performances', 'monitoring'."
@@ -955,7 +955,7 @@
     {
       "id": 120,
       "set": 3,
-      "name": "RAG avancé",
+      "name": "RAG & Recherche",
       "question": "Comment optimiser le recall d'un RAG ?",
       "answer": "**Diagnostic** : commencer par mesurer (RAGAS context_recall sur eval set).\n\n**Leviers** : (1) **Hybrid search** : vector + BM25 + reranking. RRF (Reciprocal Rank Fusion) combine. Capture sémantique (vector) + termes exacts (BM25, acronymes, noms propres). (2) **HyDE (Hypothetical Document Embeddings)** : LLM génère réponse hypothétique, embed celle-ci, recherche. Améliore recall sur questions cryptiques. (3) **Multi-query** : LLM reformule question en 3-5 variantes, recherche pour chacune, union. (4) **Chunking** : tester tailles (256, 512, 1024) + overlap. Sémantique > fixed-size. (5) **Reranking** : top-50 vector → cross-encoder (bge-reranker, cohere-rerank) → top-10. (6) **Metadata filtering** : pre-filter par tags (date, source, langue). (7) **Knowledge graph augmentation** (GraphRAG) : traverse relations entités après retrieval initial. (8) **Query routing** : classifier question → index spécialisé.\n\n**Anti-pattern** : empiler tout. Mesurer impact unitaire chaque technique.",
       "justification": "RAG avancé = sujet brûlant production. Connaître HyDE / Multi-query / GraphRAG = expert. Approche métrique-driven = ingénieur, pas alchimiste. Nexus retrieval pipeline."
@@ -963,7 +963,7 @@
     {
       "id": 121,
       "set": 3,
-      "name": "RAG avancé",
+      "name": "RAG & Recherche",
       "question": "GraphRAG vs Vector RAG — quand l'un est meilleur que l'autre ?",
       "answer": "**Vector RAG** : forte sur questions **locales** (réponse contenue dans 1-3 chunks adjacents). Faible sur questions **globales** (synthèse sur tout le corpus) ou **multi-hop** (lier infos éparses).\n\n**GraphRAG (Microsoft 2024)** : (1) Extraction LLM entités + relations sur chunks → graphe. (2) Detection communities (Leiden algorithm) hiérarchique. (3) Summaries LLM par community (multi-niveaux). (4) Query global → traverse summaries. Query local → entité + voisinage.\n\n**Forces GraphRAG** : (a) Questions globales (\"Quels sont les thèmes principaux ?\"). (b) Reasoning multi-hop (\"Quel lien entre X et Y traversant Z ?\"). (c) Faits structurés (qui-quoi-quand). (d) Explicable (path traceable).\n\n**Faiblesses** : (a) Ingestion 10-50× plus chère (LLM extraction). (b) Re-build sur update lourd. (c) Qualité dépend prompt extraction.\n\n**Nexus** : hybride. GraphRAG pour exploration thématique projet photochimie. Vector RAG (ChromaDB) pour Q&A factuel rapide.",
       "justification": "GraphRAG = innovation 2024 Microsoft. Maîtrise + cas concret Nexus (43k nœuds) = différenciant absolu. Lead Tech IA valorise candidat à la pointe."
@@ -971,7 +971,7 @@
     {
       "id": 122,
       "set": 3,
-      "name": "Fine-tuning",
+      "name": "Fine-tuning & Training",
       "question": "QLoRA — comment ça fonctionne mathématiquement ?",
       "answer": "**LoRA (Low-Rank Adaptation, Hu 2021)** : freeze weights W du modèle, ajoute deltas low-rank `ΔW = B·A` où `A: r×k`, `B: d×r`, `r << min(d,k)`. Forward : `Wx + BAx`. Seuls A, B trainables → 10000× moins de params.\n\n**QLoRA (Dettmers 2023)** : LoRA + quantization 4-bit NormalFloat (NF4) des weights gelés. Pendant forward, dequantize on-the-fly. Pendant backward, gradients seulement sur A, B en fp16. **Double quantization** : quantize aussi les quantization constants. **Paged optimizers** : spill états Adam sur CPU si OOM.\n\n**Résultat** : fine-tune Llama-65B sur **1 GPU 48GB** au lieu de 16× A100 (full FT). Performance ~ full FT sur benchmarks.\n\n**Limites** : (a) rank trop bas (r<8) = sous-fit. (b) Pas adapté à shift de domaine massif (préférer DAPT + LoRA). (c) Inference : merger LoRA dans W ou servir séparément (vLLM supporte multi-LoRA hot-swap).\n\n**Hyperparams typiques** : r=16-64, alpha=2r, lr=2e-4, target_modules=q_proj,v_proj (Llama) ou all-linear.",
       "justification": "Fine-tuning avancé. Math QLoRA + double quantization + paged optimizers = niveau papier lu. Critique pour adapter modèles open-source à domaine métier (souveraineté HPC)."
@@ -979,7 +979,7 @@
     {
       "id": 123,
       "set": 3,
-      "name": "Fine-tuning",
+      "name": "Fine-tuning & Training",
       "question": "DPO vs RLHF vs ORPO — comment choisir alignment method ?",
       "answer": "**RLHF (Ouyang 2022)** : pipeline 3 étapes. (1) SFT (supervised). (2) Reward model entraîné sur préférences. (3) PPO contre reward model. **Pros** : performance top, scalable. **Cons** : pipeline complexe, instable (PPO hyperparams), reward hacking, coûteux.\n\n**DPO (Rafailov 2023)** : skip reward model. Directement optimise sur préférences via objectif fermé dérivé de RLHF. **Pros** : 1 étape, stable, code simple. **Cons** : moins flexible (pas de reward custom), performance ≤ RLHF best.\n\n**ORPO (Hong 2024)** : combine SFT + odds ratio préférence en 1 loss. Skip étape SFT préalable. **Pros** : ultra-simple, économe.\n\n**KTO (Ethayarajh 2024)** : prend feedback **non-paires** (juste good/bad par sample). Pratique car données pair-wise rares.\n\n**Choix** : démarrer DPO (simplicité). Passer ORPO si pas de SFT. RLHF si besoin reward custom ou max performance. KTO si feedback binaire uniquement.",
       "justification": "Alignment methods 2024. Connaître DPO/ORPO/KTO = lecture papers récents. Choix méthodologique selon contraintes data = ingénieur stratège."
@@ -987,7 +987,7 @@
     {
       "id": 124,
       "set": 3,
-      "name": "Distributed Training",
+      "name": "Fine-tuning & Training",
       "question": "ZeRO Stage 1/2/3 — comment partitionner pour entraîner LLM ?",
       "answer": "**ZeRO (DeepSpeed, Rajbhandari 2020)** : partitionne 3 composants entre N GPUs au lieu de répliquer (DDP classique).\n\n**Stage 1** : partitionne **optimizer states** (Adam : m, v ~= 8× model size en fp32). Économie : ~4× mémoire vs DDP, communication identique.\n\n**Stage 2** : Stage 1 + partitionne **gradients**. Économie : ~8×. Communication += all-reduce gradients en chunks.\n\n**Stage 3** : Stage 2 + partitionne **parameters**. Économie : ~N× linear. Communication += all-gather params à chaque forward/backward. **Coût communication** : critique si bande passante faible (Ethernet vs InfiniBand).\n\n**ZeRO-Offload** : déplace optimizer states sur CPU/NVMe. **ZeRO-Infinity** : peut entraîner trillion-params sur cluster modeste, au prix de débit.\n\n**FSDP (PyTorch native)** = équivalent ZeRO Stage 3 mais intégré.\n\n**Choix** : Stage 2 + grad checkpointing = sweet spot pour FT 7B-70B sur 4-8× A100. Stage 3 pour > 100B params.",
       "justification": "Distributed training. DeepSpeed ZeRO + FSDP = standard pretraining 2024. HPC = compétence cœur Do IT Now (multi-GPU, communications)."
@@ -995,7 +995,7 @@
     {
       "id": 125,
       "set": 3,
-      "name": "HPC",
+      "name": "Architecture & Systèmes distribués",
       "question": "MPI vs NCCL vs Gloo — comment choisir backend communication ?",
       "answer": "**Gloo** : backend CPU + GPU multi-plateforme. Lent pour GPU all-reduce. Utilisation : dev/debug, CPU only, hétérogène.\n\n**NCCL (NVIDIA Collective Communications Library)** : optimisé GPU NVIDIA. **All-reduce** ring/tree algorithm tuné pour topologie NVLink + IB. **Standard** pour PyTorch DDP multi-GPU NVIDIA. **Limite** : NVIDIA only, pas inter-vendor.\n\n**MPI (Message Passing Interface)** : historique HPC. Process-based, fine-grained (send/recv/bcast/reduce). Interop avec C/Fortran. **Pour** : code HPC legacy (LAMMPS, GROMACS), workflows scientifiques.\n\n**Choix** : **PyTorch DDP/FSDP** : NCCL (GPU) ou Gloo (CPU/fallback). **HPC scientifique** : MPI (mpi4py si Python). **Inter-vendor (AMD MI300X)** : RCCL (AMD) ou oneCCL (Intel).\n\n**Tuning critique** : `NCCL_DEBUG=INFO` (debug), `NCCL_SOCKET_IFNAME` (sélection réseau), `NCCL_P2P_DISABLE` (test sans P2P), bonding IB pour multi-node.",
       "justification": "Fiche : 'HPC' (Do IT Now = spécialiste HPC + IA). Maîtrise communication backends = signal candidat conscient HPC ≠ ML pure. NCCL tuning = expérience cluster réelle."
@@ -1003,7 +1003,7 @@
     {
       "id": 126,
       "set": 3,
-      "name": "HPC",
+      "name": "Architecture & Systèmes distribués",
       "question": "Comment choisir entre Slurm, K8s, et Ray pour orchestrer workloads ML ?",
       "answer": "**Slurm** : standard académique/HPC. **Pour** : batch scheduling, fair-share queues, MPI workloads, contraintes hardware fines (GPU type, nœud spécifique). **Contre** : pas de containerization native (Singularity à part), pas adapté services long-running, écosystème moins riche.\n\n**Kubernetes** : standard cloud-native. **Pour** : services long-running (API, agents IA), autoscaling fin (HPA, Karpenter), CI/CD, multi-tenancy. **Avec** : Kueue, Volcano = batch scheduling pour K8s. Kubeflow = ML workflows. **Contre** : overhead, complexité multi-node training (NCCL setup), pas de queue gang scheduling out-of-box.\n\n**Ray** : framework distribué Python. **Pour** : ML tasks parallélisés Pythonic (Ray Train, Ray Tune, Ray Serve, Ray Data). **Avantage** : programmation simple (`@ray.remote`), même API local/cluster. Tourne sur K8s (KubeRay) ou Slurm.\n\n**Choix Do IT Now (HPC + IA + cloud AWS)** : K8s pour applis IA + services. Slurm pour HPC pur (calcul scientifique). Ray pour parallélisme ML transverse. Architecture hybride classique.",
       "justification": "Fiche : 'HPC' + 'Kubernetes' + 'mise en production'. Slurm + K8s + Ray = écosystème HPC + ML moderne. Architecture hybride = pragmatisme Lead Tech."
@@ -1011,7 +1011,7 @@
     {
       "id": 127,
       "set": 3,
-      "name": "Sécurité avancée",
+      "name": "Sécurité LLM",
       "question": "Comment implémenter du differential privacy dans un LLM ?",
       "answer": "**Differential Privacy (DP)** : garantie mathématique que la sortie du modèle ne révèle pas si un sample spécifique faisait partie du training set. Mesure `ε` (privacy budget) : plus petit = plus privé, plus dégradation accuracy.\n\n**DP-SGD (Abadi 2016)** : (1) **Per-sample gradient clipping** : norme gradient bornée à C. (2) **Gaussian noise injection** : ajoute bruit ~N(0, σ²C²) au gradient agrégé. (3) **Privacy accountant** : track `ε` consommé sur epochs (Rényi DP).\n\n**Pour LLM** : (a) Fine-tuning DP sur données sensibles (médical, financier). Libraries : Opacus (PyTorch). (b) **Federated learning + DP** : train sur edge devices sans data centralisée. (c) **Inference DP** : noise sur outputs (limite).\n\n**Coût** : (1) Accuracy drop typique 5-20%. (2) Training 2-4× plus lent. (3) Hyperparams sensibles (σ, C, batch size large requis).\n\n**Alternatives** : (a) **PEFT (LoRA) + DP** = data-efficient. (b) **Synthetic data generation** avec DP. (c) **Unlearning** post-hoc (machine unlearning).",
       "justification": "Sécurité avancée IA. DP = sujet régulation (RGPD, AI Act). Niveau papier (Abadi 2016, Opacus). Compétence rare = différenciant absolu. Pertinent industrie HPC client sensibles."
@@ -1019,7 +1019,7 @@
     {
       "id": 128,
       "set": 3,
-      "name": "Sécurité avancée",
+      "name": "Sécurité LLM",
       "question": "Comment détecter qu'un LLM hallucine en prod ?",
       "answer": "**Détection multi-niveaux** :\n\n(1) **Self-consistency** : générer N réponses (T>0), mesurer cohérence (sémantique embedding, NLI). Réponses divergentes = signal hallucination.\n\n(2) **Faithfulness vs context** (RAG) : RAGAS `faithfulness` LLM-judge décompose réponse en claims, vérifie chaque claim supporté par context retrieved. Score < 0.7 = drapeau rouge.\n\n(3) **Probing model uncertainty** : log-probabilité tokens. Tokens improbables (entropie haute) = incertitude. Méthodes : token confidence, surface form competition.\n\n(4) **External fact-checking** : agent secondaire qui valide claims contre source authoritative (Wikipedia, KG, API métier).\n\n(5) **Citation requirement** : forcer LLM à citer source (chunk ID, URL). Post-process : vérifier citations existent et matchent.\n\n(6) **Classifier ML** : fine-tune classifier (RoBERTa) sur dataset hallucination labelled.\n\n(7) **User feedback loop** : 👎 → review → dataset eval. Améliorer iterativement.\n\nNexus : RAGAS hebdomadaire + citation chunks obligatoires.",
       "justification": "Hallucination = #1 blocker production LLM. Multi-méthodes = niveau senior R&D + ops. Citation chunks Nexus = expérience concrète."
@@ -1027,7 +1027,7 @@
     {
       "id": 129,
       "set": 3,
-      "name": "Architecture",
+      "name": "Architecture & Systèmes distribués",
       "question": "Saga pattern vs 2PC vs Outbox — comment gérer transactions distribuées ?",
       "answer": "**Problème** : business action implique N services (ex: payment + inventory + shipping). Pas de XA transaction (microservices, NoSQL, queues).\n\n**2PC (Two-Phase Commit)** : coordinator prepare → all participants OK ? → commit/abort. **Cons** : bloquant, single point of failure coordinator, lock long. Inadapté microservices async.\n\n**Saga Pattern** : séquence transactions locales + **compensation** explicite si étape échoue. **Choreography** (events) : services réagissent à events, déclenchent suivants. Découplé mais hard to monitor. **Orchestration** (saga orchestrator, ex: Temporal, Camunda) : process central appelle services. Visibilité + retry but plus couplé.\n\n**Outbox Pattern** : pour fiabilité event publishing. Dans même transaction DB : INSERT business state + INSERT row dans `outbox` table. Process séparé (CDC Debezium ou polling) publie events Kafka **at-least-once**. Garantit pas d'event lost si crash après commit.\n\n**Combo prod** : Outbox pour publish events + Saga (Temporal) pour orchestrer. Idempotency keys côté consumers pour gérer at-least-once.",
       "justification": "Distributed systems senior. Architecture microservices + queues = stack moderne. Pertinent Do IT Now si plateforme HPC distribuée."
@@ -1035,7 +1035,7 @@
     {
       "id": 130,
       "set": 3,
-      "name": "Architecture",
+      "name": "Architecture & Systèmes distribués",
       "question": "Event sourcing vs CRUD pour app IA — quand pertinent ?",
       "answer": "**CRUD** : state = ligne en DB, UPDATE écrase. Simple, mais perte historique, races conditions, audit limité.\n\n**Event Sourcing** : state = **stream d'events immutables**. State courant = fold sur events. Stockage : Kafka, EventStoreDB, postgres-as-eventstore.\n\n**Avantages ES** : (1) Audit complet gratuit (chaque action persistée). (2) Time-travel : replay state à T-x. (3) Multiple read models (CQRS) : projections optimisées par use case. (4) Naturellement append-only = scale write. (5) Event replay pour debug / migration schema.\n\n**Inconvénients** : (1) Complexité ++. (2) Eventual consistency lecteur != writer. (3) Schema evolution events = casse-tête. (4) Storage : volumetrique sur long terme.\n\n**Pertinence IA** : (a) **Conversation history** agents = naturellement événementiel (chaque message = event). Nexus tracer fait ça. (b) **Training data lineage** : reproductibilité full. (c) **Audit conformité** RGPD / AI Act : qui a généré quoi quand. (d) **Reinforcement learning** : trajectories = events.\n\nNe pas généraliser : ES surkill pour CRUD simple, garder le pragmatisme.",
       "justification": "Architecture senior. ES + CQRS = patterns avancés. Audit IA = exigence régulation. Pragmatisme (pas généraliser) = signal maturité."
@@ -1043,7 +1043,7 @@
     {
       "id": 131,
       "set": 3,
-      "name": "Observabilité",
+      "name": "LLMOps & Observabilité",
       "question": "OpenTelemetry pour app LLM — comment instrumenter ?",
       "answer": "**3 piliers OTel** : Traces, Metrics, Logs (+ Profiles experimental).\n\n**Traces** : suivi request end-to-end across services. Spans nested. Pour LLM : span par étape (retrieve, rerank, llm.invoke, tool.call). Attributes : `gen_ai.model.name`, `gen_ai.usage.input_tokens`, `gen_ai.usage.output_tokens`, `gen_ai.response.finish_reason`. **Semantic conventions GenAI** OpenTelemetry standardisent (v1.27+).\n\n**Metrics** : Prometheus exporter. Custom : `llm_request_duration_seconds` (histogram), `llm_tokens_total` (counter), `llm_cost_usd_total`, `agent_steps_total`.\n\n**Logs** : structured (JSON). Corrélation via `trace_id` + `span_id`.\n\n**Stack** : OTel Collector (gateway) → Jaeger/Tempo (traces) + Prometheus (metrics) + Loki (logs) + Grafana (dashboards). Ou Datadog/New Relic SaaS.\n\n**Auto-instrumentation** : LangSmith hook LangChain, Langfuse SDK, OpenLLMetry (Traceloop).\n\n**Bonnes pratiques** : (a) span exemplars pour passer trace_id → metric. (b) tail-based sampling sur traces (garder erreurs + slow). (c) PII scrubbing pre-export.",
       "justification": "Observabilité avancée IA. OTel GenAI conventions = standard émergent. Stack complète = expérience Lead Tech ops. Fiche : 'observabilité' + 'monitoring'."
@@ -1051,7 +1051,7 @@
     {
       "id": 132,
       "set": 3,
-      "name": "Multimodal",
+      "name": "IA Générale",
       "question": "Comment architecturer un agent multimodal (texte + image + audio) ?",
       "answer": "**Vision-Language Models (VLM)** : LLaVA, GPT-4V, Claude, Qwen2-VL, Pixtral. Architecture : ViT encoder + projecteur + LLM. **Audio** : Whisper (ASR), GPT-4o native audio, Qwen2-Audio.\n\n**Patterns d'intégration** :\n\n(1) **Unified model** : appeler VLM/multimodal directement (GPT-4o, Gemini). Simple, qualité top, mais coût + lock-in API.\n\n(2) **Tool-based decomposition** : LLM orchestrateur (texte) + tools spécialisés. `analyze_image()` tool wrap VLM. `transcribe_audio()` wrap Whisper. `extract_text_pdf()` wrap Docling. LLM décide quand appeler quoi (ReAct).\n\n(3) **Pipeline ingestion + RAG** : convertir tout en texte upstream (image → caption + OCR, audio → transcript), indexer dans vector store, RAG classique sur texte.\n\n**Considérations** : (a) **Embeddings cross-modal** : CLIP pour image-text retrieval. (b) **Coût tokens** : VLM image = 1000-3000 tokens selon résolution. (c) **Latence audio** : ASR + LLM série, streaming bidirectional avec WebRTC + GPT-4o realtime. (d) **Sécurité** : image peut contenir prompt injection (text visible) → OCR + sanitize.\n\nChoix dépend latence/coût/qualité. Nexus : pipeline ingestion PDF + image extraction via Docling.",
       "justification": "Multimodal = frontière 2024-2025. Architecture choix + patterns = niveau architecte. Sécurité prompt injection via image = veille fine."
@@ -1059,7 +1059,7 @@
     {
       "id": 133,
       "set": 3,
-      "name": "Embeddings",
+      "name": "RAG & Recherche",
       "question": "Pourquoi Matryoshka embeddings et quand utiliser ?",
       "answer": "**Problème** : embedding dim fixed (768, 1024, 3072). Plus de dim = meilleure qualité MAIS plus de mémoire vector DB + lent à query. Trade-off all-or-nothing.\n\n**Matryoshka Representation Learning (MRL, Kusupati 2022)** : modèle entraîné avec loss qui force **chaque sous-vecteur prefix** (premiers K dims) à être utile. Truncate à K dim → encore performant, qualité dégrade graduellement.\n\n**Use case** : (1) **Coarse-to-fine retrieval** : index sur 256 dim (rapide), rerank top-K sur 1536 dim (précis). Réduit coût mémoire vector DB + latence. (2) **Adaptive accuracy** : ajuster qualité selon budget compute en prod.\n\n**Modèles** : OpenAI `text-embedding-3-small/large` (Matryoshka native, paramètre `dimensions`), Nomic Embed v1.5, mxbai-embed-large-v1, Cohere embed v3.\n\n**En pratique** : OpenAI text-embedding-3-small (1536 native) → truncate à 256/512 pour index L1, 1536 pour rerank L2. Gain mémoire ×6 avec qualité ~quasi-identique.",
       "justification": "Embeddings frontière 2024. MRL = optimisation prod vector DB. Connaître + cas d'usage hiérarchique = signal lecture papers récents."
@@ -1067,7 +1067,7 @@
     {
       "id": 134,
       "set": 3,
-      "name": "Performance",
+      "name": "Architecture & Systèmes distribués",
       "question": "Comment profiler une app FastAPI lente ?",
       "answer": "**Méthode escalator** :\n\n(1) **Métriques globales** : Prometheus p95 par endpoint. Repère endpoint coupable.\n\n(2) **Distributed tracing** (OTel + Jaeger) : voir quelle span domine (DB query, LLM call, external API).\n\n(3) **Profiling Python** :\n  - **cProfile + snakeviz** : profile fonction synchrone.\n  - **py-spy** : sampling profiler sans modifier code, attach PID en prod (`py-spy top --pid X`, `py-spy record`).\n  - **scalene** : line-level CPU/GPU/mem.\n  - **pyinstrument** : statistical profiler, intégrable FastAPI middleware.\n\n(4) **Async-specific** : asyncio debug mode (`PYTHONASYNCIODEBUG=1`) détecte tâches lentes bloquantes. `aiomonitor` pour inspection event loop live.\n\n(5) **DB** : EXPLAIN ANALYZE requêtes lentes, pg_stat_statements.\n\n(6) **Memory** : memray, tracemalloc, objgraph pour leaks.\n\n(7) **Load test** : k6, Locust, vegeta pour reproduire.\n\n**Causes communes IA backend** : (a) Sync DB driver dans async handler → use asyncpg / asyncio.to_thread. (b) LLM call non-streaming bloque. (c) JSON serialization gros payload (utiliser orjson). (d) GC pauses fréquentes.",
       "justification": "Performance debugging niveau senior. py-spy + scalene + memray = outillage rare. Causes communes async/sync = piège classique."
@@ -1075,7 +1075,7 @@
     {
       "id": 135,
       "set": 3,
-      "name": "Database",
+      "name": "Bases de données",
       "question": "Comment gérer migrations DB en zero-downtime ?",
       "answer": "**Pattern expand-contract** (Parallel Change, Sam Newman) :\n\n(1) **Expand** : déploiement #1 ajoute schema **rétrocompatible**. Ex: ajoute colonne nullable, table parallèle, write to both.\n\n(2) **Migrate data** : job batch backfill nouvelle structure. Read from both.\n\n(3) **Switch reads** : déploiement #2 lit depuis nouvelle structure.\n\n(4) **Contract** : déploiement #3 supprime ancien schema (DROP COLUMN, DROP TABLE).\n\n**Spécificités** :\n- **Renommage colonne** : add new + dual write + backfill + dual read + switch + drop old.\n- **Ajout NOT NULL** : add nullable + backfill + add constraint VALIDATE (PG: `ADD CONSTRAINT ... NOT VALID` puis `VALIDATE CONSTRAINT`).\n- **Index** : `CREATE INDEX CONCURRENTLY` (PG) évite lock écriture.\n- **Type change** : add new col + dual write + migrate.\n\n**Tooling** : Alembic (Python), Flyway, Liquibase. Tests migration sur clone prod (pg_dump). Rollback plan obligatoire.\n\n**Gotchas PG** : (a) ALTER TABLE ADD COLUMN avec DEFAULT non-constant = rewrite full table (PG < 11). PG 11+ : metadata only. (b) Long transaction = bloque autovacuum. (c) Locks: AccessExclusive vs ShareUpdateExclusive matter.",
       "justification": "Database production. Zero-downtime migration = compétence DBA senior. Expand-contract = pattern standard. Specifics PG = expert SGBD."
@@ -1083,7 +1083,7 @@
     {
       "id": 136,
       "set": 3,
-      "name": "Scaling",
+      "name": "Architecture & Systèmes distribués",
       "question": "Comment éviter le N+1 query en SQLAlchemy async ?",
       "answer": "**N+1 problem** : 1 query liste N entities + N queries pour relation = N+1 round-trips DB.\n\n**Détection** : (1) **echo=True** ou logger SQLAlchemy. (2) **sqltap** middleware. (3) Prometheus histogram queries/request.\n\n**Solutions SQLAlchemy 2.x async** :\n\n(1) **selectinload** : 2 queries (parent + children via IN). Default pour async (lazy load impossible).\n```python\nresult = await session.execute(\n    select(User).options(selectinload(User.posts))\n)\n```\n\n(2) **joinedload** : 1 query avec JOIN. Bon pour 1-to-1 ou small 1-to-many.\n\n(3) **raise_load** strict : `lazy='raise'` sur relation → exception si N+1. Force expliciter chaque load.\n\n(4) **Composite : selectin pour collections, joined pour scalars one-to-one.**\n\n(5) **Eager defaults** sur relation : `lazy='selectin'` global.\n\n**Anti-pattern** : utiliser `joinedload` partout → JOIN cartésien explosif sur multi 1-to-many.\n\n**Async-spécifique** : pas de lazy load implicite, sinon `MissingGreenlet`. Forcer eager via `options()` sur tous queries.",
       "justification": "N+1 = bug performance #1 ORM. SQLAlchemy async + raise_load strict = expertise réelle. Question quasi-certaine entretien backend senior."
@@ -1091,7 +1091,7 @@
     {
       "id": 137,
       "set": 3,
-      "name": "Concurrence",
+      "name": "Python",
       "question": "Race condition dans counter Redis — comment fixer ?",
       "answer": "**Problème** : `value = await redis.get(key); await redis.set(key, value + 1)` → 2 process lisent 5, both écrivent 6 (au lieu de 7). Lost update.\n\n**Solutions** (par ordre de sophistication) :\n\n(1) **Opérations atomiques Redis** : `INCR`, `INCRBY`, `HINCRBY`. Native, fastest. `await redis.incr(key)`.\n\n(2) **Transactions MULTI/EXEC** : optimistic locking avec WATCH.\n```python\nasync with redis.pipeline(transaction=True) as p:\n    await p.watch(key)\n    val = await p.get(key)\n    p.multi()\n    p.set(key, int(val) + 1)\n    await p.execute()  # Raise WatchError si key changé\n```\n\n(3) **Lua script** : exécution atomique côté serveur Redis. `EVAL \"local v=redis.call('GET',KEYS[1])...\"`.\n\n(4) **Distributed lock** (Redlock, Redisson) : pour sections critiques plus complexes. Attention : `SET key val NX EX 30` lock, mais Redlock papier discuté (Aphyr/Kleppmann debate).\n\n**Choix** : INCR si compteur simple. Lua script si logique custom atomique. Distributed lock dernier recours (deadlocks, fencing tokens needed).",
       "justification": "Concurrence + distributed systems. INCR atomique = base, Lua script + Redlock = expert. Connaître Aphyr critique Redlock = veille profonde."
@@ -1099,7 +1099,7 @@
     {
       "id": 138,
       "set": 3,
-      "name": "Tests",
+      "name": "Tests & Qualité",
       "question": "Comment tester du code non-déterministe (LLM, ML) ?",
       "answer": "**Principes** : (1) **Mocker** quand possible (unit tests). (2) **Snapshot testing** pour outputs grands (syrupy, pytest-snapshot). (3) **Property-based testing** (Hypothesis) : invariants au lieu de cas spécifiques. (4) **Statistical assertions** : sur N runs, métrique > seuil.\n\n**Patterns LLM** :\n\n(a) **Frozen mocks** : `mocker.patch('llm.invoke', return_value='canned response')`. Pour tester logique métier autour LLM.\n\n(b) **Temperature 0 + seed** : déterministe pour reproductibilité (OpenAI seed param best-effort).\n\n(c) **LLM-as-judge** : eval réponse vs critères qualité. Évaluateur ≠ generator.\n\n(d) **RAGAS** : faithfulness, answer_relevancy, context_precision sur eval set fixe. Track over time, regression alert.\n\n(e) **Replay testing** : enregistrer (cassette VCR) interactions API en CI puis replay (vcrpy, pytest-recording).\n\n(f) **Fuzzing** : prompts adversariaux générés (Garak, PyRIT).\n\n**Pattern Nexus** : pytest avec LLM mocké pour logique graph + eval RAGAS hebdo offline sur dataset gold.",
       "justification": "Tests non-déterministes = défi spécifique IA. RAGAS + snapshot + replay = stack mature. Distingue ingénieur IA de software engineer classique."
@@ -1107,7 +1107,7 @@
     {
       "id": 139,
       "set": 3,
-      "name": "Production",
+      "name": "LLMOps & Observabilité",
       "question": "Blue-green vs Canary vs Rolling deployment — comment choisir ?",
       "answer": "**Rolling** : remplace pods graduellement (N par batch). Default K8s. **Pros** : simple, pas surconsommation infra. **Cons** : 2 versions live brièvement (compat schema requise), rollback = nouveau rollout, pas isolation traffic.\n\n**Blue-Green** : 2 envs identiques. Nouveau (Green) déployé à part, switch DNS/LB d'un coup. **Pros** : rollback instantané, test Green avant switch. **Cons** : double infra coût, schema DB doit supporter les 2.\n\n**Canary** : route % traffic vers nouvelle version (1% → 10% → 50% → 100%). **Pros** : exposition graduelle, mesure impact réel (error rate, latence). **Cons** : complexité routing (Istio, Linkerd, Flagger), risque hétérogénéité.\n\n**Choix selon contexte** : (a) **Hotfix urgent** : rolling. (b) **Major upgrade** : blue-green (rollback fast). (c) **Feature LLM nouveau** : canary (mesure quality regression sur sample users avant ramp-up). (d) **Schema DB change** : expand-contract obligatoire, peu importe deploy strat.\n\n**Tooling** : Argo Rollouts, Flagger, AWS CodeDeploy. Métriques pour canary auto-promote : error rate, p95 latence, RAGAS score.",
       "justification": "Deployment strategies senior. Choix selon contexte = pragmatisme. Canary + auto-promote sur métriques IA = ops moderne."
@@ -1115,7 +1115,7 @@
     {
       "id": 140,
       "set": 4,
-      "name": "Algo",
+      "name": "LLMOps & Observabilité",
       "question": "Implémente un rate limiter token bucket en Python async.",
       "answer": "Token bucket : bucket avec capacité C, refill rate R tokens/sec. Chaque request consomme 1 token. Si bucket vide, request reject (ou wait).\n\n```python\nimport asyncio\nimport time\n\nclass TokenBucket:\n    def __init__(self, capacity: int, refill_per_sec: float):\n        self.capacity = capacity\n        self.refill_per_sec = refill_per_sec\n        self.tokens = float(capacity)\n        self.last_refill = time.monotonic()\n        self.lock = asyncio.Lock()\n\n    async def acquire(self, n: int = 1) -> bool:\n        async with self.lock:\n            now = time.monotonic()\n            elapsed = now - self.last_refill\n            self.tokens = min(self.capacity, self.tokens + elapsed * self.refill_per_sec)\n            self.last_refill = now\n            if self.tokens >= n:\n                self.tokens -= n\n                return True\n            return False\n\n    async def acquire_blocking(self, n: int = 1):\n        while not await self.acquire(n):\n            await asyncio.sleep(0.05)\n```\n\n**Points clés** : `monotonic()` pas `time.time()` (immune NTP). `Lock` async pour thread safety event loop. Distributed version → Redis (Lua script atomique).",
       "justification": "Classique system design coding. Async + lock + monotonic = signaux ingénieur attentionné. Variante distributed via Redis = piste suivi entretien."
@@ -1123,7 +1123,7 @@
     {
       "id": 141,
       "set": 4,
-      "name": "Algo",
+      "name": "Backend & API",
       "question": "Implémente un LRU cache thread-safe.",
       "answer": "OrderedDict (insertion order = recency).\n\n```python\nfrom collections import OrderedDict\nimport threading\n\nclass LRUCache:\n    def __init__(self, capacity: int):\n        self.capacity = capacity\n        self.cache: OrderedDict = OrderedDict()\n        self.lock = threading.Lock()\n\n    def get(self, key):\n        with self.lock:\n            if key not in self.cache:\n                return None\n            self.cache.move_to_end(key)  # recent\n            return self.cache[key]\n\n    def put(self, key, value):\n        with self.lock:\n            if key in self.cache:\n                self.cache.move_to_end(key)\n            self.cache[key] = value\n            if len(self.cache) > self.capacity:\n                self.cache.popitem(last=False)  # evict LRU\n```\n\n**Complexité** : O(1) get/put (OrderedDict = doubly-linked list + hashmap).\n\n**Variante** : `functools.lru_cache` decorator pour fonctions pures. Pour async : `asyncio.Lock` + même structure. **TTL variant** : track expiry, check on access.",
       "justification": "Question classique. OrderedDict O(1) = idiomatique Python. Thread-safe = production-ready. lru_cache decorator = piège (signal junior si oublie alternative)."
@@ -1131,7 +1131,7 @@
     {
       "id": 142,
       "set": 4,
-      "name": "Algo",
+      "name": "IA Générale",
       "question": "Implémente attention softmax stable numériquement.",
       "answer": "Naive : `softmax(x) = exp(x) / sum(exp(x))`. Overflow si x grand (exp(1000) = inf).\n\n**Trick** : softmax invariant par soustraction constante. Subtract max.\n\n```python\nimport torch\nimport math\n\ndef stable_softmax(x: torch.Tensor, dim: int = -1) -> torch.Tensor:\n    x_max = x.max(dim=dim, keepdim=True).values\n    e_x = torch.exp(x - x_max)\n    return e_x / e_x.sum(dim=dim, keepdim=True)\n\ndef scaled_dot_product_attention(\n    Q: torch.Tensor,  # (B, H, S, D)\n    K: torch.Tensor,\n    V: torch.Tensor,\n    mask: torch.Tensor | None = None,\n) -> torch.Tensor:\n    d_k = Q.size(-1)\n    scores = Q @ K.transpose(-2, -1) / math.sqrt(d_k)\n    if mask is not None:\n        scores = scores.masked_fill(mask == 0, float('-inf'))\n    attn = stable_softmax(scores, dim=-1)\n    return attn @ V\n```\n\n**Points** : `1/sqrt(d_k)` scaling (Vaswani 2017) évite softmax saturé. Mask via `-inf` + softmax → 0. Pour très long context : Flash Attention (tiling + recomputation, fused kernel).",
       "justification": "ML fundamentals coding. Stable softmax + scaled dot-product = piliers Transformer. Flash Attention mention = veille."
@@ -1139,7 +1139,7 @@
     {
       "id": 143,
       "set": 4,
-      "name": "Algo",
+      "name": "Algorithmes & Structures",
       "question": "Sliding window : longest substring sans répétition.",
       "answer": "**Problème** : input string, retourner longueur plus longue substring sans char répétés.\n\n```python\ndef length_of_longest_substring(s: str) -> int:\n    char_index: dict[str, int] = {}\n    left = 0\n    max_len = 0\n    for right, c in enumerate(s):\n        if c in char_index and char_index[c] >= left:\n            left = char_index[c] + 1\n        char_index[c] = right\n        max_len = max(max_len, right - left + 1)\n    return max_len\n```\n\n**Complexité** : O(n) time, O(min(n, alphabet)) space.\n\n**Trick** : maintenir `left` = début window valide. Hashmap `char → last_seen_index`. Quand char vu DANS window, avance `left` après dernière occurrence. Sinon update index.\n\n**Variante prompt** : 'longest substring avec ≤ k chars distincts' → même pattern + counter `defaultdict(int)` pour distinct chars count.",
       "justification": "Two pointer / sliding window = pattern algo top. LeetCode #3 classique. Variantes nombreuses = test capacité généralisation."
@@ -1147,7 +1147,7 @@
     {
       "id": 144,
       "set": 4,
-      "name": "Algo",
+      "name": "Bases de données",
       "question": "BFS sur graphe pour shortest path non pondéré.",
       "answer": "```python\nfrom collections import deque\n\ndef shortest_path(graph: dict[int, list[int]], start: int, end: int) -> list[int] | None:\n    if start == end:\n        return [start]\n    visited = {start}\n    queue = deque([(start, [start])])\n    while queue:\n        node, path = queue.popleft()\n        for neighbor in graph.get(node, []):\n            if neighbor == end:\n                return path + [neighbor]\n            if neighbor not in visited:\n                visited.add(neighbor)\n                queue.append((neighbor, path + [neighbor]))\n    return None\n```\n\n**Complexité** : O(V + E) time, O(V) space.\n\n**Optimisation mémoire** : stocker `parent` dict au lieu de path par node, reconstruire path à la fin. Évite copie O(path_len) par push.\n\n**Pondéré** → Dijkstra (heap). **Négatif** → Bellman-Ford. **All-pairs** → Floyd-Warshall.",
       "justification": "Graph traversal de base. BFS pour shortest non-pondéré = fondamental. Mention Dijkstra/Bellman-Ford = signal connaissance variantes."
@@ -1155,7 +1155,7 @@
     {
       "id": 145,
       "set": 4,
-      "name": "Algo",
+      "name": "Tests & Qualité",
       "question": "Implémente retry async avec exponential backoff + jitter.",
       "answer": "```python\nimport asyncio\nimport random\nfrom typing import Callable, TypeVar, Awaitable\n\nT = TypeVar('T')\n\nasync def retry_async(\n    fn: Callable[[], Awaitable[T]],\n    max_attempts: int = 5,\n    base_delay: float = 0.5,\n    max_delay: float = 30.0,\n    exceptions: tuple = (Exception,),\n) -> T:\n    for attempt in range(max_attempts):\n        try:\n            return await fn()\n        except exceptions as e:\n            if attempt == max_attempts - 1:\n                raise\n            delay = min(max_delay, base_delay * (2 ** attempt))\n            jitter = random.uniform(0, delay * 0.1)  # 10% jitter\n            await asyncio.sleep(delay + jitter)\n```\n\n**Pourquoi jitter** : sans, 1000 clients qui retry simultanément après un outage → thundering herd. Jitter randomize, lisse charge.\n\n**Variantes** : `full jitter` (random(0, delay)), `decorrelated jitter` (AWS pattern). **Library** : `tenacity` (decorator + advanced policies).",
       "justification": "Pattern production critique. Exp backoff + jitter = standard AWS. Mention tenacity = bonne pratique réutiliser, pas réinventer."
@@ -1163,7 +1163,7 @@
     {
       "id": 146,
       "set": 4,
-      "name": "Algo",
+      "name": "Algorithmes & Structures",
       "question": "Top K éléments fréquents — heap vs bucket sort ?",
       "answer": "**Heap (priority queue)** :\n```python\nfrom collections import Counter\nimport heapq\n\ndef top_k_frequent(nums: list[int], k: int) -> list[int]:\n    counts = Counter(nums)\n    return heapq.nlargest(k, counts.keys(), key=counts.get)\n# O(n log k) time, O(n) space\n```\n\n**Bucket sort** : si freq bornée par n.\n```python\ndef top_k_frequent(nums: list[int], k: int) -> list[int]:\n    counts = Counter(nums)\n    buckets: list[list[int]] = [[] for _ in range(len(nums) + 1)]\n    for num, freq in counts.items():\n        buckets[freq].append(num)\n    result = []\n    for freq in range(len(buckets) - 1, 0, -1):\n        result.extend(buckets[freq])\n        if len(result) >= k:\n            return result[:k]\n    return result\n# O(n) time, O(n) space\n```\n\n**Choix** : bucket sort optimal théorique O(n) MAIS heap suffit pour k << n et constant factor souvent meilleur. **QuickSelect** O(n) avg si in-place souhaité.",
       "justification": "LeetCode #347. Plusieurs approches = signal réflexion trade-offs. Bucket sort cas particulier (freq bornée) = subtilité."
@@ -1171,7 +1171,7 @@
     {
       "id": 147,
       "set": 4,
-      "name": "Algo",
+      "name": "Python",
       "question": "Implémente debounce et throttle en Python async.",
       "answer": "**Debounce** : exécute après pause N sec inactivité. Annule appels précédents. **Throttle** : exécute max 1 fois par N sec.\n\n```python\nimport asyncio\nfrom functools import wraps\nfrom typing import Callable\n\ndef debounce(wait: float):\n    def decorator(fn: Callable):\n        task: asyncio.Task | None = None\n        @wraps(fn)\n        async def wrapper(*args, **kwargs):\n            nonlocal task\n            if task and not task.done():\n                task.cancel()\n            async def delayed():\n                await asyncio.sleep(wait)\n                return await fn(*args, **kwargs)\n            task = asyncio.create_task(delayed())\n            try:\n                return await task\n            except asyncio.CancelledError:\n                return None\n        return wrapper\n    return decorator\n\ndef throttle(interval: float):\n    def decorator(fn: Callable):\n        last_call = 0.0\n        @wraps(fn)\n        async def wrapper(*args, **kwargs):\n            nonlocal last_call\n            now = asyncio.get_event_loop().time()\n            if now - last_call < interval:\n                return None\n            last_call = now\n            return await fn(*args, **kwargs)\n        return wrapper\n    return decorator\n```\n\n**Use cases LLM** : debounce search-as-you-type, throttle expensive embeddings.",
       "justification": "Patterns frontend mais utiles backend (search APIs, embeddings). Async-native = signal Python moderne."
@@ -1179,7 +1179,7 @@
     {
       "id": 148,
       "set": 4,
-      "name": "Algo",
+      "name": "Algorithmes & Structures",
       "question": "Trie pour autocomplete — implémente insert et search prefix.",
       "answer": "```python\nclass TrieNode:\n    __slots__ = ('children', 'is_end')\n    def __init__(self):\n        self.children: dict[str, TrieNode] = {}\n        self.is_end = False\n\nclass Trie:\n    def __init__(self):\n        self.root = TrieNode()\n\n    def insert(self, word: str):\n        node = self.root\n        for c in word:\n            if c not in node.children:\n                node.children[c] = TrieNode()\n            node = node.children[c]\n        node.is_end = True\n\n    def autocomplete(self, prefix: str, limit: int = 10) -> list[str]:\n        node = self.root\n        for c in prefix:\n            if c not in node.children:\n                return []\n            node = node.children[c]\n        results = []\n        def dfs(node: TrieNode, path: str):\n            if len(results) >= limit:\n                return\n            if node.is_end:\n                results.append(path)\n            for c, child in node.children.items():\n                dfs(child, path + c)\n        dfs(node, prefix)\n        return results\n```\n\n**Complexité** : O(len(word)) insert/search. Mémoire : O(N × L) worst case.\n\n**Variantes** : compressed trie (Radix), DAWG (suffix sharing), avec scoring (BM25-style weighted edges). Production : Elasticsearch completion suggester.",
       "justification": "Data structure utile : autocomplete, dictionary, IP routing. __slots__ = optim mémoire = signal expérience. Elasticsearch ref = veille."
@@ -1187,7 +1187,7 @@
     {
       "id": 149,
       "set": 4,
-      "name": "Algo",
+      "name": "Python",
       "question": "Producer-consumer avec backpressure en asyncio.",
       "answer": "```python\nimport asyncio\nfrom typing import AsyncIterator\n\nasync def producer(queue: asyncio.Queue, n: int):\n    for i in range(n):\n        await queue.put(i)  # blocks si queue.maxsize atteint = backpressure\n    await queue.put(None)  # sentinel\n\nasync def consumer(queue: asyncio.Queue, name: str):\n    while True:\n        item = await queue.get()\n        if item is None:\n            await queue.put(None)  # re-signal autres consumers\n            queue.task_done()\n            break\n        await asyncio.sleep(0.1)  # simulate work\n        print(f\"{name}: {item}\")\n        queue.task_done()\n\nasync def main():\n    queue: asyncio.Queue = asyncio.Queue(maxsize=10)  # bounded\n    producers = [asyncio.create_task(producer(queue, 100))]\n    consumers = [asyncio.create_task(consumer(queue, f\"c{i}\")) for i in range(3)]\n    await asyncio.gather(*producers)\n    await queue.join()  # wait all tasks done\n    for c in consumers:\n        c.cancel()\n```\n\n**Backpressure** = clé : `maxsize` bornée bloque producer si consumers lents. Évite OOM. **Pattern critique pour ingestion pipelines LLM** (embed batch, indexing).",
       "justification": "Async pattern fondamental. Backpressure = concept critique pipelines. Sentinel propagation aux N consumers = subtilité."
@@ -1195,7 +1195,7 @@
     {
       "id": 150,
       "set": 4,
-      "name": "Algo",
+      "name": "Data Engineering",
       "question": "Implémente un dataloader streaming pour gros fichier JSON.",
       "answer": "Problème : fichier 50GB JSON, charger en RAM impossible. Solution : streaming parser (`ijson`).\n\n```python\nimport ijson\nfrom typing import AsyncIterator\nimport asyncio\nimport aiofiles\n\nasync def stream_json_array(path: str, batch_size: int = 100) -> AsyncIterator[list]:\n    \"\"\"Stream JSON array file in batches without loading all.\"\"\"\n    def _gen():\n        with open(path, 'rb') as f:\n            yield from ijson.items(f, 'item')\n    batch = []\n    loop = asyncio.get_event_loop()\n    it = await loop.run_in_executor(None, _gen)\n    for record in it:\n        batch.append(record)\n        if len(batch) >= batch_size:\n            yield batch\n            batch = []\n    if batch:\n        yield batch\n\nasync def ingest():\n    async for batch in stream_json_array('big.json', batch_size=500):\n        # bulk index batch in vector DB\n        await vector_db.add_documents(batch)\n```\n\n**Points clés** : (1) `ijson.items(f, 'item')` SAX-like, parse incremental. (2) Batch pour amortir round-trip DB. (3) `run_in_executor` pour wrapper sync iter en async. Pour JSON Lines : `aiofiles` + `json.loads` line-by-line (plus simple).",
       "justification": "Streaming + ingestion = pattern data engineering. Mémoire bornée = critique pour ingestion à scale. ijson lib = veille."
@@ -1203,7 +1203,7 @@
     {
       "id": 151,
       "set": 4,
-      "name": "Algo",
+      "name": "RAG & Recherche",
       "question": "Embed batch optimisé : maximiser GPU throughput.",
       "answer": "Naïf : appel modèle 1 par 1 = sous-utilisation GPU.\n\n```python\nimport torch\nfrom sentence_transformers import SentenceTransformer\nfrom typing import Iterable\n\nclass BatchedEmbedder:\n    def __init__(self, model_name: str, device: str = 'cuda', batch_size: int = 64):\n        self.model = SentenceTransformer(model_name, device=device)\n        self.batch_size = batch_size\n\n    @torch.no_grad()\n    def embed(self, texts: list[str]) -> list[list[float]]:\n        # Sort by length to minimize padding waste (dynamic batching)\n        indexed = sorted(enumerate(texts), key=lambda x: len(x[1]))\n        sorted_texts = [t for _, t in indexed]\n        embeddings = self.model.encode(\n            sorted_texts,\n            batch_size=self.batch_size,\n            show_progress_bar=False,\n            convert_to_numpy=True,\n            normalize_embeddings=True,\n        )\n        # Restore original order\n        result = [None] * len(texts)\n        for (orig_idx, _), emb in zip(indexed, embeddings):\n            result[orig_idx] = emb.tolist()\n        return result\n```\n\n**Optims clés** : (1) **Sort by length** : réduit padding (FlashAttention-style efficient). (2) `batch_size` = trade-off VRAM / throughput (bench). (3) `no_grad` mémoire. (4) `normalize_embeddings` directement (évite post-hoc). (5) `fp16` ou `int8` (`model.half()`) si supporté.",
       "justification": "Performance ML coding. Sort by length = trick pro. Dynamic batching = optim throughput +30%. Pertinent ingestion pipelines."
@@ -1211,7 +1211,7 @@
     {
       "id": 152,
       "set": 4,
-      "name": "Algo",
+      "name": "Architecture & Systèmes distribués",
       "question": "Implémente un consistent hashing simple.",
       "answer": "Hash ring pour distribuer N keys sur M nodes. Ajout/suppression node = remap minimal (1/M keys).\n\n```python\nimport hashlib\nimport bisect\n\nclass ConsistentHash:\n    def __init__(self, nodes: list[str], virtual_nodes: int = 100):\n        self.virtual_nodes = virtual_nodes\n        self.ring: list[int] = []  # sorted positions\n        self.position_to_node: dict[int, str] = {}\n        for node in nodes:\n            self.add_node(node)\n\n    def _hash(self, key: str) -> int:\n        return int(hashlib.md5(key.encode()).hexdigest(), 16)\n\n    def add_node(self, node: str):\n        for i in range(self.virtual_nodes):\n            pos = self._hash(f\"{node}#{i}\")\n            bisect.insort(self.ring, pos)\n            self.position_to_node[pos] = node\n\n    def remove_node(self, node: str):\n        for i in range(self.virtual_nodes):\n            pos = self._hash(f\"{node}#{i}\")\n            self.ring.remove(pos)\n            del self.position_to_node[pos]\n\n    def get_node(self, key: str) -> str:\n        if not self.ring:\n            raise ValueError(\"No nodes\")\n        pos = self._hash(key)\n        idx = bisect.bisect_right(self.ring, pos) % len(self.ring)\n        return self.position_to_node[self.ring[idx]]\n```\n\n**Virtual nodes** : distribue mieux que 1 position/node (évite skew). **Usage** : sharding DB, cache (Memcached), load balancers stateful (sticky sessions).",
       "justification": "Distributed systems coding classique. Virtual nodes = subtilité. Usage cache/sharding = ancrage prod réel."
@@ -1219,7 +1219,7 @@
     {
       "id": 153,
       "set": 4,
-      "name": "Algo",
+      "name": "Algorithmes & Structures",
       "question": "Dynamic programming : edit distance (Levenshtein).",
       "answer": "Distance = nombre min d'opérations (insert, delete, replace) pour transformer s1 en s2.\n\n```python\ndef edit_distance(s1: str, s2: str) -> int:\n    m, n = len(s1), len(s2)\n    # dp[i][j] = distance entre s1[:i] et s2[:j]\n    dp = [[0] * (n + 1) for _ in range(m + 1)]\n    for i in range(m + 1):\n        dp[i][0] = i\n    for j in range(n + 1):\n        dp[0][j] = j\n    for i in range(1, m + 1):\n        for j in range(1, n + 1):\n            if s1[i-1] == s2[j-1]:\n                dp[i][j] = dp[i-1][j-1]\n            else:\n                dp[i][j] = 1 + min(\n                    dp[i-1][j],    # delete\n                    dp[i][j-1],    # insert\n                    dp[i-1][j-1],  # replace\n                )\n    return dp[m][n]\n```\n\n**Complexité** : O(m·n) time, O(m·n) space → optimisable O(min(m,n)) avec rolling array.\n\n**Variantes** : Damerau-Levenshtein (+ transposition adjacente). **Use cases** : fuzzy matching, autocorrect, diff tools, dedup near-duplicates dans datasets.",
       "justification": "DP classique. Edit distance = fundamental NLP/data cleaning. Rolling array space optim = signal expertise."
@@ -1227,7 +1227,7 @@
     {
       "id": 154,
       "set": 4,
-      "name": "Algo",
+      "name": "Tests & Qualité",
       "question": "Implémente un circuit breaker pattern.",
       "answer": "Évite cascading failures : si service downstream échoue trop, ouvre circuit (fail fast) pendant T sec, puis half-open (test 1 req).\n\n```python\nimport asyncio\nimport time\nfrom enum import Enum\nfrom typing import Callable, Awaitable, TypeVar\n\nT = TypeVar('T')\n\nclass State(Enum):\n    CLOSED = 1  # normal\n    OPEN = 2    # failing, reject all\n    HALF_OPEN = 3  # test recovery\n\nclass CircuitBreaker:\n    def __init__(self, failure_threshold: int = 5, recovery_timeout: float = 30.0):\n        self.failure_threshold = failure_threshold\n        self.recovery_timeout = recovery_timeout\n        self.failures = 0\n        self.last_failure_time = 0.0\n        self.state = State.CLOSED\n        self.lock = asyncio.Lock()\n\n    async def call(self, fn: Callable[[], Awaitable[T]]) -> T:\n        async with self.lock:\n            if self.state == State.OPEN:\n                if time.monotonic() - self.last_failure_time >= self.recovery_timeout:\n                    self.state = State.HALF_OPEN\n                else:\n                    raise RuntimeError(\"Circuit OPEN\")\n        try:\n            result = await fn()\n        except Exception:\n            async with self.lock:\n                self.failures += 1\n                self.last_failure_time = time.monotonic()\n                if self.failures >= self.failure_threshold:\n                    self.state = State.OPEN\n            raise\n        async with self.lock:\n            self.failures = 0\n            self.state = State.CLOSED\n        return result\n```\n\n**Use** : protéger appels LLM API externe, DB. Combine avec retry (mais retry **avant** breaker, pas après).",
       "justification": "Pattern resilience essentiel microservices + LLM API calls. State machine simple. Combo avec retry = piège ordre (signal senior)."
@@ -1235,7 +1235,7 @@
     {
       "id": 155,
       "set": 4,
-      "name": "Algo",
+      "name": "Data Engineering",
       "question": "Implémente Reservoir Sampling (sample K items d'un stream de taille inconnue).",
       "answer": "Problème : stream illimité ou trop gros pour mémoire, garder K items uniformément aléatoires.\n\n```python\nimport random\nfrom typing import Iterator, TypeVar\n\nT = TypeVar('T')\n\ndef reservoir_sample(stream: Iterator[T], k: int) -> list[T]:\n    reservoir: list[T] = []\n    for i, item in enumerate(stream):\n        if i < k:\n            reservoir.append(item)\n        else:\n            j = random.randint(0, i)  # [0, i] inclus\n            if j < k:\n                reservoir[j] = item\n    return reservoir\n```\n\n**Preuve uniformité** : après n items vus, proba qu'un item donné soit dans reservoir = k/n (induction).\n\n**Algo L (Li 1994)** : exponentiellement skip plutôt que tester chaque item. O(k log(n/k)) au lieu de O(n).\n\n**Use cases** : (1) Sample logs / metrics. (2) Sample dataset training si trop gros. (3) Random subset Twitter firehose. (4) A/B test assignment streaming.",
       "justification": "Algo rare mais élégant. Vykintas - utile dataset sampling. Algo L variant = expertise."
@@ -1243,7 +1243,7 @@
     {
       "id": 156,
       "set": 4,
-      "name": "Algo",
+      "name": "Data Engineering",
       "question": "Vectorize une boucle pandas pour 100× speedup.",
       "answer": "Naïf :\n```python\nfor idx, row in df.iterrows():  # SLOW O(n) Python overhead\n    df.at[idx, 'price_eur'] = row['price_usd'] * exchange_rate\n```\n\n**Vectorized** :\n```python\ndf['price_eur'] = df['price_usd'] * exchange_rate  # numpy under the hood\n```\n\n**Conditionnel** :\n```python\n# np.where\ndf['category'] = np.where(df['price'] > 100, 'expensive', 'cheap')\n\n# Multi-condition\ndf['rating'] = pd.cut(df['score'], bins=[0, 3, 7, 10], labels=['low', 'med', 'high'])\n\n# Apply axis=1 = ANTI-PATTERN (encore Python). Préférer numpy/pandas natifs.\n```\n\n**Optims avancées** : (1) **`eval()` / `query()`** : numexpr backend, multi-core. `df.eval('z = x + y', inplace=True)`. (2) **Polars** : 10-100× pandas, Rust-based, lazy evaluation, columnar. (3) **Numba `@njit`** : compile boucle Python en C-like. (4) **Categorical dtype** : strings répétés → integer codes.\n\n**Règle** : si tu écris `for` sur df, suspect. Pense vectorize.",
       "justification": "Performance data engineering. Vectorize vs iterrows = base. Polars + Numba = veille moderne. Question pratique data scientist senior."
@@ -1251,7 +1251,7 @@
     {
       "id": 157,
       "set": 4,
-      "name": "Algo",
+      "name": "Tests & Qualité",
       "question": "Implémente backoff avec deadline (timeout total).",
       "answer": "Naïf retry ignore temps total écoulé. Si user attend 30s max, retry après 60s = useless.\n\n```python\nimport asyncio\nimport random\nimport time\nfrom typing import Callable, Awaitable, TypeVar\n\nT = TypeVar('T')\n\nasync def retry_with_deadline(\n    fn: Callable[[], Awaitable[T]],\n    deadline_seconds: float,\n    base_delay: float = 0.5,\n) -> T:\n    deadline = time.monotonic() + deadline_seconds\n    attempt = 0\n    last_exc: Exception | None = None\n    while time.monotonic() < deadline:\n        try:\n            remaining = deadline - time.monotonic()\n            return await asyncio.wait_for(fn(), timeout=remaining)\n        except (asyncio.TimeoutError, Exception) as e:\n            last_exc = e\n            attempt += 1\n            delay = min(base_delay * (2 ** attempt), deadline - time.monotonic())\n            if delay <= 0:\n                break\n            jitter = random.uniform(0, delay * 0.1)\n            await asyncio.sleep(delay + jitter)\n    raise last_exc or TimeoutError(\"Deadline exceeded\")\n```\n\n**Subtilités** : (1) Pass timeout restant à `wait_for` pour ne pas dépasser deadline sur dernier appel. (2) Stop si délai backoff dépasse deadline. (3) Wrap chaque appel en `wait_for` = timeout per-call.",
       "justification": "Pattern prod critique. Deadline propagation = concept gRPC. Combine retry + jitter + per-call timeout = robust."
@@ -1259,7 +1259,7 @@
     {
       "id": 158,
       "set": 4,
-      "name": "Algo",
+      "name": "Bases de données",
       "question": "SQL : top N par groupe (ex: 3 best papers par auteur).",
       "answer": "Avec window function (PostgreSQL, MySQL 8+) :\n```sql\nSELECT id, author_id, title, citations\nFROM (\n    SELECT id, author_id, title, citations,\n           ROW_NUMBER() OVER (PARTITION BY author_id ORDER BY citations DESC) AS rn\n    FROM papers\n) ranked\nWHERE rn <= 3;\n```\n\n**Variantes window function** :\n- `ROW_NUMBER()` : 1, 2, 3, 4 (pas de tie)\n- `RANK()` : 1, 2, 2, 4 (gap après tie)\n- `DENSE_RANK()` : 1, 2, 2, 3 (no gap)\n\n**Alternative (legacy MySQL)** : self-join + count. Complexe, lent.\n\n**Top 3 percentile** : `NTILE(100) OVER (ORDER BY citations DESC) AS percentile WHERE percentile <= 3`.\n\n**Performance** : index sur `(author_id, citations DESC)` accélère partition + sort.",
       "justification": "SQL avancé window functions. ROW_NUMBER vs RANK vs DENSE_RANK = nuances utiles. Pattern \"top N per group\" = très fréquent analytics."
@@ -1267,7 +1267,7 @@
     {
       "id": 159,
       "set": 4,
-      "name": "Algo",
+      "name": "Agents IA",
       "question": "Implémente un async semaphore avec timeout pour contrôler concurrence LLM.",
       "answer": "Cas d'usage : limiter à N appels LLM concurrents (rate limit provider, GPU memory).\n\n```python\nimport asyncio\nfrom contextlib import asynccontextmanager\nfrom typing import AsyncIterator\n\nclass TimedSemaphore:\n    def __init__(self, max_concurrent: int):\n        self.sem = asyncio.Semaphore(max_concurrent)\n        self.active = 0\n        self.lock = asyncio.Lock()\n\n    @asynccontextmanager\n    async def acquire(self, timeout: float | None = None) -> AsyncIterator[None]:\n        acquired = False\n        try:\n            if timeout:\n                await asyncio.wait_for(self.sem.acquire(), timeout=timeout)\n            else:\n                await self.sem.acquire()\n            acquired = True\n            async with self.lock:\n                self.active += 1\n            yield\n        finally:\n            if acquired:\n                async with self.lock:\n                    self.active -= 1\n                self.sem.release()\n\n# Usage\nllm_sem = TimedSemaphore(max_concurrent=5)\n\nasync def call_llm(prompt: str):\n    async with llm_sem.acquire(timeout=10.0):\n        return await llm.ainvoke(prompt)\n```\n\n**Variantes** : (1) Per-tenant sem (multi-tenant). (2) Combine token bucket (rate) + semaphore (concurrent). (3) Priority semaphore (premium users skip queue).",
       "justification": "Pattern pratique prod IA. Semaphore vs rate limit = nuance (concurrence vs débit). Per-tenant = multi-tenancy."
@@ -1275,7 +1275,7 @@
     {
       "id": 160,
       "set": 4,
-      "name": "Algo",
+      "name": "Backend & API",
       "question": "Diff deux JSON arbitraires (structure + valeurs).",
       "answer": "```python\nfrom typing import Any\n\ndef json_diff(a: Any, b: Any, path: str = '') -> list[tuple[str, str, Any, Any]]:\n    \"\"\"Return list of (path, op, a_value, b_value). op in {add, remove, change}.\"\"\"\n    diffs = []\n    if type(a) != type(b):\n        diffs.append((path, 'change', a, b))\n        return diffs\n    if isinstance(a, dict):\n        a_keys, b_keys = set(a.keys()), set(b.keys())\n        for k in a_keys - b_keys:\n            diffs.append((f\"{path}.{k}\".lstrip('.'), 'remove', a[k], None))\n        for k in b_keys - a_keys:\n            diffs.append((f\"{path}.{k}\".lstrip('.'), 'add', None, b[k]))\n        for k in a_keys & b_keys:\n            diffs.extend(json_diff(a[k], b[k], f\"{path}.{k}\".lstrip('.')))\n    elif isinstance(a, list):\n        for i in range(min(len(a), len(b))):\n            diffs.extend(json_diff(a[i], b[i], f\"{path}[{i}]\"))\n        for i in range(len(a), len(b)):\n            diffs.append((f\"{path}[{i}]\", 'add', None, b[i]))\n        for i in range(len(b), len(a)):\n            diffs.append((f\"{path}[{i}]\", 'remove', a[i], None))\n    else:\n        if a != b:\n            diffs.append((path, 'change', a, b))\n    return diffs\n```\n\n**Use cases** : audit config changes, debugging LLM JSON output drift, schema migration. **Library** : `deepdiff` (production-ready, plus complet).",
       "justification": "Recursive structure traversal. Pattern utile audit / debug. Mention deepdiff = pragmatisme (reuse pas reinvent)."
@@ -1283,7 +1283,7 @@
     {
       "id": 161,
       "set": 4,
-      "name": "Algo",
+      "name": "RAG & Recherche",
       "question": "Implémente embedding cache avec Redis + TTL.",
       "answer": "```python\nimport hashlib\nimport json\nimport redis.asyncio as redis\nfrom typing import Awaitable, Callable\n\nclass EmbeddingCache:\n    def __init__(self, redis_url: str, ttl_seconds: int = 86400):\n        self.r = redis.from_url(redis_url, decode_responses=False)\n        self.ttl = ttl_seconds\n\n    def _key(self, text: str, model: str) -> str:\n        h = hashlib.sha256(f\"{model}:{text}\".encode()).hexdigest()\n        return f\"emb:{h}\"\n\n    async def get_or_compute(\n        self,\n        text: str,\n        model: str,\n        compute_fn: Callable[[str], Awaitable[list[float]]],\n    ) -> list[float]:\n        key = self._key(text, model)\n        cached = await self.r.get(key)\n        if cached:\n            return json.loads(cached)\n        embedding = await compute_fn(text)\n        await self.r.setex(key, self.ttl, json.dumps(embedding))\n        return embedding\n\n    async def get_or_compute_batch(\n        self,\n        texts: list[str],\n        model: str,\n        compute_fn: Callable[[list[str]], Awaitable[list[list[float]]]],\n    ) -> list[list[float]]:\n        keys = [self._key(t, model) for t in texts]\n        cached_raw = await self.r.mget(keys)\n        missing_idx = [i for i, c in enumerate(cached_raw) if c is None]\n        if missing_idx:\n            missing_texts = [texts[i] for i in missing_idx]\n            new_embs = await compute_fn(missing_texts)\n            pipe = self.r.pipeline()\n            for i, emb in zip(missing_idx, new_embs):\n                pipe.setex(keys[i], self.ttl, json.dumps(emb))\n            await pipe.execute()\n            results = [None] * len(texts)\n            for i, c in enumerate(cached_raw):\n                if c is not None:\n                    results[i] = json.loads(c)\n            for i, emb in zip(missing_idx, new_embs):\n                results[i] = emb\n            return results\n        return [json.loads(c) for c in cached_raw]\n```\n\n**Optims** : (1) **MGET/Pipeline** = 1 round-trip pour batch. (2) **Hash key** par (text, model) = miss si modèle change. (3) **Binary serialization** (msgpack) = -30% taille vs JSON.",
       "justification": "Pattern prod IA classique. MGET batch + pipeline = perf. Hash collision negligible SHA256. Cache embeddings = -90% coût API."
@@ -1291,7 +1291,7 @@
     {
       "id": 162,
       "set": 4,
-      "name": "Algo",
+      "name": "Architecture & Systèmes distribués",
       "question": "Implémente un priority queue persistante (Redis).",
       "answer": "Redis sorted set : ZADD (score = priority), ZPOPMIN (lowest score = highest priority).\n\n```python\nimport redis.asyncio as redis\nimport json\nimport uuid\nimport time\nfrom typing import Any\n\nclass RedisPriorityQueue:\n    def __init__(self, redis_url: str, queue_name: str = 'pq'):\n        self.r = redis.from_url(redis_url, decode_responses=True)\n        self.queue = queue_name\n\n    async def push(self, item: Any, priority: float) -> str:\n        # Lower priority value = higher priority (popped first)\n        # Add timestamp microsecond to break ties FIFO\n        score = priority + (time.time() % 1) * 1e-6\n        item_id = str(uuid.uuid4())\n        payload = json.dumps({'id': item_id, 'item': item})\n        await self.r.zadd(self.queue, {payload: score})\n        return item_id\n\n    async def pop(self, timeout: float = 0) -> tuple[str, Any] | None:\n        # BZPOPMIN blocks until item available\n        result = await self.r.bzpopmin(self.queue, timeout=timeout)\n        if result is None:\n            return None\n        _, payload, _ = result\n        data = json.loads(payload)\n        return data['id'], data['item']\n\n    async def size(self) -> int:\n        return await self.r.zcard(self.queue)\n```\n\n**Use cases** : job queue avec priorités (premium users, urgence). **Limitations** : pas de delivery guarantee si crash worker entre pop et done → utiliser pattern reliable queue (RPOPLPUSH backup list, ack explicite).",
       "justification": "Distributed queue avec Redis. ZADD + BZPOPMIN = pattern utile. Limitations crash worker = honnêteté technique."
